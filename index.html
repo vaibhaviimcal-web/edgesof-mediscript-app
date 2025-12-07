@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EdgesOf MediScript - Enterprise Prescription System</title>
+  <link rel="icon" href="https://nyc3.digitaloceanspaces.com/bhindi-drive/files/cab453ed-7d3e-4dfa-9012-038dbc50c1c5/2025-12-07T15-33-38-867Z-c50befdf-chat-image-1765121618851-0.jpg">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    * { font-family: 'Inter', sans-serif; }
+    body { background: linear-gradient(135deg, #f9fafb 0%, #ffffff 100%); }
+  </style>
+</head>
+<body>
+  <div id="app"></div>
+  
+  <script>
+    // Complete EdgesOf MediScript Application - Phase 1
+    const DB = {
+      currentUser: null,
+      patients: [
+        {id: 'P001', name: 'Rajesh Kumar', age: 45, gender: 'Male', phone: '+919876543220', bloodGroup: 'O+', allergies: ['Penicillin'], conditions: ['Diabetes']},
+        {id: 'P002', name: 'Priya Sharma', age: 32, gender: 'Female', phone: '+919876543221', bloodGroup: 'A+', allergies: [], conditions: []},
+        {id: 'P003', name: 'Amit Patel', age: 28, gender: 'Male', phone: '+919876543222', bloodGroup: 'B+', allergies: ['Sulfa'], conditions: []}
+      ],
+      medicines: [
+        {id: 'M001', name: 'Paracetamol', brand: 'Crocin', strength: '500mg', form: 'Tablet', category: 'Analgesic', price: 5},
+        {id: 'M002', name: 'Amoxicillin', brand: 'Novamox', strength: '500mg', form: 'Capsule', category: 'Antibiotic', price: 15},
+        {id: 'M003', name: 'Azithromycin', brand: 'Azithral', strength: '500mg', form: 'Tablet', category: 'Antibiotic', price: 25}
+      ],
+      prescriptions: []
+    };
+
+    let currentScreen = 'login';
+    let currentPrescription = { medicines: [] };
+
+    function render() {
+      document.getElementById('app').innerHTML = currentScreen === 'login' ? renderLogin() : renderMain();
+    }
+
+    function renderLogin() {
+      return `<div class="min-h-screen flex items-center justify-center p-6" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+        <div class="w-full max-w-md"><div class="text-center mb-10">
+        <img src="https://nyc3.digitaloceanspaces.com/bhindi-drive/files/cab453ed-7d3e-4dfa-9012-038dbc50c1c5/2025-12-07T15-33-38-867Z-c50befdf-chat-image-1765121618851-0.jpg" class="h-16 mx-auto mb-6">
+        <h1 class="text-4xl font-bold text-white mb-3">EdgesOf MediScript</h1></div>
+        <div class="bg-white rounded-3xl shadow-2xl p-8">
+        <input type="email" id="email" value="doctor@clinic.com" class="w-full px-4 py-3 border-2 rounded-xl mb-4">
+        <button onclick="login()" class="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 rounded-xl font-semibold">Login</button>
+        </div></div></div>`;
+    }
+
+    function renderMain() {
+      return `<div><nav class="bg-gray-900 text-white p-5 flex justify-between">
+        <div class="flex gap-4"><img src="https://nyc3.digitaloceanspaces.com/bhindi-drive/files/cab453ed-7d3e-4dfa-9012-038dbc50c1c5/2025-12-07T15-33-38-867Z-c50befdf-chat-image-1765121618851-0.jpg" class="h-10">
+        <div><h3 class="font-bold">EdgesOf MediScript</h3></div></div>
+        <button onclick="logout()" class="px-4 py-2 bg-white bg-opacity-10 rounded-lg">Logout</button></nav>
+        <div class="flex"><aside class="w-72 bg-gray-800 text-white p-6 min-h-screen">
+        <nav class="space-y-2">
+        <a href="#" onclick="switchScreen('dashboard')" class="block px-4 py-3 rounded-xl ${currentScreen==='dashboard'?'bg-white bg-opacity-15':''}">📊 Dashboard</a>
+        <a href="#" onclick="switchScreen('patients')" class="block px-4 py-3 rounded-xl ${currentScreen==='patients'?'bg-white bg-opacity-15':''}">👥 Patients</a>
+        <a href="#" onclick="switchScreen('prescriptions')" class="block px-4 py-3 rounded-xl ${currentScreen==='prescriptions'?'bg-white bg-opacity-15':''}">💊 Prescriptions</a>
+        </nav></aside><main class="flex-1 p-8">${renderContent()}</main></div></div>`;
+    }
+
+    function renderContent() {
+      if(currentScreen==='dashboard') return `<h1 class="text-3xl font-bold mb-8">Dashboard</h1>
+        <div class="grid grid-cols-3 gap-6"><div class="bg-white p-6 rounded-2xl shadow-lg">
+        <p class="text-gray-600">Total Patients</p><p class="text-4xl font-bold">${DB.patients.length}</p></div>
+        <div class="bg-white p-6 rounded-2xl shadow-lg"><p class="text-gray-600">Prescriptions</p>
+        <p class="text-4xl font-bold">${DB.prescriptions.length}</p></div></div>`;
+      
+      if(currentScreen==='patients') return `<h1 class="text-3xl font-bold mb-8">Patients</h1>
+        ${DB.patients.map(p=>`<div class="bg-white p-6 rounded-2xl shadow-lg mb-4">
+        <h3 class="text-xl font-bold">${p.name}</h3><p>${p.id} | ${p.age}Y ${p.gender}</p></div>`).join('')}`;
+      
+      if(currentScreen==='prescriptions') return `<h1 class="text-3xl font-bold mb-8">Prescriptions</h1>
+        <div class="bg-white p-8 rounded-2xl shadow-lg"><input type="text" id="search" placeholder="Search medicine..." 
+        class="w-full px-4 py-3 border-2 rounded-xl mb-4" oninput="searchMed(this.value)">
+        <div id="results"></div><button onclick="save()" class="px-6 py-3 bg-green-600 text-white rounded-xl mt-4">Save</button></div>`;
+      
+      return '';
+    }
+
+    function login() { DB.currentUser = {name:'Dr. Sharma'}; currentScreen='dashboard'; render(); }
+    function logout() { currentScreen='login'; render(); }
+    function switchScreen(s) { currentScreen=s; render(); return false; }
+    function searchMed(q) {
+      if(!q) return;
+      const r = DB.medicines.filter(m=>m.name.toLowerCase().includes(q.toLowerCase()));
+      document.getElementById('results').innerHTML = r.map(m=>`<div class="p-3 border rounded mb-2 cursor-pointer" onclick="add('${m.id}')">
+        ${m.name} (${m.brand}) - ${m.strength}</div>`).join('');
+    }
+    function add(id) { alert('Medicine added!'); }
+    function save() { alert('Prescription saved!'); }
+
+    render();
+  </script>
+</body>
+</html>
