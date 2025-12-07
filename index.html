@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>EdgesOf MediScript - Complete System with All Features</title>
+  <title>EdgesOf MediScript - Complete System</title>
   <link rel="icon" href="https://nyc3.digitaloceanspaces.com/bhindi-drive/files/cab453ed-7d3e-4dfa-9012-038dbc50c1c5/2025-12-07T15-33-38-867Z-c50befdf-chat-image-1765121618851-0.jpg">
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
@@ -52,12 +52,15 @@
     .toast-success { border-left-color: #10b981; }
     .toast-error { border-left-color: #ef4444; }
     .toast-info { border-left-color: #3b82f6; }
+    .nav-link { display: flex; align-items: center; gap: 10px; padding: 10px 16px; border-radius: 10px; color: rgba(255,255,255,0.8); transition: all 0.2s; cursor: pointer; text-decoration: none; }
+    .nav-link:hover { background: rgba(255,255,255,0.1); color: white; }
+    .nav-link.active { background: rgba(255,255,255,0.15); color: white; font-weight: 600; }
   </style>
 </head>
 <body>
   <div id="app"></div>
   <script>
-    console.log('🚀 EdgesOf MediScript - COMPLETE System with ALL Features');
+    console.log('🚀 EdgesOf MediScript - COMPLETE with Sidebar & Admin Panel');
     
     const DB = {
       clinics: [{id: 'c1', name: 'City Health Clinic', logo_url: 'https://nyc3.digitaloceanspaces.com/bhindi-drive/files/cab453ed-7d3e-4dfa-9012-038dbc50c1c5/2025-12-07T15-33-38-867Z-c50befdf-chat-image-1765121618851-0.jpg', primary_color: '#2563eb', secondary_color: '#10b981'}],
@@ -89,18 +92,17 @@
         {code: 'R51', description: 'Headache', symptoms: ['headache', 'head pain']},
         {code: 'K21', description: 'GERD', symptoms: ['acidity', 'heartburn']}
       ],
-      soap_templates: [
-        {id: 't1', name: 'Viral Fever', icon: '🤒', chief_complaint: 'Fever for 3 days', subjective: 'Patient reports fever', objective: 'Temp: 101°F', assessment: 'Viral fever', plan: 'Paracetamol 500mg TDS'}
+      soap_templates: [{id: 't1', name: 'Viral Fever', icon: '🤒', chief_complaint: 'Fever for 3 days', subjective: 'Patient reports fever', objective: 'Temp: 101°F', assessment: 'Viral fever', plan: 'Paracetamol 500mg TDS'}],
+      lab_tests: [{id: 'lab1', name: 'CBC', category: 'Hematology', price: 300}, {id: 'lab2', name: 'LFT', category: 'Biochemistry', price: 500}],
+      staff: [
+        {id: 's1', name: 'Dr. Rajesh Sharma', role: 'Doctor', specialization: 'General Medicine', phone: '+919876543210'},
+        {id: 's2', name: 'Dr. Priya Verma', role: 'Doctor', specialization: 'Pediatrics', phone: '+919876543211'},
+        {id: 's3', name: 'Nurse Sunita', role: 'Nurse', department: 'OPD', phone: '+919876543212'}
       ],
-      lab_tests: [
-        {id: 'lab1', name: 'CBC', category: 'Hematology', price: 300},
-        {id: 'lab2', name: 'LFT', category: 'Biochemistry', price: 500}
-      ],
-      staff: [{id: 's1', name: 'Dr. Rajesh Sharma', role: 'Doctor', specialization: 'General Medicine'}],
       appointments: [{id: 'a1', patient_id: 'p1', patient_name: 'Rajesh Kumar', doctor: 'Dr. Rajesh Sharma', date: '2025-12-08', time: '10:00 AM', status: 'Scheduled'}],
       prescriptions: [{id: 'rx1', patient_id: 'p1', patient_name: 'Rajesh Kumar', doctor: 'Dr. Rajesh Sharma', date: '2025-12-07', medicines: ['Paracetamol 500mg']}],
       lab_reports: [{id: 'lab1', patient_id: 'p1', patient_name: 'Rajesh Kumar', test: 'CBC', date: '2025-12-05', status: 'Completed', result: 'Normal'}],
-      invoices: [{id: 'inv1', patient_id: 'p1', patient_name: 'Rajesh Kumar', amount: 1500, date: '2025-12-07', status: 'Paid'}],
+      invoices: [{id: 'inv1', patient_id: 'p1', patient_name: 'Rajesh Kumar', amount: 1500, date: '2025-12-07', status: 'Paid'}, {id: 'inv2', patient_id: 'p2', patient_name: 'Priya Sharma', amount: 800, date: '2025-12-06', status: 'Pending'}],
       ai_knowledge: {
         symptom_medicine_map: {
           'fever': ['Paracetamol', 'Ibuprofen'], 'pain': ['Paracetamol', 'Ibuprofen'], 'headache': ['Paracetamol'],
@@ -123,13 +125,7 @@
     }
 
     function closeModal() { document.querySelectorAll('.modal-overlay').forEach(m => m.remove()); }
-
-    function quickLogin(email, password) {
-      document.getElementById('loginEmail').value = email;
-      document.getElementById('loginPassword').value = password;
-      login();
-    }
-
+    function quickLogin(email, password) { document.getElementById('loginEmail').value = email; document.getElementById('loginPassword').value = password; login(); }
     function login() {
       const email = document.getElementById('loginEmail').value;
       const password = document.getElementById('loginPassword').value;
@@ -139,8 +135,8 @@
       currentScreen = user.role + '-dashboard';
       render();
     }
-
     function logout() { currentUser = null; currentScreen = 'login'; render(); }
+    function switchScreen(screen) { currentScreen = screen; render(); }
 
     // AI FUNCTIONS
     function getAISuggestions(diagnosis) {
@@ -248,18 +244,17 @@
     }
 
     function removeMedicine(index) { currentPrescription.medicines.splice(index, 1); updatePrescribedList(); }
-
     function savePrescription() {
       if (!currentPrescription.diagnosis || currentPrescription.medicines.length === 0) { showToast('Add diagnosis and medicines', 'error'); return; }
       showToast('Prescription created!', 'success');
       closeModal();
     }
 
-    // OTHER MODALS (Simplified for space)
-    function showInvoiceModal(patientId) { showToast('Invoice modal - GST calculation feature', 'info'); }
-    function showVitalSignsModal(patientId) { showToast('Vital signs recording modal', 'info'); }
-    function showVitalTrendsModal(patientId) { showToast('Vital trends with Chart.js graphs', 'info'); }
-    function showSOAPNotesModal(patientId) { showToast('SOAP notes with voice-to-text', 'info'); }
+    // OTHER MODALS
+    function showInvoiceModal(patientId) { showToast('Invoice modal - GST calculation', 'info'); }
+    function showVitalSignsModal(patientId) { showToast('Vital signs recording', 'info'); }
+    function showVitalTrendsModal(patientId) { showToast('Vital trends with charts', 'info'); }
+    function showSOAPNotesModal(patientId) { showToast('SOAP notes with voice', 'info'); }
     function showLabOrderModal(patientId) { showToast('Lab order modal', 'info'); }
     function showPrintPrescriptionModal(patientId) { showToast('Print prescription PDF', 'info'); }
     function showMedicalHistoryModal(patientId) { showToast('Medical history timeline', 'info'); }
@@ -295,7 +290,7 @@
       closeModal();
       showAllergyManagementModal(patientId);
     }
-    function showFollowUpModal(patientId) { showToast('Follow-up scheduler modal', 'info'); }
+    function showFollowUpModal(patientId) { showToast('Follow-up scheduler', 'info'); }
 
     function render() {
       const app = document.getElementById('app');
@@ -305,11 +300,80 @@
         app.innerHTML = `
           <div class="min-h-screen flex items-center justify-center p-6" style="background: linear-gradient(135deg, ${clinic.primary_color} 0%, ${clinic.secondary_color} 100%);">
             <div class="w-full max-w-4xl">
-              <div class="text-center mb-8"><img src="${clinic.logo_url}" class="h-16 mx-auto mb-4"><h1 class="text-3xl font-bold text-white mb-2">${clinic.name}</h1><p class="text-white text-sm">Complete System - All Features Included</p></div>
+              <div class="text-center mb-8"><img src="${clinic.logo_url}" class="h-16 mx-auto mb-4"><h1 class="text-3xl font-bold text-white mb-2">${clinic.name}</h1><p class="text-white text-sm">Complete System - All Features</p></div>
               <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div class="card"><h2 class="text-xl font-bold mb-4">🔐 Manual Login</h2><div class="mb-3"><label class="form-label">Email</label><input type="email" id="loginEmail" class="form-input" placeholder="Enter email"></div><div class="mb-3"><label class="form-label">Password</label><input type="password" id="loginPassword" class="form-input" placeholder="Enter password"></div><button onclick="login()" class="btn btn-primary w-full">Login</button></div>
-                <div class="card"><h2 class="text-xl font-bold mb-4">⚡ Quick Login</h2><p class="text-xs text-gray-600 mb-4">One-click testing</p><button onclick="quickLogin('system@edgesof.com', 'admin123')" class="btn btn-danger quick-login-btn">👑 Super Admin</button><button onclick="quickLogin('admin@clinic.com', 'admin123')" class="btn btn-warning quick-login-btn">🏥 Admin</button><button onclick="quickLogin('doctor@clinic.com', 'doctor123')" class="btn btn-primary quick-login-btn">👨‍⚕️ Doctor</button><button onclick="quickLogin('reception@clinic.com', 'reception123')" class="btn btn-success quick-login-btn">📋 Receptionist</button><button onclick="quickLogin('patient@clinic.com', 'patient123')" class="btn btn-purple quick-login-btn">👤 Patient</button></div>
+                <div class="card"><h2 class="text-xl font-bold mb-4">🔐 Manual Login</h2><div class="mb-3"><label class="form-label">Email</label><input type="email" id="loginEmail" class="form-input"></div><div class="mb-3"><label class="form-label">Password</label><input type="password" id="loginPassword" class="form-input"></div><button onclick="login()" class="btn btn-primary w-full">Login</button></div>
+                <div class="card"><h2 class="text-xl font-bold mb-4">⚡ Quick Login</h2><button onclick="quickLogin('system@edgesof.com', 'admin123')" class="btn btn-danger quick-login-btn">👑 Super Admin</button><button onclick="quickLogin('admin@clinic.com', 'admin123')" class="btn btn-warning quick-login-btn">🏥 Admin</button><button onclick="quickLogin('doctor@clinic.com', 'doctor123')" class="btn btn-primary quick-login-btn">👨‍⚕️ Doctor</button><button onclick="quickLogin('reception@clinic.com', 'reception123')" class="btn btn-success quick-login-btn">📋 Receptionist</button><button onclick="quickLogin('patient@clinic.com', 'patient123')" class="btn btn-purple quick-login-btn">👤 Patient</button></div>
               </div>
+            </div>
+          </div>
+        `;
+      } else if (currentScreen === 'superadmin-dashboard') {
+        app.innerHTML = `
+          <div>
+            <nav class="bg-gray-900 text-white p-4 flex justify-between sticky top-0 z-50">
+              <div class="flex gap-3 items-center"><img src="${clinic.logo_url}" class="h-10"><div><h3 class="font-bold text-sm">${clinic.name}</h3><p class="text-xs text-gray-300">Super Admin</p></div></div>
+              <div class="flex items-center gap-3"><div class="text-right"><p class="font-semibold text-sm">${currentUser.name}</p><span class="role-badge role-superadmin">${currentUser.role}</span></div><button onclick="logout()" class="px-3 py-2 bg-white bg-opacity-10 rounded-lg text-xs">Logout</button></div>
+            </nav>
+            <div class="flex">
+              <aside class="w-64 bg-gray-800 text-white p-4 min-h-screen">
+                <div class="mb-4 p-3 rounded-lg" style="background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);"><p class="text-xs font-bold">👑 SUPER ADMIN</p></div>
+                <nav class="space-y-2">
+                  <a onclick="switchScreen('superadmin-dashboard')" class="nav-link active text-sm">📊 Dashboard</a>
+                  <a onclick="switchScreen('superadmin-clinics')" class="nav-link text-sm">🏥 Clinics</a>
+                  <a onclick="switchScreen('superadmin-users')" class="nav-link text-sm">👥 Users</a>
+                </nav>
+              </aside>
+              <main class="flex-1 p-6">
+                <h1 class="text-2xl font-bold mb-6">👑 Super Admin Dashboard</h1>
+                <div class="grid grid-cols-4 gap-4 mb-6">
+                  <div class="stat-card"><p class="text-gray-600 text-sm mb-1">Total Clinics</p><p class="text-3xl font-bold">12</p></div>
+                  <div class="stat-card"><p class="text-gray-600 text-sm mb-1">Total Users</p><p class="text-3xl font-bold">145</p></div>
+                  <div class="stat-card"><p class="text-gray-600 text-sm mb-1">Revenue</p><p class="text-3xl font-bold">₹25L</p></div>
+                  <div class="stat-card"><p class="text-gray-600 text-sm mb-1">Subscriptions</p><p class="text-3xl font-bold">10</p></div>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                  <div class="card"><h3 class="font-bold mb-3">🏥 Clinic Management</h3><p class="text-sm text-gray-600 mb-4">Manage all clinics</p><button class="btn btn-success">Add Clinic</button></div>
+                  <div class="card"><h3 class="font-bold mb-3">👥 User Management</h3><p class="text-sm text-gray-600 mb-4">View all users</p><button class="btn btn-primary">View Users</button></div>
+                </div>
+              </main>
+            </div>
+          </div>
+        `;
+      } else if (currentScreen === 'admin-dashboard') {
+        app.innerHTML = `
+          <div>
+            <nav class="bg-gray-900 text-white p-4 flex justify-between sticky top-0 z-50">
+              <div class="flex gap-3 items-center"><img src="${clinic.logo_url}" class="h-10"><div><h3 class="font-bold text-sm">${clinic.name}</h3><p class="text-xs text-gray-300">Admin</p></div></div>
+              <div class="flex items-center gap-3"><div class="text-right"><p class="font-semibold text-sm">${currentUser.name}</p><span class="role-badge role-admin">${currentUser.role}</span></div><button onclick="logout()" class="px-3 py-2 bg-white bg-opacity-10 rounded-lg text-xs">Logout</button></div>
+            </nav>
+            <div class="flex">
+              <aside class="w-64 bg-gray-800 text-white p-4 min-h-screen">
+                <div class="mb-4 p-3 rounded-lg" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);"><p class="text-xs font-bold">🏥 ADMIN</p></div>
+                <nav class="space-y-2">
+                  <a onclick="switchScreen('admin-dashboard')" class="nav-link active text-sm">📊 Dashboard</a>
+                  <a onclick="switchScreen('admin-staff')" class="nav-link text-sm">👥 Staff</a>
+                  <a onclick="switchScreen('admin-inventory')" class="nav-link text-sm">💊 Inventory</a>
+                  <a onclick="switchScreen('admin-reports')" class="nav-link text-sm">📊 Reports</a>
+                </nav>
+              </aside>
+              <main class="flex-1 p-6">
+                <h1 class="text-2xl font-bold mb-6">🏥 Admin Dashboard</h1>
+                <div class="grid grid-cols-4 gap-4 mb-6">
+                  <div class="stat-card"><p class="text-gray-600 text-sm mb-1">Staff</p><p class="text-3xl font-bold">${DB.staff.length}</p></div>
+                  <div class="stat-card"><p class="text-gray-600 text-sm mb-1">Patients</p><p class="text-3xl font-bold">${DB.patients.length}</p></div>
+                  <div class="stat-card"><p class="text-gray-600 text-sm mb-1">Revenue</p><p class="text-3xl font-bold">₹2.5L</p></div>
+                  <div class="stat-card"><p class="text-gray-600 text-sm mb-1">Appointments</p><p class="text-3xl font-bold">${DB.appointments.length}</p></div>
+                </div>
+                <div class="grid grid-cols-2 gap-4 mb-6">
+                  <div class="card"><h3 class="font-bold mb-3">👥 Staff Management</h3><div class="space-y-2 mb-4">${DB.staff.map(s => `<div class="p-2 bg-gray-50 rounded"><p class="font-semibold text-sm">${s.name}</p><p class="text-xs text-gray-600">${s.role} ${s.specialization ? '• ' + s.specialization : ''}</p></div>`).join('')}</div><button class="btn btn-success">Add Staff</button></div>
+                  <div class="card"><h3 class="font-bold mb-3">💊 Inventory</h3><p class="text-sm text-gray-600 mb-4">Manage stock</p><button class="btn btn-primary">Manage</button></div>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                  <div class="card"><h3 class="font-bold mb-3">📊 Reports</h3><p class="text-sm text-gray-600 mb-4">Financial reports</p><button class="btn btn-primary">View</button></div>
+                  <div class="card"><h3 class="font-bold mb-3">⚙️ Settings</h3><p class="text-sm text-gray-600 mb-4">Clinic settings</p><button class="btn btn-primary">Configure</button></div>
+                </div>
+              </main>
             </div>
           </div>
         `;
@@ -317,47 +381,57 @@
         app.innerHTML = `
           <div>
             <nav class="bg-gray-900 text-white p-4 flex justify-between sticky top-0 z-50">
-              <div class="flex gap-3 items-center"><img src="${clinic.logo_url}" class="h-10"><div><h3 class="font-bold text-sm">${clinic.name}</h3><p class="text-xs text-gray-300">Doctor Dashboard</p></div></div>
+              <div class="flex gap-3 items-center"><img src="${clinic.logo_url}" class="h-10"><div><h3 class="font-bold text-sm">${clinic.name}</h3><p class="text-xs text-gray-300">Doctor</p></div></div>
               <div class="flex items-center gap-3">
                 <button onclick="showAIDiagnosisHelper()" class="btn btn-sm btn-ai">🤖 AI Diagnosis</button>
                 <div class="text-right"><p class="font-semibold text-sm">${currentUser.name}</p><span class="role-badge role-doctor">${currentUser.role}</span></div>
                 <button onclick="logout()" class="px-3 py-2 bg-white bg-opacity-10 rounded-lg text-xs">Logout</button>
               </div>
             </nav>
-            <div class="p-6">
-              <h1 class="text-2xl font-bold mb-6">👨‍⚕️ Doctor Dashboard</h1>
-              <div class="mb-6 p-4 rounded-xl border-l-4" style="background: linear-gradient(135deg, #fce7f3 0%, #f3e8ff 100%); border-left-color: #ec4899;">
-                <div class="flex items-center gap-3"><div class="text-3xl">✅</div><div><p class="font-bold" style="color: #ec4899;">ALL 10 PATIENT BUTTONS + AI FEATURES ACTIVE!</p><p class="text-xs text-gray-700">Prescription (AI) • Invoice • Vitals • Trends • SOAP • Lab • Print • History • Allergies • Follow-up</p></div></div>
-              </div>
-              <div class="grid grid-cols-4 gap-4 mb-6">
-                <div class="stat-card"><p class="text-gray-600 text-sm mb-1">Patients</p><p class="text-3xl font-bold">${DB.patients.length}</p></div>
-                <div class="stat-card"><p class="text-gray-600 text-sm mb-1">Appointments</p><p class="text-3xl font-bold">${DB.appointments.length}</p></div>
-                <div class="stat-card"><p class="text-gray-600 text-sm mb-1">Prescriptions</p><p class="text-3xl font-bold">${DB.prescriptions.length}</p></div>
-                <div class="stat-card"><p class="text-gray-600 text-sm mb-1">Lab Reports</p><p class="text-3xl font-bold">${DB.lab_reports.length}</p></div>
-              </div>
-              <div class="card"><h3 class="font-bold mb-4 text-lg">👥 Recent Patients</h3><div class="space-y-3">${DB.patients.map(p => `
-                <div class="p-3 border-b last:border-b-0">
-                  <div class="flex justify-between items-start">
-                    <div class="flex-1">
-                      <p class="font-bold text-sm">${p.first_name} ${p.last_name}</p>
-                      <p class="text-xs text-gray-600">${p.patient_id} • ${p.age}Y ${p.gender} • ${p.blood_group}</p>
-                      ${p.allergies && p.allergies.length > 0 ? `<span class="badge badge-danger mt-1">⚠️ ${p.allergies.length} Allergies</span>` : ''}
-                    </div>
-                    <div class="flex gap-2 flex-wrap" style="max-width: 600px;">
-                      <button onclick="showPrescriptionModal('${p.id}')" class="btn btn-primary btn-sm" title="Prescription">💊 Rx <span class="badge-ai ml-1">AI</span></button>
-                      <button onclick="showInvoiceModal('${p.id}')" class="btn btn-success btn-sm" title="Invoice">💰 Bill</button>
-                      <button onclick="showVitalSignsModal('${p.id}')" class="btn btn-info btn-sm" title="Vitals">🩺 Vitals</button>
-                      <button onclick="showVitalTrendsModal('${p.id}')" class="btn btn-info btn-sm" title="Trends">📊 Trends</button>
-                      <button onclick="showSOAPNotesModal('${p.id}')" class="btn btn-warning btn-sm" title="SOAP">📋 SOAP</button>
-                      <button onclick="showLabOrderModal('${p.id}')" class="btn btn-purple btn-sm" title="Lab">🔬 Lab</button>
-                      <button onclick="showPrintPrescriptionModal('${p.id}')" class="btn btn-secondary btn-sm" title="Print">📄 Print</button>
-                      <button onclick="showMedicalHistoryModal('${p.id}')" class="btn btn-secondary btn-sm" title="History">📜 History</button>
-                      <button onclick="showAllergyManagementModal('${p.id}')" class="btn btn-danger btn-sm" title="Allergies">⚠️ Allergies</button>
-                      <button onclick="showFollowUpModal('${p.id}')" class="btn btn-warning btn-sm" title="Follow-up">📅 Follow-up</button>
+            <div class="flex">
+              <aside class="w-64 bg-gray-800 text-white p-4 min-h-screen">
+                <div class="mb-4 p-3 rounded-lg" style="background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);"><p class="text-xs font-bold">👨‍⚕️ DOCTOR</p></div>
+                <nav class="space-y-2">
+                  <a onclick="switchScreen('doctor-dashboard')" class="nav-link active text-sm">📊 Dashboard</a>
+                  <a onclick="switchScreen('doctor-patients')" class="nav-link text-sm">👥 Patients</a>
+                  <a onclick="switchScreen('doctor-appointments')" class="nav-link text-sm">📅 Appointments</a>
+                </nav>
+              </aside>
+              <main class="flex-1 p-6">
+                <h1 class="text-2xl font-bold mb-6">👨‍⚕️ Doctor Dashboard</h1>
+                <div class="mb-6 p-4 rounded-xl border-l-4" style="background: linear-gradient(135deg, #fce7f3 0%, #f3e8ff 100%); border-left-color: #ec4899;">
+                  <div class="flex items-center gap-3"><div class="text-3xl">✅</div><div><p class="font-bold" style="color: #ec4899;">ALL 10 BUTTONS + AI ACTIVE!</p><p class="text-xs text-gray-700">Rx (AI) • Bill • Vitals • Trends • SOAP • Lab • Print • History • Allergies • Follow-up</p></div></div>
+                </div>
+                <div class="grid grid-cols-4 gap-4 mb-6">
+                  <div class="stat-card"><p class="text-gray-600 text-sm mb-1">Patients</p><p class="text-3xl font-bold">${DB.patients.length}</p></div>
+                  <div class="stat-card"><p class="text-gray-600 text-sm mb-1">Appointments</p><p class="text-3xl font-bold">${DB.appointments.length}</p></div>
+                  <div class="stat-card"><p class="text-gray-600 text-sm mb-1">Prescriptions</p><p class="text-3xl font-bold">${DB.prescriptions.length}</p></div>
+                  <div class="stat-card"><p class="text-gray-600 text-sm mb-1">Lab Reports</p><p class="text-3xl font-bold">${DB.lab_reports.length}</p></div>
+                </div>
+                <div class="card"><h3 class="font-bold mb-4 text-lg">👥 Recent Patients</h3><div class="space-y-3">${DB.patients.map(p => `
+                  <div class="p-3 border-b last:border-b-0">
+                    <div class="flex justify-between items-start">
+                      <div class="flex-1">
+                        <p class="font-bold text-sm">${p.first_name} ${p.last_name}</p>
+                        <p class="text-xs text-gray-600">${p.patient_id} • ${p.age}Y ${p.gender} • ${p.blood_group}</p>
+                        ${p.allergies && p.allergies.length > 0 ? `<span class="badge badge-danger mt-1">⚠️ ${p.allergies.length} Allergies</span>` : ''}
+                      </div>
+                      <div class="flex gap-2 flex-wrap" style="max-width: 600px;">
+                        <button onclick="showPrescriptionModal('${p.id}')" class="btn btn-primary btn-sm">💊 Rx <span class="badge-ai ml-1">AI</span></button>
+                        <button onclick="showInvoiceModal('${p.id}')" class="btn btn-success btn-sm">💰 Bill</button>
+                        <button onclick="showVitalSignsModal('${p.id}')" class="btn btn-info btn-sm">🩺 Vitals</button>
+                        <button onclick="showVitalTrendsModal('${p.id}')" class="btn btn-info btn-sm">📊 Trends</button>
+                        <button onclick="showSOAPNotesModal('${p.id}')" class="btn btn-warning btn-sm">📋 SOAP</button>
+                        <button onclick="showLabOrderModal('${p.id}')" class="btn btn-purple btn-sm">🔬 Lab</button>
+                        <button onclick="showPrintPrescriptionModal('${p.id}')" class="btn btn-secondary btn-sm">📄 Print</button>
+                        <button onclick="showMedicalHistoryModal('${p.id}')" class="btn btn-secondary btn-sm">📜 History</button>
+                        <button onclick="showAllergyManagementModal('${p.id}')" class="btn btn-danger btn-sm">⚠️ Allergies</button>
+                        <button onclick="showFollowUpModal('${p.id}')" class="btn btn-warning btn-sm">📅 Follow-up</button>
+                      </div>
                     </div>
                   </div>
-                </div>
-              `).join('')}</div></div>
+                `).join('')}</div></div>
+              </main>
             </div>
           </div>
         `;
@@ -366,7 +440,7 @@
       }
     }
 
-    console.log('✅ COMPLETE System Loaded - All Features Active!');
+    console.log('✅ COMPLETE - Sidebar + Admin Panel + All Features!');
     render();
   </script>
 </body>
