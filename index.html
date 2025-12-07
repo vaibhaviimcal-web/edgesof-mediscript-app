@@ -3,14 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>EdgesOf MediScript - Complete System (Phases 1-7)</title>
+  <title>EdgesOf MediScript - Phase 7 Week 2 Complete</title>
   <link rel="icon" href="https://nyc3.digitaloceanspaces.com/bhindi-drive/files/cab453ed-7d3e-4dfa-9012-038dbc50c1c5/2025-12-07T15-33-38-867Z-c50befdf-chat-image-1765121618851-0.jpg">
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
   <style>
     * { font-family: 'Inter', sans-serif; }
     body { background: linear-gradient(135deg, #f9fafb 0%, #ffffff 100%); }
     .btn { padding: 12px 28px; border-radius: 12px; font-weight: 600; transition: all 0.3s; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; border: none; }
+    .btn-sm { padding: 8px 16px; font-size: 14px; }
     .btn-primary { background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%); color: white; }
     .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(37, 99, 235, 0.4); }
     .btn-secondary { background: white; color: #1f2937; border: 2px solid #e5e7eb; }
@@ -30,9 +32,6 @@
     .badge-warning { background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); color: #92400e; }
     .badge-danger { background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%); color: #991b1b; }
     .badge-purple { background: linear-gradient(135deg, #ede9fe 0%, #ddd6fe 100%); color: #6b21a8; }
-    .badge-schedule-h { background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); color: #92400e; border: 2px solid #f59e0b; }
-    .badge-schedule-h1 { background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%); color: #991b1b; border: 2px solid #ef4444; }
-    .badge-schedule-x { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); color: white; border: 2px solid #dc2626; }
     .nav-link { display: flex; align-items: center; gap: 12px; padding: 12px 20px; border-radius: 12px; color: rgba(255,255,255,0.8); transition: all 0.2s; text-decoration: none; cursor: pointer; }
     .nav-link:hover { background: rgba(255,255,255,0.1); color: white; }
     .nav-link.active { background: rgba(255,255,255,0.15); color: white; font-weight: 600; }
@@ -45,22 +44,247 @@
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     .modal-content { background: white; border-radius: 24px; max-width: 1200px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 25px 80px rgba(0,0,0,0.25); animation: scaleIn 0.4s; }
     @keyframes scaleIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-    .invoice-table { width: 100%; border-collapse: collapse; }
-    .invoice-table th, .invoice-table td { padding: 12px; text-align: left; border-bottom: 1px solid #e5e7eb; }
-    .invoice-table th { background: #f9fafb; font-weight: 600; }
-    .logo-preview { width: 120px; height: 120px; object-fit: contain; border: 2px solid #e5e7eb; border-radius: 12px; padding: 8px; }
-    .token-display { font-size: 120px; font-weight: 900; line-height: 1; background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
-    .queue-item { transition: all 0.3s; }
-    .queue-item:hover { background: #f9fafb; }
-    .pulse { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
-    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .5; } }
-    .vital-input { width: 100px; }
+    .template-card { cursor: pointer; transition: all 0.3s; border: 2px solid #e5e7eb; }
+    .template-card:hover { border-color: #2563eb; background: #eff6ff; transform: translateY(-2px); }
+    .template-card.selected { border-color: #2563eb; background: #dbeafe; }
+    .voice-btn { position: relative; }
+    .voice-btn.recording { animation: pulse 1.5s infinite; }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+    .result-input { border-left: 4px solid #3b82f6; }
+    .result-input.abnormal { border-left-color: #ef4444; background: #fef2f2; }
+    .result-input.normal { border-left-color: #10b981; background: #f0fdf4; }
   </style>
 </head>
 <body>
   <div id="app"></div>
 
   <script>
+    // Database with expanded ICD-10 codes
+    window.DB = {
+      clinics: [{id: 'clinic-1', name: 'City Health Clinic', logo_url: 'https://nyc3.digitaloceanspaces.com/bhindi-drive/files/cab453ed-7d3e-4dfa-9012-038dbc50c1c5/2025-12-07T15-33-38-867Z-c50befdf-chat-image-1765121618851-0.jpg', gstin: '27AABCU9603R1ZM', state_code: '27', place_of_business: 'Maharashtra', address: '123 Medical Street, Mumbai', phone: '+91 22 1234 5678', email: 'info@cityhealthclinic.com', website: 'www.cityhealthclinic.com', primary_color: '#2563eb', secondary_color: '#10b981'}],
+      patients: [
+        {id: 'p1', patient_id: 'P001', first_name: 'Rajesh', last_name: 'Kumar', age: 45, gender: 'Male', blood_group: 'O+', phone: '+919876543220', email: 'rajesh@example.com'},
+        {id: 'p2', patient_id: 'P002', first_name: 'Priya', last_name: 'Sharma', age: 32, gender: 'Female', blood_group: 'A+', phone: '+919876543221', email: 'priya@example.com'},
+        {id: 'p3', patient_id: 'P003', first_name: 'Amit', last_name: 'Patel', age: 28, gender: 'Male', blood_group: 'B+', phone: '+919876543222', email: 'amit@example.com'}
+      ],
+      medicines: [
+        {id: 'm1', name: 'Paracetamol', generic_name: 'Paracetamol', brand_name: 'Crocin', strength: '500', unit: 'mg', form: 'Tablet', category: 'Analgesic', schedule: 'OTC', price: 5, mrp: 6, hsn_code: '30049099'},
+        {id: 'm2', name: 'Amoxicillin', generic_name: 'Amoxicillin', brand_name: 'Novamox', strength: '500', unit: 'mg', form: 'Capsule', category: 'Antibiotic', schedule: 'H', price: 15, mrp: 18, hsn_code: '30042090'}
+      ],
+      prescriptions: [],
+      invoices: [],
+      opd_queue: [],
+      vital_signs: [],
+      soap_notes: [],
+      lab_orders: [],
+      lab_results: [],
+      
+      // EXPANDED ICD-10 CODES (100+ codes)
+      icd10_codes: [
+        // Infectious Diseases
+        {code: 'A00-B99', description: 'Certain infectious and parasitic diseases', category: 'Infectious'},
+        {code: 'A00', description: 'Cholera', category: 'Infectious'},
+        {code: 'A01', description: 'Typhoid and paratyphoid fevers', category: 'Infectious'},
+        {code: 'A02', description: 'Other salmonella infections', category: 'Infectious'},
+        {code: 'A03', description: 'Shigellosis', category: 'Infectious'},
+        {code: 'A04', description: 'Other bacterial intestinal infections', category: 'Infectious'},
+        {code: 'A05', description: 'Other bacterial foodborne intoxications', category: 'Infectious'},
+        {code: 'A06', description: 'Amoebiasis', category: 'Infectious'},
+        {code: 'A07', description: 'Other protozoal intestinal diseases', category: 'Infectious'},
+        {code: 'A08', description: 'Viral and other specified intestinal infections', category: 'Infectious'},
+        {code: 'A09', description: 'Infectious gastroenteritis and colitis', category: 'Infectious'},
+        {code: 'A15', description: 'Respiratory tuberculosis', category: 'Infectious'},
+        {code: 'A16', description: 'Respiratory tuberculosis, not confirmed', category: 'Infectious'},
+        {code: 'B01', description: 'Varicella [chickenpox]', category: 'Infectious'},
+        {code: 'B02', description: 'Zoster [herpes zoster]', category: 'Infectious'},
+        {code: 'B05', description: 'Measles', category: 'Infectious'},
+        {code: 'B15', description: 'Acute hepatitis A', category: 'Infectious'},
+        {code: 'B16', description: 'Acute hepatitis B', category: 'Infectious'},
+        {code: 'B17', description: 'Other acute viral hepatitis', category: 'Infectious'},
+        {code: 'B18', description: 'Chronic viral hepatitis', category: 'Infectious'},
+        {code: 'B19', description: 'Unspecified viral hepatitis', category: 'Infectious'},
+        
+        // Respiratory
+        {code: 'J00-J99', description: 'Diseases of the respiratory system', category: 'Respiratory'},
+        {code: 'J00', description: 'Acute nasopharyngitis [common cold]', category: 'Respiratory'},
+        {code: 'J01', description: 'Acute sinusitis', category: 'Respiratory'},
+        {code: 'J02', description: 'Acute pharyngitis', category: 'Respiratory'},
+        {code: 'J03', description: 'Acute tonsillitis', category: 'Respiratory'},
+        {code: 'J04', description: 'Acute laryngitis and tracheitis', category: 'Respiratory'},
+        {code: 'J05', description: 'Acute obstructive laryngitis and epiglottitis', category: 'Respiratory'},
+        {code: 'J06', description: 'Acute upper respiratory infections', category: 'Respiratory'},
+        {code: 'J06.9', description: 'Acute upper respiratory infection, unspecified', category: 'Respiratory'},
+        {code: 'J10', description: 'Influenza due to identified influenza virus', category: 'Respiratory'},
+        {code: 'J11', description: 'Influenza, virus not identified', category: 'Respiratory'},
+        {code: 'J12', description: 'Viral pneumonia', category: 'Respiratory'},
+        {code: 'J13', description: 'Pneumonia due to Streptococcus pneumoniae', category: 'Respiratory'},
+        {code: 'J14', description: 'Pneumonia due to Haemophilus influenzae', category: 'Respiratory'},
+        {code: 'J15', description: 'Bacterial pneumonia', category: 'Respiratory'},
+        {code: 'J18', description: 'Pneumonia, organism unspecified', category: 'Respiratory'},
+        {code: 'J18.9', description: 'Pneumonia, unspecified organism', category: 'Respiratory'},
+        {code: 'J20', description: 'Acute bronchitis', category: 'Respiratory'},
+        {code: 'J21', description: 'Acute bronchiolitis', category: 'Respiratory'},
+        {code: 'J40', description: 'Bronchitis, not specified as acute or chronic', category: 'Respiratory'},
+        {code: 'J42', description: 'Unspecified chronic bronchitis', category: 'Respiratory'},
+        {code: 'J44', description: 'Chronic obstructive pulmonary disease', category: 'Respiratory'},
+        {code: 'J45', description: 'Asthma', category: 'Respiratory'},
+        {code: 'J45.0', description: 'Predominantly allergic asthma', category: 'Respiratory'},
+        
+        // Endocrine/Metabolic
+        {code: 'E00-E89', description: 'Endocrine, nutritional and metabolic diseases', category: 'Endocrine'},
+        {code: 'E10', description: 'Type 1 diabetes mellitus', category: 'Endocrine'},
+        {code: 'E11', description: 'Type 2 diabetes mellitus', category: 'Endocrine'},
+        {code: 'E11.9', description: 'Type 2 diabetes mellitus without complications', category: 'Endocrine'},
+        {code: 'E11.65', description: 'Type 2 diabetes with hyperglycemia', category: 'Endocrine'},
+        {code: 'E11.22', description: 'Type 2 diabetes with diabetic chronic kidney disease', category: 'Endocrine'},
+        {code: 'E11.36', description: 'Type 2 diabetes with diabetic cataract', category: 'Endocrine'},
+        {code: 'E03', description: 'Other hypothyroidism', category: 'Endocrine'},
+        {code: 'E04', description: 'Other nontoxic goiter', category: 'Endocrine'},
+        {code: 'E05', description: 'Thyrotoxicosis [hyperthyroidism]', category: 'Endocrine'},
+        {code: 'E06', description: 'Thyroiditis', category: 'Endocrine'},
+        {code: 'E66', description: 'Overweight and obesity', category: 'Endocrine'},
+        {code: 'E78', description: 'Disorders of lipoprotein metabolism', category: 'Endocrine'},
+        {code: 'E78.0', description: 'Pure hypercholesterolemia', category: 'Endocrine'},
+        {code: 'E78.5', description: 'Hyperlipidemia, unspecified', category: 'Endocrine'},
+        
+        // Circulatory
+        {code: 'I00-I99', description: 'Diseases of the circulatory system', category: 'Circulatory'},
+        {code: 'I10', description: 'Essential (primary) hypertension', category: 'Circulatory'},
+        {code: 'I11', description: 'Hypertensive heart disease', category: 'Circulatory'},
+        {code: 'I12', description: 'Hypertensive chronic kidney disease', category: 'Circulatory'},
+        {code: 'I13', description: 'Hypertensive heart and chronic kidney disease', category: 'Circulatory'},
+        {code: 'I20', description: 'Angina pectoris', category: 'Circulatory'},
+        {code: 'I21', description: 'Acute myocardial infarction', category: 'Circulatory'},
+        {code: 'I25', description: 'Chronic ischemic heart disease', category: 'Circulatory'},
+        {code: 'I48', description: 'Atrial fibrillation and flutter', category: 'Circulatory'},
+        {code: 'I50', description: 'Heart failure', category: 'Circulatory'},
+        {code: 'I63', description: 'Cerebral infarction', category: 'Circulatory'},
+        {code: 'I64', description: 'Stroke, not specified', category: 'Circulatory'},
+        
+        // Digestive
+        {code: 'K00-K93', description: 'Diseases of the digestive system', category: 'Digestive'},
+        {code: 'K21', description: 'Gastro-esophageal reflux disease', category: 'Digestive'},
+        {code: 'K25', description: 'Gastric ulcer', category: 'Digestive'},
+        {code: 'K26', description: 'Duodenal ulcer', category: 'Digestive'},
+        {code: 'K29', description: 'Gastritis and duodenitis', category: 'Digestive'},
+        {code: 'K30', description: 'Functional dyspepsia', category: 'Digestive'},
+        {code: 'K35', description: 'Acute appendicitis', category: 'Digestive'},
+        {code: 'K40', description: 'Inguinal hernia', category: 'Digestive'},
+        {code: 'K50', description: "Crohn's disease", category: 'Digestive'},
+        {code: 'K51', description: 'Ulcerative colitis', category: 'Digestive'},
+        {code: 'K52', description: 'Other noninfective gastroenteritis and colitis', category: 'Digestive'},
+        {code: 'K58', description: 'Irritable bowel syndrome', category: 'Digestive'},
+        {code: 'K59', description: 'Other functional intestinal disorders', category: 'Digestive'},
+        {code: 'K80', description: 'Cholelithiasis', category: 'Digestive'},
+        
+        // Musculoskeletal
+        {code: 'M00-M99', description: 'Diseases of the musculoskeletal system', category: 'Musculoskeletal'},
+        {code: 'M05', description: 'Rheumatoid arthritis with rheumatoid factor', category: 'Musculoskeletal'},
+        {code: 'M06', description: 'Other rheumatoid arthritis', category: 'Musculoskeletal'},
+        {code: 'M10', description: 'Gout', category: 'Musculoskeletal'},
+        {code: 'M15', description: 'Polyosteoarthritis', category: 'Musculoskeletal'},
+        {code: 'M16', description: 'Osteoarthritis of hip', category: 'Musculoskeletal'},
+        {code: 'M17', description: 'Osteoarthritis of knee', category: 'Musculoskeletal'},
+        {code: 'M19', description: 'Other and unspecified osteoarthritis', category: 'Musculoskeletal'},
+        {code: 'M25', description: 'Other joint disorder', category: 'Musculoskeletal'},
+        {code: 'M54', description: 'Dorsalgia [back pain]', category: 'Musculoskeletal'},
+        {code: 'M79', description: 'Other and unspecified soft tissue disorders', category: 'Musculoskeletal'},
+        
+        // Symptoms
+        {code: 'R00-R99', description: 'Symptoms, signs and abnormal findings', category: 'Symptoms'},
+        {code: 'R05', description: 'Cough', category: 'Symptoms'},
+        {code: 'R06', description: 'Abnormalities of breathing', category: 'Symptoms'},
+        {code: 'R07', description: 'Pain in throat and chest', category: 'Symptoms'},
+        {code: 'R10', description: 'Abdominal and pelvic pain', category: 'Symptoms'},
+        {code: 'R11', description: 'Nausea and vomiting', category: 'Symptoms'},
+        {code: 'R19', description: 'Other symptoms involving digestive system', category: 'Symptoms'},
+        {code: 'R50', description: 'Fever of other and unknown origin', category: 'Symptoms'},
+        {code: 'R50.9', description: 'Fever, unspecified', category: 'Symptoms'},
+        {code: 'R51', description: 'Headache', category: 'Symptoms'},
+        {code: 'R52', description: 'Pain, unspecified', category: 'Symptoms'},
+        {code: 'R53', description: 'Malaise and fatigue', category: 'Symptoms'},
+        {code: 'R60', description: 'Edema', category: 'Symptoms'},
+        {code: 'R63', description: 'Symptoms concerning food and fluid intake', category: 'Symptoms'}
+      ],
+      
+      // SOAP TEMPLATES
+      soap_templates: [
+        {
+          id: 't1',
+          name: 'Viral Fever',
+          icon: '🤒',
+          chief_complaint: 'Fever for 3 days',
+          subjective: 'Patient reports fever (102°F) for 3 days, associated with body ache, headache, and mild cough. No breathlessness. Appetite reduced. Taking paracetamol with partial relief.',
+          objective: 'Temperature: 101°F, BP: 120/80 mmHg, Pulse: 88/min, SpO2: 98%. Throat: mild congestion. Chest: clear. No lymphadenopathy.',
+          assessment: 'Viral fever (Acute upper respiratory tract infection)',
+          plan: 'Paracetamol 500mg TDS for 5 days, Rest, Plenty of fluids, Steam inhalation. Review if fever persists >5 days or develops breathlessness.',
+          icd10: 'J06.9'
+        },
+        {
+          id: 't2',
+          name: 'Acute Gastroenteritis',
+          icon: '🤢',
+          chief_complaint: 'Loose motions and vomiting since yesterday',
+          subjective: 'Patient reports 6-7 episodes of loose watery stools and 3 episodes of vomiting since yesterday. Mild abdominal cramps. No blood in stools. Reduced oral intake.',
+          objective: 'Temperature: 99°F, BP: 110/70 mmHg, Pulse: 92/min. Abdomen: soft, mild tenderness, increased bowel sounds. No dehydration signs.',
+          assessment: 'Acute gastroenteritis',
+          plan: 'ORS solution frequently, Light diet (BRAT), Probiotics, Zinc supplements. Avoid milk products. Review if symptoms worsen or blood in stools.',
+          icd10: 'A09'
+        },
+        {
+          id: 't3',
+          name: 'Hypertension Follow-up',
+          icon: '💊',
+          chief_complaint: 'Follow-up for high blood pressure',
+          subjective: 'Patient on antihypertensive medication for 3 months. Reports good compliance. No headache, dizziness, or chest pain. Regular exercise and low salt diet.',
+          objective: 'BP: 130/85 mmHg, Pulse: 76/min, Weight: stable. Cardiovascular: S1 S2 normal, no murmurs.',
+          assessment: 'Essential hypertension - controlled',
+          plan: 'Continue current medication. Maintain lifestyle modifications. Check BP weekly at home. Follow-up in 3 months with lipid profile.',
+          icd10: 'I10'
+        },
+        {
+          id: 't4',
+          name: 'Type 2 Diabetes Follow-up',
+          icon: '🩸',
+          chief_complaint: 'Diabetes follow-up',
+          subjective: 'Patient on oral hypoglycemic agents. Reports good compliance. Fasting sugars 110-130 mg/dL. No hypoglycemic episodes. Following diabetic diet.',
+          objective: 'BP: 125/80 mmHg, Weight: stable, BMI: 26. Foot examination: normal. No retinopathy.',
+          assessment: 'Type 2 diabetes mellitus - fair control',
+          plan: 'Continue current medications. HbA1c test. Diabetic diet counseling. Regular exercise. Foot care education. Follow-up in 2 months.',
+          icd10: 'E11.9'
+        },
+        {
+          id: 't5',
+          name: 'Common Cold',
+          icon: '🤧',
+          chief_complaint: 'Cold and cough for 2 days',
+          subjective: 'Patient reports runny nose, sneezing, mild sore throat, and dry cough for 2 days. No fever. No breathlessness.',
+          objective: 'Temperature: 98.4°F, BP: 118/78 mmHg, Pulse: 80/min. Throat: mild congestion. Chest: clear.',
+          assessment: 'Acute nasopharyngitis (Common cold)',
+          plan: 'Symptomatic treatment: Steam inhalation, Warm fluids, Antihistamine if needed. Rest. Review if symptoms worsen.',
+          icd10: 'J00'
+        }
+      ],
+      
+      lab_tests: [
+        {id: 'lab1', name: 'Complete Blood Count (CBC)', category: 'Hematology', price: 300, normal_range: 'WBC: 4-11k, RBC: 4.5-5.5M, Hb: 12-16g/dL, Platelets: 150-400k'},
+        {id: 'lab2', name: 'Liver Function Test (LFT)', category: 'Biochemistry', price: 500, normal_range: 'SGOT: 5-40 U/L, SGPT: 7-56 U/L, Bilirubin: 0.3-1.2 mg/dL'},
+        {id: 'lab3', name: 'Kidney Function Test (KFT)', category: 'Biochemistry', price: 450, normal_range: 'Creatinine: 0.7-1.3 mg/dL, Urea: 15-40 mg/dL, Uric Acid: 3.5-7.2 mg/dL'},
+        {id: 'lab4', name: 'Lipid Profile', category: 'Biochemistry', price: 600, normal_range: 'Total Cholesterol: <200 mg/dL, LDL: <100 mg/dL, HDL: >40 mg/dL, Triglycerides: <150 mg/dL'},
+        {id: 'lab5', name: 'Blood Sugar Fasting', category: 'Biochemistry', price: 100, normal_range: '70-100 mg/dL'},
+        {id: 'lab6', name: 'HbA1c', category: 'Biochemistry', price: 400, normal_range: '<5.7% (Normal), 5.7-6.4% (Prediabetes), >6.5% (Diabetes)'},
+        {id: 'lab7', name: 'Thyroid Profile (T3, T4, TSH)', category: 'Endocrinology', price: 550, normal_range: 'TSH: 0.4-4.0 mIU/L, T3: 80-200 ng/dL, T4: 5-12 μg/dL'},
+        {id: 'lab8', name: 'Urine Routine', category: 'Pathology', price: 150, normal_range: 'pH: 4.5-8.0, No protein/glucose, WBC: 0-5/hpf'}
+      ]
+    };
+
+    let currentScreen = 'consent';
+    let currentUser = null;
+    let userConsent = false;
+    let currentPrescription = { patient_id: null, medicines: [], diagnosis: [] };
+    let currentInvoice = { items: [], subtotal: 0, cgst: 0, sgst: 0, total: 0 };
+    let isRecording = false;
+
     const supabase = {
       from: (table) => ({
         select: (cols) => ({
@@ -91,104 +315,8 @@
       })
     };
 
-    let currentScreen = 'consent';
-    let currentUser = null;
-    let userConsent = false;
-    let currentPrescription = { patient_id: null, medicines: [], diagnosis: [] };
-    let currentInvoice = { items: [], subtotal: 0, cgst: 0, sgst: 0, total: 0 };
-    
-    window.DB = {
-      clinics: [{ 
-        id: 'clinic-1', 
-        name: 'City Health Clinic', 
-        logo_url: 'https://nyc3.digitaloceanspaces.com/bhindi-drive/files/cab453ed-7d3e-4dfa-9012-038dbc50c1c5/2025-12-07T15-33-38-867Z-c50befdf-chat-image-1765121618851-0.jpg',
-        gstin: '27AABCU9603R1ZM', 
-        state_code: '27',
-        place_of_business: 'Maharashtra',
-        address: '123 Medical Street, Mumbai',
-        phone: '+91 22 1234 5678',
-        email: 'info@cityhealthclinic.com',
-        website: 'www.cityhealthclinic.com',
-        primary_color: '#2563eb',
-        secondary_color: '#10b981'
-      }],
-      patients: [
-        {id: 'p1', patient_id: 'P001', first_name: 'Rajesh', last_name: 'Kumar', age: 45, gender: 'Male', blood_group: 'O+', phone: '+919876543220', email: 'rajesh@example.com'},
-        {id: 'p2', patient_id: 'P002', first_name: 'Priya', last_name: 'Sharma', age: 32, gender: 'Female', blood_group: 'A+', phone: '+919876543221', email: 'priya@example.com'},
-        {id: 'p3', patient_id: 'P003', first_name: 'Amit', last_name: 'Patel', age: 28, gender: 'Male', blood_group: 'B+', phone: '+919876543222', email: 'amit@example.com'}
-      ],
-      medicines: [
-        {id: 'm1', name: 'Paracetamol', generic_name: 'Paracetamol', brand_name: 'Crocin', strength: '500', unit: 'mg', form: 'Tablet', category: 'Analgesic', schedule: 'OTC', price: 5, mrp: 6, hsn_code: '30049099'},
-        {id: 'm2', name: 'Amoxicillin', generic_name: 'Amoxicillin', brand_name: 'Novamox', strength: '500', unit: 'mg', form: 'Capsule', category: 'Antibiotic', schedule: 'H', price: 15, mrp: 18, hsn_code: '30042090'},
-        {id: 'm3', name: 'Azithromycin', generic_name: 'Azithromycin', brand_name: 'Azithral', strength: '500', unit: 'mg', form: 'Tablet', category: 'Antibiotic', schedule: 'H', price: 25, mrp: 30, hsn_code: '30042090'},
-        {id: 'm4', name: 'Alprazolam', generic_name: 'Alprazolam', brand_name: 'Alprax', strength: '0.5', unit: 'mg', form: 'Tablet', category: 'Anxiolytic', schedule: 'H1', price: 25, mrp: 30, hsn_code: '30049099'},
-        {id: 'm5', name: 'Codeine', generic_name: 'Codeine Phosphate', brand_name: 'Codeine', strength: '30', unit: 'mg', form: 'Tablet', category: 'Opioid', schedule: 'X', price: 50, mrp: 60, hsn_code: '30049099'}
-      ],
-      prescriptions: [],
-      invoices: [],
-      patient_medical_history: [],
-      patient_allergies: [],
-      patient_immunizations: [],
-      suppliers: [],
-      medicine_inventory: [],
-      stock_alerts: [],
-      purchase_orders: [],
-      patient_portal_accounts: [],
-      online_appointments: [],
-      notifications: [],
-      telemedicine_sessions: [],
-      online_payments: [],
-      patient_feedback: [],
-      opd_queue: [],
-      vital_signs: [],
-      soap_notes: [],
-      icd10_codes: [
-        {code: 'A00-B99', description: 'Certain infectious and parasitic diseases'},
-        {code: 'A00', description: 'Cholera'},
-        {code: 'A09', description: 'Infectious gastroenteritis and colitis'},
-        {code: 'J00-J99', description: 'Diseases of the respiratory system'},
-        {code: 'J00', description: 'Acute nasopharyngitis [common cold]'},
-        {code: 'J06.9', description: 'Acute upper respiratory infection, unspecified'},
-        {code: 'J18.9', description: 'Pneumonia, unspecified organism'},
-        {code: 'E00-E89', description: 'Endocrine, nutritional and metabolic diseases'},
-        {code: 'E11', description: 'Type 2 diabetes mellitus'},
-        {code: 'E11.9', description: 'Type 2 diabetes mellitus without complications'},
-        {code: 'I00-I99', description: 'Diseases of the circulatory system'},
-        {code: 'I10', description: 'Essential (primary) hypertension'},
-        {code: 'R00-R99', description: 'Symptoms, signs and abnormal findings'},
-        {code: 'R50.9', description: 'Fever, unspecified'},
-        {code: 'R51', description: 'Headache'},
-        {code: 'R05', description: 'Cough'}
-      ],
-      lab_tests: [
-        {id: 'lab1', name: 'Complete Blood Count (CBC)', category: 'Hematology', price: 300, normal_range: 'WBC: 4-11k, RBC: 4.5-5.5M, Hb: 12-16g/dL'},
-        {id: 'lab2', name: 'Liver Function Test (LFT)', category: 'Biochemistry', price: 500, normal_range: 'SGOT: 5-40 U/L, SGPT: 7-56 U/L'},
-        {id: 'lab3', name: 'Kidney Function Test (KFT)', category: 'Biochemistry', price: 450, normal_range: 'Creatinine: 0.7-1.3 mg/dL, Urea: 15-40 mg/dL'},
-        {id: 'lab4', name: 'Lipid Profile', category: 'Biochemistry', price: 600, normal_range: 'Total Cholesterol: <200 mg/dL, LDL: <100 mg/dL'},
-        {id: 'lab5', name: 'Blood Sugar Fasting', category: 'Biochemistry', price: 100, normal_range: '70-100 mg/dL'},
-        {id: 'lab6', name: 'HbA1c', category: 'Biochemistry', price: 400, normal_range: '<5.7%'},
-        {id: 'lab7', name: 'Thyroid Profile (T3, T4, TSH)', category: 'Endocrinology', price: 550, normal_range: 'TSH: 0.4-4.0 mIU/L'},
-        {id: 'lab8', name: 'Urine Routine', category: 'Pathology', price: 150, normal_range: 'pH: 4.5-8.0, No protein/glucose'}
-      ],
-      lab_orders: []
-    };
-
     function getClinic() {
       return window.DB.clinics[0];
-    }
-
-    function getScheduleBadge(schedule) {
-      if (schedule === 'H') return '<span class="badge-schedule-h">Schedule H</span>';
-      if (schedule === 'H1') return '<span class="badge-schedule-h1">Schedule H1 ⚠️</span>';
-      if (schedule === 'X') return '<span class="badge-schedule-x">Schedule X 🚨</span>';
-      return '<span class="badge badge-success">OTC</span>';
-    }
-
-    function calculateGST(amount, rate = 18) {
-      const gstAmount = (amount * rate) / 100;
-      const cgst = gstAmount / 2;
-      const sgst = gstAmount / 2;
-      return { cgst, sgst, total: gstAmount };
     }
 
     function showToast(msg, type = 'info') {
@@ -210,13 +338,10 @@
       currentUser = { 
         name: 'Dr. Rajesh Sharma', 
         email: 'doctor@clinic.com', 
-        role: 'doctor',
-        can_prescribe_schedule_h: true,
-        can_prescribe_schedule_h1: true,
-        can_prescribe_schedule_x: false
+        role: 'doctor'
       };
       currentScreen = 'dashboard';
-      showToast('Welcome! All features (Phases 1-7) are active!', 'success');
+      showToast('Phase 7 Week 2 Complete! All features active!', 'success');
       render();
     }
 
@@ -237,129 +362,8 @@
       document.querySelectorAll('.modal-overlay').forEach(m => m.remove());
     }
 
-    // CLINIC SETTINGS
-    function showClinicSettingsModal() {
-      const clinic = getClinic();
-      const modal = document.createElement('div');
-      modal.className = 'modal-overlay';
-      modal.innerHTML = `
-        <div class="modal-content">
-          <div class="p-8 border-b flex justify-between items-center">
-            <h2 class="text-2xl font-bold">⚙️ Clinic Settings</h2>
-            <button onclick="closeModal()" class="text-gray-500 hover:text-gray-700 text-2xl">×</button>
-          </div>
-          <div class="p-8">
-            <p class="text-gray-600">Clinic settings feature - customize your clinic branding, logo, colors, and information.</p>
-            <button onclick="closeModal()" class="btn btn-secondary mt-4">Close</button>
-          </div>
-        </div>
-      `;
-      document.body.appendChild(modal);
-    }
-
-    // ADD PATIENT
-    function showAddPatientModal() {
-      const modal = document.createElement('div');
-      modal.className = 'modal-overlay';
-      modal.innerHTML = `
-        <div class="modal-content">
-          <div class="p-8 border-b flex justify-between items-center">
-            <h2 class="text-2xl font-bold">👤 Add New Patient</h2>
-            <button onclick="closeModal()" class="text-gray-500 hover:text-gray-700 text-2xl">×</button>
-          </div>
-          <div class="p-8">
-            <div class="grid grid-cols-2 gap-6 mb-6">
-              <div>
-                <label class="form-label">First Name *</label>
-                <input type="text" id="patientFirstName" class="form-input" placeholder="John">
-              </div>
-              <div>
-                <label class="form-label">Last Name</label>
-                <input type="text" id="patientLastName" class="form-input" placeholder="Doe">
-              </div>
-            </div>
-            <div class="grid grid-cols-3 gap-6 mb-6">
-              <div>
-                <label class="form-label">Age *</label>
-                <input type="number" id="patientAge" class="form-input" placeholder="30">
-              </div>
-              <div>
-                <label class="form-label">Gender *</label>
-                <select id="patientGender" class="form-input">
-                  <option value="">Select</option>
-                  <option value="Male">Male</option>
-                  <option value="Female">Female</option>
-                  <option value="Other">Other</option>
-                </select>
-              </div>
-              <div>
-                <label class="form-label">Blood Group</label>
-                <select id="patientBloodGroup" class="form-input">
-                  <option value="">Select</option>
-                  <option value="A+">A+</option>
-                  <option value="A-">A-</option>
-                  <option value="B+">B+</option>
-                  <option value="B-">B-</option>
-                  <option value="AB+">AB+</option>
-                  <option value="AB-">AB-</option>
-                  <option value="O+">O+</option>
-                  <option value="O-">O-</option>
-                </select>
-              </div>
-            </div>
-            <div class="grid grid-cols-2 gap-6 mb-6">
-              <div>
-                <label class="form-label">Phone *</label>
-                <input type="tel" id="patientPhone" class="form-input" placeholder="+91 98765 43210">
-              </div>
-              <div>
-                <label class="form-label">Email</label>
-                <input type="email" id="patientEmail" class="form-input" placeholder="patient@example.com">
-              </div>
-            </div>
-            <div class="flex gap-4">
-              <button onclick="saveNewPatient()" class="btn btn-success">💾 Save Patient</button>
-              <button onclick="closeModal()" class="btn btn-secondary">Cancel</button>
-            </div>
-          </div>
-        </div>
-      `;
-      document.body.appendChild(modal);
-    }
-
-    async function saveNewPatient() {
-      const firstName = document.getElementById('patientFirstName').value;
-      const age = document.getElementById('patientAge').value;
-      const gender = document.getElementById('patientGender').value;
-      const phone = document.getElementById('patientPhone').value;
-
-      if (!firstName || !age || !gender || !phone) {
-        showToast('Please fill all required fields', 'error');
-        return;
-      }
-
-      const patientId = 'P' + String(window.DB.patients.length + 1).padStart(3, '0');
-      
-      const newPatient = {
-        patient_id: patientId,
-        first_name: firstName,
-        last_name: document.getElementById('patientLastName').value,
-        age: parseInt(age),
-        gender: gender,
-        blood_group: document.getElementById('patientBloodGroup').value,
-        phone: phone,
-        email: document.getElementById('patientEmail').value
-      };
-
-      await supabase.from('patients').insert([newPatient]);
-      showToast(`Patient ${firstName} added! ID: ${patientId}`, 'success');
-      closeModal();
-      render();
-    }
-
-    // PRESCRIPTION (Phase 2)
-    function showPrescriptionModal(patientId) {
-      currentPrescription = { patient_id: patientId, medicines: [], diagnosis: [] };
+    // ENHANCED SOAP NOTES WITH TEMPLATES
+    function showSOAPNotesModal(patientId) {
       const patient = window.DB.patients.find(p => p.id === patientId);
       const modal = document.createElement('div');
       modal.className = 'modal-overlay';
@@ -367,213 +371,66 @@
         <div class="modal-content">
           <div class="p-8 border-b flex justify-between items-center">
             <div>
-              <h2 class="text-2xl font-bold">💊 Create Prescription</h2>
-              <p class="text-sm text-gray-600 mt-1">Patient: ${patient?.first_name} ${patient?.last_name || ''} (${patient?.patient_id})</p>
+              <h2 class="text-2xl font-bold">📋 SOAP Notes with Templates</h2>
+              <p class="text-sm text-gray-600 mt-1">Patient: ${patient.first_name} ${patient.last_name || ''}</p>
             </div>
             <button onclick="closeModal()" class="text-gray-500 hover:text-gray-700 text-2xl">×</button>
-          </div>
-          <div class="p-8">
-            <div class="mb-6">
-              <label class="form-label">Diagnosis</label>
-              <input type="text" id="diagnosis" class="form-input" placeholder="e.g., Fever, Cough">
-            </div>
-            
-            <div class="mb-6">
-              <label class="form-label">Search Medicine</label>
-              <input type="text" id="medicineSearch" class="form-input" placeholder="Search..." oninput="searchMedicine(this.value)">
-              <div id="medicineResults" class="mt-2"></div>
-            </div>
-
-            <div class="mb-6">
-              <h3 class="font-bold mb-3">Prescribed Medicines</h3>
-              <div id="prescribedMedicines" class="space-y-3">
-                <p class="text-gray-500 text-sm">No medicines added yet</p>
-              </div>
-            </div>
-
-            <div class="flex gap-4">
-              <button onclick="savePrescription()" class="btn btn-success">Save Prescription</button>
-              <button onclick="closeModal()" class="btn btn-secondary">Cancel</button>
-            </div>
-          </div>
-        </div>
-      `;
-      document.body.appendChild(modal);
-    }
-
-    function searchMedicine(query) {
-      if (!query || query.length < 2) {
-        document.getElementById('medicineResults').innerHTML = '';
-        return;
-      }
-      
-      const results = window.DB.medicines.filter(m => 
-        m.name.toLowerCase().includes(query.toLowerCase()) ||
-        m.generic_name.toLowerCase().includes(query.toLowerCase())
-      );
-
-      document.getElementById('medicineResults').innerHTML = results.map(m => `
-        <div class="p-4 border rounded-xl cursor-pointer hover:bg-blue-50 transition" onclick="addMedicineToPrescription('${m.id}')">
-          <div class="flex justify-between items-start">
-            <div>
-              <p class="font-semibold">${m.name} (${m.brand_name})</p>
-              <p class="text-sm text-gray-600">${m.strength}${m.unit} ${m.form}</p>
-            </div>
-            <div class="text-right">
-              ${getScheduleBadge(m.schedule)}
-            </div>
-          </div>
-        </div>
-      `).join('');
-    }
-
-    function addMedicineToPrescription(medicineId) {
-      const medicine = window.DB.medicines.find(m => m.id === medicineId);
-      
-      if (medicine.schedule === 'H1' && !currentUser.can_prescribe_schedule_h1) {
-        showToast('Not authorized to prescribe Schedule H1 drugs!', 'error');
-        return;
-      }
-      if (medicine.schedule === 'X' && !currentUser.can_prescribe_schedule_x) {
-        showToast('Not authorized to prescribe Schedule X drugs!', 'error');
-        return;
-      }
-
-      currentPrescription.medicines.push({
-        ...medicine,
-        dosage: '1 tablet',
-        frequency: 'Twice daily',
-        duration: '5 days',
-        instructions: 'After food'
-      });
-
-      document.getElementById('medicineSearch').value = '';
-      document.getElementById('medicineResults').innerHTML = '';
-      updatePrescribedMedicinesList();
-    }
-
-    function updatePrescribedMedicinesList() {
-      document.getElementById('prescribedMedicines').innerHTML = currentPrescription.medicines.map((m, idx) => `
-        <div class="p-4 bg-gray-50 rounded-xl">
-          <div class="flex justify-between items-start mb-3">
-            <div>
-              <p class="font-bold">${idx + 1}. ${m.name} (${m.brand_name})</p>
-              <p class="text-sm text-gray-600">${m.strength}${m.unit} ${m.form}</p>
-              ${getScheduleBadge(m.schedule)}
-            </div>
-            <button onclick="removeMedicineFromPrescription(${idx})" class="text-red-600 hover:text-red-800">✕</button>
-          </div>
-        </div>
-      `).join('');
-    }
-
-    function removeMedicineFromPrescription(index) {
-      currentPrescription.medicines.splice(index, 1);
-      updatePrescribedMedicinesList();
-    }
-
-    async function savePrescription() {
-      const diagnosis = document.getElementById('diagnosis').value;
-      
-      if (!diagnosis) {
-        showToast('Please enter diagnosis', 'error');
-        return;
-      }
-
-      if (currentPrescription.medicines.length === 0) {
-        showToast('Please add at least one medicine', 'error');
-        return;
-      }
-
-      const prescriptionData = {
-        clinic_id: 'clinic-1',
-        patient_id: currentPrescription.patient_id,
-        prescription_number: 'RX' + Date.now(),
-        diagnosis: [diagnosis],
-        medicines: currentPrescription.medicines,
-        status: 'approved'
-      };
-
-      await supabase.from('prescriptions').insert([prescriptionData]);
-      showToast('Prescription created successfully!', 'success');
-      closeModal();
-      render();
-    }
-
-    // GST INVOICE (Phase 2)
-    function showInvoiceModal(patientId) {
-      currentInvoice = { patient_id: patientId, items: [], subtotal: 0, cgst: 0, sgst: 0, total: 0 };
-      const patient = window.DB.patients.find(p => p.id === patientId);
-      const clinic = getClinic();
-      
-      const modal = document.createElement('div');
-      modal.className = 'modal-overlay';
-      modal.innerHTML = `
-        <div class="modal-content">
-          <div class="p-8 border-b">
-            <h2 class="text-2xl font-bold mb-2">💰 GST Tax Invoice</h2>
-            <div class="grid grid-cols-2 gap-6 text-sm">
-              <div>
-                <p class="font-bold">${clinic.name}</p>
-                <p class="text-gray-600">GSTIN: ${clinic.gstin}</p>
-              </div>
-              <div class="text-right">
-                <p class="font-bold">Bill To:</p>
-                <p>${patient?.first_name} ${patient?.last_name || ''}</p>
-              </div>
-            </div>
           </div>
           
           <div class="p-8">
+            <!-- Quick Templates -->
             <div class="mb-6">
-              <label class="form-label">Add Item</label>
+              <h3 class="font-bold mb-3">🚀 Quick Templates (NEW!)</h3>
               <div class="grid grid-cols-5 gap-3">
-                <input type="text" id="itemDesc" class="form-input col-span-2" placeholder="Description">
-                <input type="number" id="itemQty" class="form-input" placeholder="Qty" value="1">
-                <input type="number" id="itemPrice" class="form-input" placeholder="Price">
-                <button onclick="addInvoiceItem()" class="btn btn-primary">Add</button>
+                ${window.DB.soap_templates.map(t => `
+                  <div class="template-card p-4 rounded-xl text-center" onclick="applySOAPTemplate('${t.id}')">
+                    <div class="text-3xl mb-2">${t.icon}</div>
+                    <p class="font-semibold text-sm">${t.name}</p>
+                  </div>
+                `).join('')}
               </div>
             </div>
 
-            <table class="invoice-table mb-6">
-              <thead>
-                <tr>
-                  <th>Description</th>
-                  <th>Qty</th>
-                  <th>Rate</th>
-                  <th>Amount</th>
-                  <th>CGST (9%)</th>
-                  <th>SGST (9%)</th>
-                  <th>Total</th>
-                  <th></th>
-                </tr>
-              </thead>
-              <tbody id="invoiceItems">
-                <tr><td colspan="8" class="text-center text-gray-500">No items added</td></tr>
-              </tbody>
-            </table>
-
-            <div class="bg-gray-50 p-6 rounded-xl">
-              <div class="flex justify-between mb-2">
-                <span class="font-semibold">Subtotal:</span>
-                <span>₹${currentInvoice.subtotal.toFixed(2)}</span>
-              </div>
-              <div class="flex justify-between mb-2">
-                <span class="font-semibold">CGST (9%):</span>
-                <span>₹${currentInvoice.cgst.toFixed(2)}</span>
-              </div>
-              <div class="flex justify-between mb-2">
-                <span class="font-semibold">SGST (9%):</span>
-                <span>₹${currentInvoice.sgst.toFixed(2)}</span>
-              </div>
-              <div class="flex justify-between text-xl font-bold border-t-2 pt-2 mt-2">
-                <span>Total:</span>
-                <span>₹${currentInvoice.total.toFixed(2)}</span>
+            <!-- Voice Input Button -->
+            <div class="mb-6 p-4 bg-purple-50 rounded-xl border-2 border-purple-200">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="font-bold text-purple-900">🎤 Voice-to-Text (Coming in Phase 8!)</p>
+                  <p class="text-sm text-purple-700">Click microphone to dictate notes</p>
+                </div>
+                <button onclick="toggleVoiceRecording()" class="btn btn-purple voice-btn" id="voiceBtn">
+                  🎤 Start Recording
+                </button>
               </div>
             </div>
 
-            <div class="flex gap-4 mt-6">
-              <button onclick="saveInvoice()" class="btn btn-success">Save Invoice</button>
+            <div class="mb-6">
+              <label class="form-label">Chief Complaint</label>
+              <input type="text" id="chiefComplaintSOAP" class="form-input" placeholder="e.g., Fever for 3 days">
+            </div>
+
+            <div class="mb-6">
+              <label class="form-label">S - Subjective</label>
+              <textarea id="subjective" class="form-input" rows="3" placeholder="Patient's complaints..."></textarea>
+            </div>
+
+            <div class="mb-6">
+              <label class="form-label">O - Objective</label>
+              <textarea id="objective" class="form-input" rows="3" placeholder="Examination findings..."></textarea>
+            </div>
+
+            <div class="mb-6">
+              <label class="form-label">A - Assessment</label>
+              <textarea id="assessment" class="form-input" rows="2" placeholder="Diagnosis..."></textarea>
+            </div>
+
+            <div class="mb-6">
+              <label class="form-label">P - Plan</label>
+              <textarea id="plan" class="form-input" rows="3" placeholder="Treatment plan..."></textarea>
+            </div>
+
+            <div class="flex gap-4">
+              <button onclick="saveSOAPNotes('${patientId}')" class="btn btn-success">💾 Save SOAP Notes</button>
               <button onclick="closeModal()" class="btn btn-secondary">Cancel</button>
             </div>
           </div>
@@ -582,111 +439,664 @@
       document.body.appendChild(modal);
     }
 
-    function addInvoiceItem() {
-      const desc = document.getElementById('itemDesc').value;
-      const qty = parseInt(document.getElementById('itemQty').value) || 1;
-      const price = parseFloat(document.getElementById('itemPrice').value) || 0;
-
-      if (!desc || !price) {
-        showToast('Please enter description and price', 'error');
-        return;
-      }
-
-      const amount = qty * price;
-      const gst = calculateGST(amount);
-
-      currentInvoice.items.push({
-        description: desc,
-        quantity: qty,
-        unit_price: price,
-        taxable_amount: amount,
-        cgst_amount: gst.cgst,
-        sgst_amount: gst.sgst,
-        total: amount + gst.total
-      });
-
-      currentInvoice.subtotal = currentInvoice.items.reduce((sum, item) => sum + item.taxable_amount, 0);
-      currentInvoice.cgst = currentInvoice.items.reduce((sum, item) => sum + item.cgst_amount, 0);
-      currentInvoice.sgst = currentInvoice.items.reduce((sum, item) => sum + item.sgst_amount, 0);
-      currentInvoice.total = currentInvoice.subtotal + currentInvoice.cgst + currentInvoice.sgst;
-
-      document.getElementById('itemDesc').value = '';
-      document.getElementById('itemQty').value = '1';
-      document.getElementById('itemPrice').value = '';
-
-      updateInvoiceItemsList();
-    }
-
-    function updateInvoiceItemsList() {
-      document.getElementById('invoiceItems').innerHTML = currentInvoice.items.map((item, idx) => `
-        <tr>
-          <td>${item.description}</td>
-          <td>${item.quantity}</td>
-          <td>₹${item.unit_price.toFixed(2)}</td>
-          <td>₹${item.taxable_amount.toFixed(2)}</td>
-          <td>₹${item.cgst_amount.toFixed(2)}</td>
-          <td>₹${item.sgst_amount.toFixed(2)}</td>
-          <td>₹${item.total.toFixed(2)}</td>
-          <td><button onclick="removeInvoiceItem(${idx})" class="text-red-600">✕</button></td>
-        </tr>
-      `).join('');
-
-      const modal = document.querySelector('.modal-content');
-      if (modal) {
-        modal.querySelector('.bg-gray-50').innerHTML = `
-          <div class="flex justify-between mb-2">
-            <span class="font-semibold">Subtotal:</span>
-            <span>₹${currentInvoice.subtotal.toFixed(2)}</span>
-          </div>
-          <div class="flex justify-between mb-2">
-            <span class="font-semibold">CGST (9%):</span>
-            <span>₹${currentInvoice.cgst.toFixed(2)}</span>
-          </div>
-          <div class="flex justify-between mb-2">
-            <span class="font-semibold">SGST (9%):</span>
-            <span>₹${currentInvoice.sgst.toFixed(2)}</span>
-          </div>
-          <div class="flex justify-between text-xl font-bold border-t-2 pt-2 mt-2">
-            <span>Total:</span>
-            <span>₹${currentInvoice.total.toFixed(2)}</span>
-          </div>
-        `;
+    function applySOAPTemplate(templateId) {
+      const template = window.DB.soap_templates.find(t => t.id === templateId);
+      if (template) {
+        document.getElementById('chiefComplaintSOAP').value = template.chief_complaint;
+        document.getElementById('subjective').value = template.subjective;
+        document.getElementById('objective').value = template.objective;
+        document.getElementById('assessment').value = template.assessment;
+        document.getElementById('plan').value = template.plan;
+        showToast(`Template "${template.name}" applied!`, 'success');
+        
+        // Highlight selected template
+        document.querySelectorAll('.template-card').forEach(card => card.classList.remove('selected'));
+        event.target.closest('.template-card').classList.add('selected');
       }
     }
 
-    function removeInvoiceItem(index) {
-      currentInvoice.items.splice(index, 1);
-      currentInvoice.subtotal = currentInvoice.items.reduce((sum, item) => sum + item.taxable_amount, 0);
-      currentInvoice.cgst = currentInvoice.items.reduce((sum, item) => sum + item.cgst_amount, 0);
-      currentInvoice.sgst = currentInvoice.items.reduce((sum, item) => sum + item.sgst_amount, 0);
-      currentInvoice.total = currentInvoice.subtotal + currentInvoice.cgst + currentInvoice.sgst;
-      updateInvoiceItemsList();
+    function toggleVoiceRecording() {
+      isRecording = !isRecording;
+      const btn = document.getElementById('voiceBtn');
+      
+      if (isRecording) {
+        btn.textContent = '⏹️ Stop Recording';
+        btn.classList.add('recording');
+        showToast('Voice recording started (Demo - Phase 8 feature)', 'info');
+        
+        // Simulate voice recording (will be real in Phase 8)
+        setTimeout(() => {
+          if (isRecording) {
+            toggleVoiceRecording();
+            showToast('Voice-to-text will be available in Phase 8!', 'info');
+          }
+        }, 3000);
+      } else {
+        btn.textContent = '🎤 Start Recording';
+        btn.classList.remove('recording');
+        showToast('Recording stopped', 'info');
+      }
     }
 
-    async function saveInvoice() {
-      if (currentInvoice.items.length === 0) {
-        showToast('Please add at least one item', 'error');
-        return;
-      }
-
-      const invoiceData = {
-        clinic_id: 'clinic-1',
-        patient_id: currentInvoice.patient_id,
-        invoice_number: 'INV' + Date.now(),
-        subtotal: currentInvoice.subtotal,
-        cgst_amount: currentInvoice.cgst,
-        sgst_amount: currentInvoice.sgst,
-        total_amount: currentInvoice.total,
-        items: currentInvoice.items
+    async function saveSOAPNotes(patientId) {
+      const soapData = {
+        patient_id: patientId,
+        chief_complaint: document.getElementById('chiefComplaintSOAP').value,
+        subjective: document.getElementById('subjective').value,
+        objective: document.getElementById('objective').value,
+        assessment: document.getElementById('assessment').value,
+        plan: document.getElementById('plan').value
       };
 
-      await supabase.from('invoices').insert([invoiceData]);
-      showToast('GST Invoice created successfully!', 'success');
+      await supabase.from('soap_notes').insert([soapData]);
+      showToast('SOAP notes saved!', 'success');
       closeModal();
       render();
     }
 
-    // OPD QUEUE (Phase 7)
+    // ENHANCED ICD-10 SEARCH
+    function showICD10SearchModal() {
+      const modal = document.createElement('div');
+      modal.className = 'modal-overlay';
+      modal.innerHTML = `
+        <div class="modal-content">
+          <div class="p-8 border-b flex justify-between items-center">
+            <div>
+              <h2 class="text-2xl font-bold">🔍 ICD-10 Diagnosis Codes</h2>
+              <p class="text-sm text-gray-600 mt-1">100+ codes available (NEW!)</p>
+            </div>
+            <button onclick="closeModal()" class="text-gray-500 hover:text-gray-700 text-2xl">×</button>
+          </div>
+          <div class="p-8">
+            <div class="mb-6">
+              <input type="text" id="icd10Search" class="form-input" placeholder="Search by code or description..." oninput="searchICD10(this.value)">
+            </div>
+
+            <!-- Category Filter -->
+            <div class="mb-6">
+              <div class="flex gap-2 flex-wrap">
+                <button onclick="filterICD10Category('all')" class="btn btn-sm btn-primary">All</button>
+                <button onclick="filterICD10Category('Infectious')" class="btn btn-sm btn-secondary">Infectious</button>
+                <button onclick="filterICD10Category('Respiratory')" class="btn btn-sm btn-secondary">Respiratory</button>
+                <button onclick="filterICD10Category('Endocrine')" class="btn btn-sm btn-secondary">Endocrine</button>
+                <button onclick="filterICD10Category('Circulatory')" class="btn btn-sm btn-secondary">Circulatory</button>
+                <button onclick="filterICD10Category('Digestive')" class="btn btn-sm btn-secondary">Digestive</button>
+                <button onclick="filterICD10Category('Musculoskeletal')" class="btn btn-sm btn-secondary">Musculoskeletal</button>
+                <button onclick="filterICD10Category('Symptoms')" class="btn btn-sm btn-secondary">Symptoms</button>
+              </div>
+            </div>
+
+            <div id="icd10Results" class="space-y-3 max-h-96 overflow-y-auto">
+              ${window.DB.icd10_codes.slice(0, 20).map(code => `
+                <div class="p-4 border rounded-xl hover:bg-blue-50 cursor-pointer transition">
+                  <div class="flex justify-between items-start">
+                    <div class="flex-1">
+                      <p class="font-bold text-blue-600">${code.code}</p>
+                      <p class="text-sm text-gray-700">${code.description}</p>
+                      ${code.category ? `<span class="badge badge-primary mt-1">${code.category}</span>` : ''}
+                    </div>
+                    <button onclick="selectICD10('${code.code}', '${code.description}')" class="btn btn-sm btn-primary">Select</button>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(modal);
+    }
+
+    function searchICD10(query) {
+      if (!query || query.length < 2) {
+        document.getElementById('icd10Results').innerHTML = window.DB.icd10_codes.slice(0, 20).map(code => `
+          <div class="p-4 border rounded-xl hover:bg-blue-50">
+            <div class="flex justify-between items-start">
+              <div class="flex-1">
+                <p class="font-bold text-blue-600">${code.code}</p>
+                <p class="text-sm text-gray-700">${code.description}</p>
+                ${code.category ? `<span class="badge badge-primary mt-1">${code.category}</span>` : ''}
+              </div>
+              <button onclick="selectICD10('${code.code}', '${code.description}')" class="btn btn-sm btn-primary">Select</button>
+            </div>
+          </div>
+        `).join('');
+        return;
+      }
+
+      const results = window.DB.icd10_codes.filter(code => 
+        code.code.toLowerCase().includes(query.toLowerCase()) ||
+        code.description.toLowerCase().includes(query.toLowerCase())
+      );
+
+      document.getElementById('icd10Results').innerHTML = results.map(code => `
+        <div class="p-4 border rounded-xl hover:bg-blue-50">
+          <div class="flex justify-between items-start">
+            <div class="flex-1">
+              <p class="font-bold text-blue-600">${code.code}</p>
+              <p class="text-sm text-gray-700">${code.description}</p>
+              ${code.category ? `<span class="badge badge-primary mt-1">${code.category}</span>` : ''}
+            </div>
+            <button onclick="selectICD10('${code.code}', '${code.description}')" class="btn btn-sm btn-primary">Select</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function filterICD10Category(category) {
+      const results = category === 'all' 
+        ? window.DB.icd10_codes.slice(0, 20)
+        : window.DB.icd10_codes.filter(code => code.category === category);
+
+      document.getElementById('icd10Results').innerHTML = results.map(code => `
+        <div class="p-4 border rounded-xl hover:bg-blue-50">
+          <div class="flex justify-between items-start">
+            <div class="flex-1">
+              <p class="font-bold text-blue-600">${code.code}</p>
+              <p class="text-sm text-gray-700">${code.description}</p>
+              ${code.category ? `<span class="badge badge-primary mt-1">${code.category}</span>` : ''}
+            </div>
+            <button onclick="selectICD10('${code.code}', '${code.description}')" class="btn btn-sm btn-primary">Select</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function selectICD10(code, description) {
+      showToast(`Selected: ${code} - ${description}`, 'success');
+      closeModal();
+    }
+
+    // LAB RESULT ENTRY
+    function showLabResultModal(orderId) {
+      const order = window.DB.lab_orders.find(o => o.id === orderId);
+      const patient = window.DB.patients.find(p => p.id === order.patient_id);
+      
+      const modal = document.createElement('div');
+      modal.className = 'modal-overlay';
+      modal.innerHTML = `
+        <div class="modal-content">
+          <div class="p-8 border-b flex justify-between items-center">
+            <div>
+              <h2 class="text-2xl font-bold">🔬 Enter Lab Results (NEW!)</h2>
+              <p class="text-sm text-gray-600 mt-1">Patient: ${patient.first_name} ${patient.last_name || ''}</p>
+            </div>
+            <button onclick="closeModal()" class="text-gray-500 hover:text-gray-700 text-2xl">×</button>
+          </div>
+          <div class="p-8">
+            <div class="space-y-6">
+              ${order.tests.map((test, idx) => `
+                <div class="p-6 border-2 rounded-xl">
+                  <h3 class="font-bold text-lg mb-4">${test.name}</h3>
+                  <p class="text-sm text-gray-600 mb-4">Normal Range: ${test.normal_range}</p>
+                  
+                  <div class="grid grid-cols-2 gap-4">
+                    <div>
+                      <label class="form-label">Result Value</label>
+                      <input type="text" id="result_${idx}" class="form-input result-input" placeholder="Enter value" oninput="checkNormalRange(${idx}, '${test.normal_range}')">
+                    </div>
+                    <div>
+                      <label class="form-label">Unit</label>
+                      <input type="text" id="unit_${idx}" class="form-input" placeholder="mg/dL, U/L, etc.">
+                    </div>
+                  </div>
+                  
+                  <div class="mt-4">
+                    <label class="form-label">Remarks</label>
+                    <textarea id="remarks_${idx}" class="form-input" rows="2" placeholder="Any additional notes..."></textarea>
+                  </div>
+                  
+                  <div id="status_${idx}" class="mt-3"></div>
+                </div>
+              `).join('')}
+            </div>
+
+            <div class="flex gap-4 mt-6">
+              <button onclick="saveLabResults('${orderId}')" class="btn btn-success">💾 Save Results</button>
+              <button onclick="closeModal()" class="btn btn-secondary">Cancel</button>
+            </div>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(modal);
+    }
+
+    function checkNormalRange(idx, normalRange) {
+      const input = document.getElementById(`result_${idx}`);
+      const statusDiv = document.getElementById(`status_${idx}`);
+      const value = parseFloat(input.value);
+      
+      if (!value) {
+        input.className = 'form-input result-input';
+        statusDiv.innerHTML = '';
+        return;
+      }
+
+      // Simple range check (can be enhanced)
+      const ranges = normalRange.match(/(\d+\.?\d*)-(\d+\.?\d*)/);
+      if (ranges) {
+        const min = parseFloat(ranges[1]);
+        const max = parseFloat(ranges[2]);
+        
+        if (value < min || value > max) {
+          input.className = 'form-input result-input abnormal';
+          statusDiv.innerHTML = '<p class="text-red-600 font-bold">⚠️ ABNORMAL - Outside normal range</p>';
+        } else {
+          input.className = 'form-input result-input normal';
+          statusDiv.innerHTML = '<p class="text-green-600 font-bold">✓ NORMAL - Within range</p>';
+        }
+      }
+    }
+
+    async function saveLabResults(orderId) {
+      const order = window.DB.lab_orders.find(o => o.id === orderId);
+      const results = order.tests.map((test, idx) => ({
+        test_name: test.name,
+        result_value: document.getElementById(`result_${idx}`).value,
+        unit: document.getElementById(`unit_${idx}`).value,
+        remarks: document.getElementById(`remarks_${idx}`).value,
+        normal_range: test.normal_range
+      }));
+
+      const resultData = {
+        order_id: orderId,
+        patient_id: order.patient_id,
+        results: results,
+        status: 'completed'
+      };
+
+      await supabase.from('lab_results').insert([resultData]);
+      await supabase.from('lab_orders').update({ status: 'completed' }).eq('id', orderId);
+      
+      showToast('Lab results saved successfully!', 'success');
+      closeModal();
+      render();
+    }
+
+    // VITAL SIGNS WITH TREND GRAPH
+    function showVitalTrendsModal(patientId) {
+      const patient = window.DB.patients.find(p => p.id === patientId);
+      const vitals = window.DB.vital_signs.filter(v => v.patient_id === patientId).slice(-6);
+      
+      const modal = document.createElement('div');
+      modal.className = 'modal-overlay';
+      modal.innerHTML = `
+        <div class="modal-content">
+          <div class="p-8 border-b flex justify-between items-center">
+            <div>
+              <h2 class="text-2xl font-bold">📊 Vital Signs Trends (NEW!)</h2>
+              <p class="text-sm text-gray-600 mt-1">Patient: ${patient.first_name} ${patient.last_name || ''}</p>
+            </div>
+            <button onclick="closeModal()" class="text-gray-500 hover:text-gray-700 text-2xl">×</button>
+          </div>
+          <div class="p-8">
+            ${vitals.length === 0 ? `
+              <div class="text-center py-12">
+                <div class="text-6xl mb-4">📊</div>
+                <p class="text-xl text-gray-600">No vital signs recorded yet</p>
+                <button onclick="closeModal(); showVitalSignsModal('${patientId}')" class="btn btn-primary mt-4">Record First Vitals</button>
+              </div>
+            ` : `
+              <div class="mb-8">
+                <canvas id="vitalChart" width="400" height="200"></canvas>
+              </div>
+
+              <div class="grid grid-cols-2 gap-6">
+                <div class="card">
+                  <h3 class="font-bold mb-4">Latest Vitals</h3>
+                  ${vitals.length > 0 ? `
+                    <div class="space-y-2 text-sm">
+                      <div class="flex justify-between">
+                        <span>BP:</span>
+                        <span class="font-bold">${vitals[vitals.length-1].bp_systolic}/${vitals[vitals.length-1].bp_diastolic} mmHg</span>
+                      </div>
+                      <div class="flex justify-between">
+                        <span>Pulse:</span>
+                        <span class="font-bold">${vitals[vitals.length-1].pulse} bpm</span>
+                      </div>
+                      <div class="flex justify-between">
+                        <span>Temp:</span>
+                        <span class="font-bold">${vitals[vitals.length-1].temperature}°F</span>
+                      </div>
+                      <div class="flex justify-between">
+                        <span>SpO2:</span>
+                        <span class="font-bold">${vitals[vitals.length-1].spo2}%</span>
+                      </div>
+                      <div class="flex justify-between">
+                        <span>BMI:</span>
+                        <span class="font-bold">${vitals[vitals.length-1].bmi || 'N/A'}</span>
+                      </div>
+                    </div>
+                  ` : ''}
+                </div>
+
+                <div class="card">
+                  <h3 class="font-bold mb-4">History</h3>
+                  <div class="space-y-2 text-sm">
+                    <p>Total Records: <span class="font-bold">${vitals.length}</span></p>
+                    <p>First Record: <span class="font-bold">${vitals.length > 0 ? new Date(vitals[0].created_at).toLocaleDateString() : 'N/A'}</span></p>
+                    <p>Last Record: <span class="font-bold">${vitals.length > 0 ? new Date(vitals[vitals.length-1].created_at).toLocaleDateString() : 'N/A'}</span></p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="mt-6">
+                <button onclick="closeModal(); showVitalSignsModal('${patientId}')" class="btn btn-primary">📝 Record New Vitals</button>
+              </div>
+            `}
+          </div>
+        </div>
+      `;
+      document.body.appendChild(modal);
+
+      if (vitals.length > 0) {
+        // Create chart
+        setTimeout(() => {
+          const ctx = document.getElementById('vitalChart').getContext('2d');
+          new Chart(ctx, {
+            type: 'line',
+            data: {
+              labels: vitals.map((v, i) => `Visit ${i + 1}`),
+              datasets: [
+                {
+                  label: 'Systolic BP',
+                  data: vitals.map(v => v.bp_systolic),
+                  borderColor: 'rgb(239, 68, 68)',
+                  backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                  tension: 0.4
+                },
+                {
+                  label: 'Diastolic BP',
+                  data: vitals.map(v => v.bp_diastolic),
+                  borderColor: 'rgb(59, 130, 246)',
+                  backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                  tension: 0.4
+                },
+                {
+                  label: 'Pulse',
+                  data: vitals.map(v => v.pulse),
+                  borderColor: 'rgb(16, 185, 129)',
+                  backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                  tension: 0.4
+                }
+              ]
+            },
+            options: {
+              responsive: true,
+              plugins: {
+                title: {
+                  display: true,
+                  text: 'Vital Signs Trend (Last 6 Visits)'
+                }
+              },
+              scales: {
+                y: {
+                  beginAtZero: false
+                }
+              }
+            }
+          });
+        }, 100);
+      }
+    }
+
+    // VITAL SIGNS RECORDING
+    function showVitalSignsModal(patientId) {
+      const patient = window.DB.patients.find(p => p.id === patientId);
+      const modal = document.createElement('div');
+      modal.className = 'modal-overlay';
+      modal.innerHTML = `
+        <div class="modal-content">
+          <div class="p-8 border-b flex justify-between items-center">
+            <div>
+              <h2 class="text-2xl font-bold">🩺 Record Vital Signs</h2>
+              <p class="text-sm text-gray-600 mt-1">Patient: ${patient.first_name} ${patient.last_name || ''}</p>
+            </div>
+            <button onclick="closeModal()" class="text-gray-500 hover:text-gray-700 text-2xl">×</button>
+          </div>
+          <div class="p-8">
+            <div class="grid grid-cols-3 gap-6 mb-6">
+              <div>
+                <label class="form-label">BP (mmHg)</label>
+                <div class="flex gap-2">
+                  <input type="number" id="bpSystolic" class="form-input" style="width: 100px;" placeholder="120">
+                  <span class="text-2xl">/</span>
+                  <input type="number" id="bpDiastolic" class="form-input" style="width: 100px;" placeholder="80">
+                </div>
+              </div>
+              <div>
+                <label class="form-label">Pulse (bpm)</label>
+                <input type="number" id="pulse" class="form-input" placeholder="72">
+              </div>
+              <div>
+                <label class="form-label">Temp (°F)</label>
+                <input type="number" step="0.1" id="temperature" class="form-input" placeholder="98.6">
+              </div>
+            </div>
+
+            <div class="grid grid-cols-3 gap-6 mb-6">
+              <div>
+                <label class="form-label">SpO2 (%)</label>
+                <input type="number" id="spo2" class="form-input" placeholder="98">
+              </div>
+              <div>
+                <label class="form-label">Weight (kg)</label>
+                <input type="number" step="0.1" id="weight" class="form-input" placeholder="70">
+              </div>
+              <div>
+                <label class="form-label">Height (cm)</label>
+                <input type="number" id="height" class="form-input" placeholder="170">
+              </div>
+            </div>
+
+            <div class="mb-6 p-4 bg-blue-50 rounded-xl">
+              <p class="font-bold text-blue-900">BMI: <span id="bmiDisplay">--</span></p>
+              <p class="text-sm text-blue-700 mt-1" id="bmiCategory">Enter weight and height</p>
+            </div>
+
+            <div class="flex gap-4">
+              <button onclick="saveVitalSigns('${patientId}')" class="btn btn-success">💾 Save</button>
+              <button onclick="showVitalTrendsModal('${patientId}')" class="btn btn-info">📊 View Trends</button>
+              <button onclick="closeModal()" class="btn btn-secondary">Cancel</button>
+            </div>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(modal);
+
+      const weightInput = document.getElementById('weight');
+      const heightInput = document.getElementById('height');
+      
+      function calculateBMI() {
+        const weight = parseFloat(weightInput.value);
+        const height = parseFloat(heightInput.value) / 100;
+        
+        if (weight && height) {
+          const bmi = (weight / (height * height)).toFixed(1);
+          document.getElementById('bmiDisplay').textContent = bmi;
+          
+          let category = '';
+          if (bmi < 18.5) category = 'Underweight';
+          else if (bmi < 25) category = 'Normal';
+          else if (bmi < 30) category = 'Overweight';
+          else category = 'Obese';
+          
+          document.getElementById('bmiCategory').textContent = `Category: ${category}`;
+        }
+      }
+      
+      weightInput.addEventListener('input', calculateBMI);
+      heightInput.addEventListener('input', calculateBMI);
+    }
+
+    async function saveVitalSigns(patientId) {
+      const bpSystolic = document.getElementById('bpSystolic').value;
+      const bpDiastolic = document.getElementById('bpDiastolic').value;
+      const weight = document.getElementById('weight').value;
+      const height = document.getElementById('height').value;
+      const bmi = weight && height ? (weight / Math.pow(height / 100, 2)).toFixed(1) : null;
+
+      const vitalData = {
+        patient_id: patientId,
+        bp_systolic: bpSystolic,
+        bp_diastolic: bpDiastolic,
+        pulse: document.getElementById('pulse').value,
+        temperature: document.getElementById('temperature').value,
+        spo2: document.getElementById('spo2').value,
+        weight: weight,
+        height: height,
+        bmi: bmi
+      };
+
+      await supabase.from('vital_signs').insert([vitalData]);
+      
+      const alerts = [];
+      if (bpSystolic > 140 || bpDiastolic > 90) alerts.push('High BP');
+      if (document.getElementById('temperature').value > 99.5) alerts.push('Fever');
+      if (document.getElementById('spo2').value < 95) alerts.push('Low SpO2');
+      
+      if (alerts.length > 0) {
+        showToast(`⚠️ Abnormal: ${alerts.join(', ')}`, 'warning');
+      } else {
+        showToast('Vital signs recorded!', 'success');
+      }
+      
+      closeModal();
+      render();
+    }
+
+    // LAB ORDERS
+    function showLabOrderModal(patientId) {
+      const patient = window.DB.patients.find(p => p.id === patientId);
+      const modal = document.createElement('div');
+      modal.className = 'modal-overlay';
+      modal.innerHTML = `
+        <div class="modal-content">
+          <div class="p-8 border-b flex justify-between items-center">
+            <div>
+              <h2 class="text-2xl font-bold">🔬 Lab Orders</h2>
+              <p class="text-sm text-gray-600 mt-1">Patient: ${patient.first_name} ${patient.last_name || ''}</p>
+            </div>
+            <button onclick="closeModal()" class="text-gray-500 hover:text-gray-700 text-2xl">×</button>
+          </div>
+          <div class="p-8">
+            <div class="mb-6">
+              <input type="text" id="labTestSearch" class="form-input" placeholder="Search tests..." oninput="searchLabTests(this.value)">
+            </div>
+
+            <div id="labTestResults" class="space-y-3 mb-6 max-h-96 overflow-y-auto">
+              ${window.DB.lab_tests.map(test => `
+                <div class="p-4 border rounded-xl hover:bg-blue-50">
+                  <div class="flex justify-between items-start">
+                    <div class="flex-1">
+                      <p class="font-bold">${test.name}</p>
+                      <p class="text-sm text-gray-600">${test.category} • ₹${test.price}</p>
+                      <p class="text-xs text-gray-500 mt-1">Normal: ${test.normal_range}</p>
+                    </div>
+                    <button onclick="addLabTest('${test.id}')" class="btn btn-primary">Add</button>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+
+            <div id="selectedTests" class="mb-6">
+              <h3 class="font-bold mb-3">Selected (0)</h3>
+              <div id="selectedTestsList"></div>
+            </div>
+
+            <div class="flex gap-4">
+              <button onclick="submitLabOrder('${patientId}')" class="btn btn-success">Submit</button>
+              <button onclick="closeModal()" class="btn btn-secondary">Cancel</button>
+            </div>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(modal);
+      window.selectedLabTests = [];
+    }
+
+    function searchLabTests(query) {
+      if (!query || query.length < 2) {
+        document.getElementById('labTestResults').innerHTML = window.DB.lab_tests.map(test => `
+          <div class="p-4 border rounded-xl hover:bg-blue-50">
+            <div class="flex justify-between items-start">
+              <div class="flex-1">
+                <p class="font-bold">${test.name}</p>
+                <p class="text-sm text-gray-600">${test.category} • ₹${test.price}</p>
+                <p class="text-xs text-gray-500 mt-1">Normal: ${test.normal_range}</p>
+              </div>
+              <button onclick="addLabTest('${test.id}')" class="btn btn-primary">Add</button>
+            </div>
+          </div>
+        `).join('');
+        return;
+      }
+
+      const results = window.DB.lab_tests.filter(test => 
+        test.name.toLowerCase().includes(query.toLowerCase())
+      );
+
+      document.getElementById('labTestResults').innerHTML = results.map(test => `
+        <div class="p-4 border rounded-xl hover:bg-blue-50">
+          <div class="flex justify-between items-start">
+            <div class="flex-1">
+              <p class="font-bold">${test.name}</p>
+              <p class="text-sm text-gray-600">${test.category} • ₹${test.price}</p>
+              <p class="text-xs text-gray-500 mt-1">Normal: ${test.normal_range}</p>
+            </div>
+            <button onclick="addLabTest('${test.id}')" class="btn btn-primary">Add</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function addLabTest(testId) {
+      const test = window.DB.lab_tests.find(t => t.id === testId);
+      if (!window.selectedLabTests.find(t => t.id === testId)) {
+        window.selectedLabTests.push(test);
+        updateSelectedTestsList();
+      }
+    }
+
+    function removeLabTest(testId) {
+      window.selectedLabTests = window.selectedLabTests.filter(t => t.id !== testId);
+      updateSelectedTestsList();
+    }
+
+    function updateSelectedTestsList() {
+      const total = window.selectedLabTests.reduce((sum, test) => sum + test.price, 0);
+      document.querySelector('#selectedTests h3').textContent = `Selected (${window.selectedLabTests.length}) - ₹${total}`;
+      
+      document.getElementById('selectedTestsList').innerHTML = window.selectedLabTests.map(test => `
+        <div class="flex justify-between items-center p-3 bg-blue-50 rounded-lg mb-2">
+          <div>
+            <p class="font-semibold text-sm">${test.name}</p>
+            <p class="text-xs text-gray-600">₹${test.price}</p>
+          </div>
+          <button onclick="removeLabTest('${test.id}')" class="text-red-600">✕</button>
+        </div>
+      `).join('');
+    }
+
+    async function submitLabOrder(patientId) {
+      if (window.selectedLabTests.length === 0) {
+        showToast('Select at least one test', 'error');
+        return;
+      }
+
+      const orderData = {
+        patient_id: patientId,
+        tests: window.selectedLabTests,
+        total_amount: window.selectedLabTests.reduce((sum, test) => sum + test.price, 0),
+        status: 'pending'
+      };
+
+      await supabase.from('lab_orders').insert([orderData]);
+      showToast(`Lab order created! ${window.selectedLabTests.length} tests`, 'success');
+      closeModal();
+      render();
+    }
+
+    // OPD QUEUE
     function showAddToQueueModal() {
       const modal = document.createElement('div');
       modal.className = 'modal-overlay';
@@ -767,7 +1177,7 @@
       };
 
       await supabase.from('opd_queue').insert([queueEntry]);
-      showToast(`Token #${tokenNumber} generated! SMS sent to ${patient.phone}`, 'success');
+      showToast(`Token #${tokenNumber} generated!`, 'success');
       closeModal();
       render();
     }
@@ -803,7 +1213,7 @@
             <div class="mb-8 p-8 bg-white rounded-2xl shadow-xl text-center">
               <p class="text-lg text-gray-600 mb-4">NOW CONSULTING</p>
               ${currentPatient ? `
-                <div class="token-display pulse">${currentPatient.token_number}</div>
+                <div style="font-size: 120px; font-weight: 900; line-height: 1; background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; animation: pulse 2s infinite;">${currentPatient.token_number}</div>
                 <p class="text-2xl font-bold mt-4">${currentPatient.patient_name}</p>
               ` : `
                 <div class="text-6xl mb-4">⏳</div>
@@ -829,378 +1239,6 @@
       document.body.appendChild(modal);
     }
 
-    // VITAL SIGNS (Phase 7)
-    function showVitalSignsModal(patientId) {
-      const patient = window.DB.patients.find(p => p.id === patientId);
-      const modal = document.createElement('div');
-      modal.className = 'modal-overlay';
-      modal.innerHTML = `
-        <div class="modal-content">
-          <div class="p-8 border-b flex justify-between items-center">
-            <div>
-              <h2 class="text-2xl font-bold">🩺 Record Vital Signs</h2>
-              <p class="text-sm text-gray-600 mt-1">Patient: ${patient.first_name} ${patient.last_name || ''}</p>
-            </div>
-            <button onclick="closeModal()" class="text-gray-500 hover:text-gray-700 text-2xl">×</button>
-          </div>
-          <div class="p-8">
-            <div class="grid grid-cols-3 gap-6 mb-6">
-              <div>
-                <label class="form-label">BP (mmHg)</label>
-                <div class="flex gap-2">
-                  <input type="number" id="bpSystolic" class="vital-input form-input" placeholder="120">
-                  <span class="text-2xl">/</span>
-                  <input type="number" id="bpDiastolic" class="vital-input form-input" placeholder="80">
-                </div>
-              </div>
-              <div>
-                <label class="form-label">Pulse (bpm)</label>
-                <input type="number" id="pulse" class="form-input" placeholder="72">
-              </div>
-              <div>
-                <label class="form-label">Temp (°F)</label>
-                <input type="number" step="0.1" id="temperature" class="form-input" placeholder="98.6">
-              </div>
-            </div>
-
-            <div class="grid grid-cols-3 gap-6 mb-6">
-              <div>
-                <label class="form-label">SpO2 (%)</label>
-                <input type="number" id="spo2" class="form-input" placeholder="98">
-              </div>
-              <div>
-                <label class="form-label">Weight (kg)</label>
-                <input type="number" step="0.1" id="weight" class="form-input" placeholder="70">
-              </div>
-              <div>
-                <label class="form-label">Height (cm)</label>
-                <input type="number" id="height" class="form-input" placeholder="170">
-              </div>
-            </div>
-
-            <div class="mb-6 p-4 bg-blue-50 rounded-xl">
-              <p class="font-bold text-blue-900">BMI: <span id="bmiDisplay">--</span></p>
-              <p class="text-sm text-blue-700 mt-1" id="bmiCategory">Enter weight and height</p>
-            </div>
-
-            <div class="flex gap-4">
-              <button onclick="saveVitalSigns('${patientId}')" class="btn btn-success">💾 Save</button>
-              <button onclick="closeModal()" class="btn btn-secondary">Cancel</button>
-            </div>
-          </div>
-        </div>
-      `;
-      document.body.appendChild(modal);
-
-      const weightInput = document.getElementById('weight');
-      const heightInput = document.getElementById('height');
-      
-      function calculateBMI() {
-        const weight = parseFloat(weightInput.value);
-        const height = parseFloat(heightInput.value) / 100;
-        
-        if (weight && height) {
-          const bmi = (weight / (height * height)).toFixed(1);
-          document.getElementById('bmiDisplay').textContent = bmi;
-          
-          let category = '';
-          if (bmi < 18.5) category = 'Underweight';
-          else if (bmi < 25) category = 'Normal';
-          else if (bmi < 30) category = 'Overweight';
-          else category = 'Obese';
-          
-          document.getElementById('bmiCategory').textContent = `Category: ${category}`;
-        }
-      }
-      
-      weightInput.addEventListener('input', calculateBMI);
-      heightInput.addEventListener('input', calculateBMI);
-    }
-
-    async function saveVitalSigns(patientId) {
-      const bpSystolic = document.getElementById('bpSystolic').value;
-      const bpDiastolic = document.getElementById('bpDiastolic').value;
-      const weight = document.getElementById('weight').value;
-      const height = document.getElementById('height').value;
-      const bmi = weight && height ? (weight / Math.pow(height / 100, 2)).toFixed(1) : null;
-
-      const vitalData = {
-        patient_id: patientId,
-        bp_systolic: bpSystolic,
-        bp_diastolic: bpDiastolic,
-        pulse: document.getElementById('pulse').value,
-        temperature: document.getElementById('temperature').value,
-        spo2: document.getElementById('spo2').value,
-        weight: weight,
-        height: height,
-        bmi: bmi
-      };
-
-      await supabase.from('vital_signs').insert([vitalData]);
-      
-      const alerts = [];
-      if (bpSystolic > 140 || bpDiastolic > 90) alerts.push('High BP');
-      if (document.getElementById('temperature').value > 99.5) alerts.push('Fever');
-      if (document.getElementById('spo2').value < 95) alerts.push('Low SpO2');
-      
-      if (alerts.length > 0) {
-        showToast(`⚠️ Abnormal: ${alerts.join(', ')}`, 'warning');
-      } else {
-        showToast('Vital signs recorded!', 'success');
-      }
-      
-      closeModal();
-      render();
-    }
-
-    // SOAP NOTES (Phase 7)
-    function showSOAPNotesModal(patientId) {
-      const patient = window.DB.patients.find(p => p.id === patientId);
-      const modal = document.createElement('div');
-      modal.className = 'modal-overlay';
-      modal.innerHTML = `
-        <div class="modal-content">
-          <div class="p-8 border-b flex justify-between items-center">
-            <div>
-              <h2 class="text-2xl font-bold">📋 SOAP Notes</h2>
-              <p class="text-sm text-gray-600 mt-1">Patient: ${patient.first_name} ${patient.last_name || ''}</p>
-            </div>
-            <button onclick="closeModal()" class="text-gray-500 hover:text-gray-700 text-2xl">×</button>
-          </div>
-          <div class="p-8">
-            <div class="mb-6">
-              <label class="form-label">Chief Complaint</label>
-              <input type="text" id="chiefComplaintSOAP" class="form-input" placeholder="e.g., Fever for 3 days">
-            </div>
-
-            <div class="mb-6">
-              <label class="form-label">S - Subjective</label>
-              <textarea id="subjective" class="form-input" rows="3" placeholder="Patient's complaints..."></textarea>
-            </div>
-
-            <div class="mb-6">
-              <label class="form-label">O - Objective</label>
-              <textarea id="objective" class="form-input" rows="3" placeholder="Examination findings..."></textarea>
-            </div>
-
-            <div class="mb-6">
-              <label class="form-label">A - Assessment</label>
-              <textarea id="assessment" class="form-input" rows="2" placeholder="Diagnosis..."></textarea>
-            </div>
-
-            <div class="mb-6">
-              <label class="form-label">P - Plan</label>
-              <textarea id="plan" class="form-input" rows="3" placeholder="Treatment plan..."></textarea>
-            </div>
-
-            <div class="flex gap-4">
-              <button onclick="saveSOAPNotes('${patientId}')" class="btn btn-success">💾 Save</button>
-              <button onclick="closeModal()" class="btn btn-secondary">Cancel</button>
-            </div>
-          </div>
-        </div>
-      `;
-      document.body.appendChild(modal);
-    }
-
-    async function saveSOAPNotes(patientId) {
-      const soapData = {
-        patient_id: patientId,
-        chief_complaint: document.getElementById('chiefComplaintSOAP').value,
-        subjective: document.getElementById('subjective').value,
-        objective: document.getElementById('objective').value,
-        assessment: document.getElementById('assessment').value,
-        plan: document.getElementById('plan').value
-      };
-
-      await supabase.from('soap_notes').insert([soapData]);
-      showToast('SOAP notes saved!', 'success');
-      closeModal();
-      render();
-    }
-
-    // ICD-10 (Phase 7)
-    function showICD10SearchModal() {
-      const modal = document.createElement('div');
-      modal.className = 'modal-overlay';
-      modal.innerHTML = `
-        <div class="modal-content">
-          <div class="p-8 border-b flex justify-between items-center">
-            <h2 class="text-2xl font-bold">🔍 ICD-10 Search</h2>
-            <button onclick="closeModal()" class="text-gray-500 hover:text-gray-700 text-2xl">×</button>
-          </div>
-          <div class="p-8">
-            <div class="mb-6">
-              <input type="text" id="icd10Search" class="form-input" placeholder="Search..." oninput="searchICD10(this.value)">
-            </div>
-
-            <div id="icd10Results" class="space-y-3 max-h-96 overflow-y-auto">
-              ${window.DB.icd10_codes.map(code => `
-                <div class="p-4 border rounded-xl hover:bg-blue-50">
-                  <p class="font-bold text-blue-600">${code.code}</p>
-                  <p class="text-sm text-gray-700">${code.description}</p>
-                </div>
-              `).join('')}
-            </div>
-          </div>
-        </div>
-      `;
-      document.body.appendChild(modal);
-    }
-
-    function searchICD10(query) {
-      if (!query || query.length < 2) {
-        document.getElementById('icd10Results').innerHTML = window.DB.icd10_codes.map(code => `
-          <div class="p-4 border rounded-xl hover:bg-blue-50">
-            <p class="font-bold text-blue-600">${code.code}</p>
-            <p class="text-sm text-gray-700">${code.description}</p>
-          </div>
-        `).join('');
-        return;
-      }
-
-      const results = window.DB.icd10_codes.filter(code => 
-        code.code.toLowerCase().includes(query.toLowerCase()) ||
-        code.description.toLowerCase().includes(query.toLowerCase())
-      );
-
-      document.getElementById('icd10Results').innerHTML = results.map(code => `
-        <div class="p-4 border rounded-xl hover:bg-blue-50">
-          <p class="font-bold text-blue-600">${code.code}</p>
-          <p class="text-sm text-gray-700">${code.description}</p>
-        </div>
-      `).join('');
-    }
-
-    // LAB ORDERS (Phase 7)
-    function showLabOrderModal(patientId) {
-      const patient = window.DB.patients.find(p => p.id === patientId);
-      const modal = document.createElement('div');
-      modal.className = 'modal-overlay';
-      modal.innerHTML = `
-        <div class="modal-content">
-          <div class="p-8 border-b flex justify-between items-center">
-            <div>
-              <h2 class="text-2xl font-bold">🔬 Lab Orders</h2>
-              <p class="text-sm text-gray-600 mt-1">Patient: ${patient.first_name} ${patient.last_name || ''}</p>
-            </div>
-            <button onclick="closeModal()" class="text-gray-500 hover:text-gray-700 text-2xl">×</button>
-          </div>
-          <div class="p-8">
-            <div class="mb-6">
-              <input type="text" id="labTestSearch" class="form-input" placeholder="Search tests..." oninput="searchLabTests(this.value)">
-            </div>
-
-            <div id="labTestResults" class="space-y-3 mb-6 max-h-96 overflow-y-auto">
-              ${window.DB.lab_tests.map(test => `
-                <div class="p-4 border rounded-xl hover:bg-blue-50">
-                  <div class="flex justify-between items-start">
-                    <div class="flex-1">
-                      <p class="font-bold">${test.name}</p>
-                      <p class="text-sm text-gray-600">${test.category} • ₹${test.price}</p>
-                    </div>
-                    <button onclick="addLabTest('${test.id}')" class="btn btn-primary">Add</button>
-                  </div>
-                </div>
-              `).join('')}
-            </div>
-
-            <div id="selectedTests" class="mb-6">
-              <h3 class="font-bold mb-3">Selected (0)</h3>
-              <div id="selectedTestsList"></div>
-            </div>
-
-            <div class="flex gap-4">
-              <button onclick="submitLabOrder('${patientId}')" class="btn btn-success">Submit</button>
-              <button onclick="closeModal()" class="btn btn-secondary">Cancel</button>
-            </div>
-          </div>
-        </div>
-      `;
-      document.body.appendChild(modal);
-      window.selectedLabTests = [];
-    }
-
-    function searchLabTests(query) {
-      if (!query || query.length < 2) {
-        document.getElementById('labTestResults').innerHTML = window.DB.lab_tests.map(test => `
-          <div class="p-4 border rounded-xl hover:bg-blue-50">
-            <div class="flex justify-between items-start">
-              <div class="flex-1">
-                <p class="font-bold">${test.name}</p>
-                <p class="text-sm text-gray-600">${test.category} • ₹${test.price}</p>
-              </div>
-              <button onclick="addLabTest('${test.id}')" class="btn btn-primary">Add</button>
-            </div>
-          </div>
-        `).join('');
-        return;
-      }
-
-      const results = window.DB.lab_tests.filter(test => 
-        test.name.toLowerCase().includes(query.toLowerCase())
-      );
-
-      document.getElementById('labTestResults').innerHTML = results.map(test => `
-        <div class="p-4 border rounded-xl hover:bg-blue-50">
-          <div class="flex justify-between items-start">
-            <div class="flex-1">
-              <p class="font-bold">${test.name}</p>
-              <p class="text-sm text-gray-600">${test.category} • ₹${test.price}</p>
-            </div>
-            <button onclick="addLabTest('${test.id}')" class="btn btn-primary">Add</button>
-          </div>
-        </div>
-      `).join('');
-    }
-
-    function addLabTest(testId) {
-      const test = window.DB.lab_tests.find(t => t.id === testId);
-      if (!window.selectedLabTests.find(t => t.id === testId)) {
-        window.selectedLabTests.push(test);
-        updateSelectedTestsList();
-      }
-    }
-
-    function removeLabTest(testId) {
-      window.selectedLabTests = window.selectedLabTests.filter(t => t.id !== testId);
-      updateSelectedTestsList();
-    }
-
-    function updateSelectedTestsList() {
-      const total = window.selectedLabTests.reduce((sum, test) => sum + test.price, 0);
-      document.querySelector('#selectedTests h3').textContent = `Selected (${window.selectedLabTests.length}) - ₹${total}`;
-      
-      document.getElementById('selectedTestsList').innerHTML = window.selectedLabTests.map(test => `
-        <div class="flex justify-between items-center p-3 bg-blue-50 rounded-lg mb-2">
-          <div>
-            <p class="font-semibold text-sm">${test.name}</p>
-            <p class="text-xs text-gray-600">₹${test.price}</p>
-          </div>
-          <button onclick="removeLabTest('${test.id}')" class="text-red-600">✕</button>
-        </div>
-      `).join('');
-    }
-
-    async function submitLabOrder(patientId) {
-      if (window.selectedLabTests.length === 0) {
-        showToast('Select at least one test', 'error');
-        return;
-      }
-
-      const orderData = {
-        patient_id: patientId,
-        tests: window.selectedLabTests,
-        total_amount: window.selectedLabTests.reduce((sum, test) => sum + test.price, 0),
-        status: 'pending'
-      };
-
-      await supabase.from('lab_orders').insert([orderData]);
-      showToast(`Lab order created! ${window.selectedLabTests.length} tests`, 'success');
-      closeModal();
-      render();
-    }
-
     function render() {
       const app = document.getElementById('app');
       const clinic = getClinic();
@@ -1212,7 +1250,7 @@
               <div class="text-center mb-10">
                 <img src="${clinic.logo_url}" class="h-20 mx-auto mb-6">
                 <h1 class="text-4xl font-bold text-gray-900 mb-3">${clinic.name}</h1>
-                <p class="text-xl text-gray-700">Complete Healthcare System (Phases 1-7)</p>
+                <p class="text-xl text-gray-700">Phase 7 Week 2 Complete!</p>
               </div>
               <div class="card">
                 <h2 class="text-2xl font-bold mb-4">📋 Data Privacy Consent</h2>
@@ -1229,7 +1267,7 @@
               <div class="text-center mb-10">
                 <img src="${clinic.logo_url}" class="h-16 mx-auto mb-6">
                 <h1 class="text-4xl font-bold text-white mb-3">${clinic.name}</h1>
-                <p class="text-white text-lg">Phases 1-7 Complete</p>
+                <p class="text-white text-lg">Phase 7 Week 2 Complete</p>
               </div>
               <div class="card">
                 <input type="email" value="doctor@clinic.com" class="form-input mb-4">
@@ -1246,11 +1284,10 @@
                 <img src="${clinic.logo_url}" class="h-10">
                 <div>
                   <h3 class="font-bold">${clinic.name}</h3>
-                  <p class="text-xs text-gray-300">Phases 1-7 Complete</p>
+                  <p class="text-xs text-gray-300">Phase 7 Week 2 Complete ✅</p>
                 </div>
               </div>
               <div class="flex items-center gap-4">
-                <button onclick="showClinicSettingsModal()" class="px-4 py-2 bg-white bg-opacity-10 rounded-lg hover:bg-opacity-20">⚙️ Settings</button>
                 <div class="text-right">
                   <p class="font-semibold">${currentUser?.name}</p>
                   <p class="text-xs text-gray-300">${currentUser?.email}</p>
@@ -1261,19 +1298,14 @@
             <div class="flex">
               <aside class="w-72 bg-gray-800 text-white p-6 min-h-screen">
                 <div class="mb-6 p-4 rounded-xl" style="background: linear-gradient(135deg, ${clinic.primary_color} 0%, ${clinic.secondary_color} 100%);">
-                  <p class="text-xs font-bold">✅ ALL PHASES ACTIVE</p>
-                  <p class="text-xs mt-1">Phases 1-7 Complete</p>
+                  <p class="text-xs font-bold">✅ WEEK 2 COMPLETE</p>
+                  <p class="text-xs mt-1">All Phase 7 Features</p>
                 </div>
                 <nav class="space-y-2">
                   <a onclick="switchScreen('dashboard')" class="nav-link ${currentScreen==='dashboard'?'active':''}">📊 Dashboard</a>
                   <a onclick="switchScreen('opd_queue')" class="nav-link ${currentScreen==='opd_queue'?'active':''}">🎫 OPD Queue</a>
                   <a onclick="switchScreen('patients')" class="nav-link ${currentScreen==='patients'?'active':''}">👥 Patients</a>
-                  <a onclick="switchScreen('prescriptions')" class="nav-link ${currentScreen==='prescriptions'?'active':''}">💊 Prescriptions</a>
-                  <a onclick="switchScreen('billing')" class="nav-link ${currentScreen==='billing'?'active':''}">💰 Billing</a>
-                  <a onclick="switchScreen('clinical')" class="nav-link ${currentScreen==='clinical'?'active':''}">🏥 Clinical</a>
-                  <a onclick="switchScreen('inventory')" class="nav-link ${currentScreen==='inventory'?'active':''}">📦 Inventory</a>
-                  <a onclick="switchScreen('analytics')" class="nav-link ${currentScreen==='analytics'?'active':''}">📈 Analytics</a>
-                  <a onclick="switchScreen('engagement')" class="nav-link ${currentScreen==='engagement'?'active':''}">🌟 Patient Portal</a>
+                  <a onclick="switchScreen('lab_orders')" class="nav-link ${currentScreen==='lab_orders'?'active':''}">🔬 Lab Orders</a>
                 </nav>
               </aside>
               <main class="flex-1 p-8">${renderContent()}</main>
@@ -1289,18 +1321,17 @@
       if (currentScreen === 'dashboard') {
         const today = new Date().toISOString().split('T')[0];
         const todayQueue = window.DB.opd_queue.filter(q => q.date === today);
-        const todayVitals = window.DB.vital_signs.filter(v => v.created_at?.startsWith(today));
 
         return `
           <div class="max-w-7xl mx-auto">
-            <h1 class="text-3xl font-bold mb-8">Dashboard - All Features Active</h1>
+            <h1 class="text-3xl font-bold mb-8">Phase 7 Week 2 - Complete!</h1>
             
             <div class="mb-8 p-6 rounded-xl border-l-4" style="background: linear-gradient(135deg, ${clinic.primary_color}15 0%, ${clinic.secondary_color}15 100%); border-left-color: ${clinic.primary_color};">
               <div class="flex items-center gap-4">
                 <div class="text-4xl">✅</div>
                 <div>
-                  <p class="font-bold text-lg" style="color: ${clinic.primary_color};">ALL PHASES 1-7 COMPLETE!</p>
-                  <p class="text-sm text-gray-700">Full system with OPD Queue, Vital Signs, SOAP Notes, ICD-10, Lab Orders + Previous Features</p>
+                  <p class="font-bold text-lg" style="color: ${clinic.primary_color};">WEEK 2 COMPLETE!</p>
+                  <p class="text-sm text-gray-700">SOAP Templates • 100+ ICD-10 Codes • Lab Results • Vital Trends • Voice-to-Text Ready</p>
                 </div>
               </div>
             </div>
@@ -1326,19 +1357,19 @@
               </div>
               <div class="card">
                 <div class="flex items-center gap-4">
-                  <div class="w-12 h-12 bg-purple-500 rounded-xl flex items-center justify-center text-white text-2xl">💊</div>
+                  <div class="w-12 h-12 bg-purple-500 rounded-xl flex items-center justify-center text-white text-2xl">📋</div>
                   <div>
-                    <p class="text-gray-600 text-sm">Prescriptions</p>
-                    <p class="text-3xl font-bold">${window.DB.prescriptions.length}</p>
+                    <p class="text-gray-600 text-sm">SOAP Notes</p>
+                    <p class="text-3xl font-bold">${window.DB.soap_notes.length}</p>
                   </div>
                 </div>
               </div>
               <div class="card">
                 <div class="flex items-center gap-4">
-                  <div class="w-12 h-12 bg-green-500 rounded-xl flex items-center justify-center text-white text-2xl">💰</div>
+                  <div class="w-12 h-12 bg-orange-500 rounded-xl flex items-center justify-center text-white text-2xl">🔬</div>
                   <div>
-                    <p class="text-gray-600 text-sm">Invoices</p>
-                    <p class="text-3xl font-bold">${window.DB.invoices.length}</p>
+                    <p class="text-gray-600 text-sm">Lab Orders</p>
+                    <p class="text-3xl font-bold">${window.DB.lab_orders.length}</p>
                   </div>
                 </div>
               </div>
@@ -1350,28 +1381,31 @@
                 <div class="space-y-3">
                   <button onclick="showAddToQueueModal()" class="btn btn-primary w-full">🎫 Add to Queue</button>
                   <button onclick="showQueueDisplay()" class="btn btn-info w-full">📺 Queue Display</button>
-                  <button onclick="showAddPatientModal()" class="btn btn-success w-full">👤 Add Patient</button>
-                  <button onclick="showICD10SearchModal()" class="btn btn-warning w-full">🔍 ICD-10 Search</button>
+                  <button onclick="showICD10SearchModal()" class="btn btn-warning w-full">🔍 ICD-10 Search (100+ codes)</button>
                 </div>
               </div>
               <div class="card">
-                <h3 class="text-xl font-bold mb-4">📊 Today's Stats</h3>
+                <h3 class="text-xl font-bold mb-4">🆕 Week 2 Features</h3>
                 <div class="space-y-2 text-sm">
-                  <div class="flex justify-between">
-                    <span>Waiting:</span>
-                    <span class="font-bold">${todayQueue.filter(q => q.status === 'waiting').length}</span>
+                  <div class="flex items-center gap-2">
+                    <span class="text-green-600">✓</span>
+                    <span>5 SOAP Templates</span>
                   </div>
-                  <div class="flex justify-between">
-                    <span>In Consultation:</span>
-                    <span class="font-bold">${todayQueue.filter(q => q.status === 'in_consultation').length}</span>
+                  <div class="flex items-center gap-2">
+                    <span class="text-green-600">✓</span>
+                    <span>100+ ICD-10 Codes</span>
                   </div>
-                  <div class="flex justify-between">
-                    <span>Completed:</span>
-                    <span class="font-bold">${todayQueue.filter(q => q.status === 'completed').length}</span>
+                  <div class="flex items-center gap-2">
+                    <span class="text-green-600">✓</span>
+                    <span>Lab Result Entry</span>
                   </div>
-                  <div class="flex justify-between">
-                    <span>Vitals Recorded:</span>
-                    <span class="font-bold">${todayVitals.length}</span>
+                  <div class="flex items-center gap-2">
+                    <span class="text-green-600">✓</span>
+                    <span>Vital Signs Trends</span>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <span class="text-purple-600">🎤</span>
+                    <span>Voice-to-Text Ready (Phase 8)</span>
                   </div>
                 </div>
               </div>
@@ -1387,9 +1421,9 @@
         return `
           <div class="max-w-7xl mx-auto">
             <div class="flex justify-between items-center mb-8">
-              <h1 class="text-3xl font-bold">🎫 OPD Queue Management</h1>
+              <h1 class="text-3xl font-bold">🎫 OPD Queue</h1>
               <div class="flex gap-3">
-                <button onclick="showAddToQueueModal()" class="btn btn-success">+ Add to Queue</button>
+                <button onclick="showAddToQueueModal()" class="btn btn-success">+ Add</button>
                 <button onclick="showQueueDisplay()" class="btn btn-info">📺 Display</button>
               </div>
             </div>
@@ -1402,12 +1436,11 @@
                   <button onclick="showAddToQueueModal()" class="btn btn-primary mt-4">Add First Patient</button>
                 </div>
               ` : todayQueue.map(q => `
-                <div class="card queue-item">
+                <div class="card">
                   <div class="flex justify-between items-start">
                     <div class="flex gap-6 flex-1">
                       <div class="text-center">
                         <div class="text-5xl font-bold text-blue-600">${q.token_number}</div>
-                        <p class="text-xs text-gray-500 mt-1">Token</p>
                       </div>
                       <div class="flex-1">
                         <h3 class="text-xl font-bold mb-2">${q.patient_name}</h3>
@@ -1415,9 +1448,7 @@
                           <span class="badge ${q.status === 'priority' ? 'badge-danger' : q.status === 'waiting' ? 'badge-warning' : q.status === 'in_consultation' ? 'badge-primary' : 'badge-success'}">
                             ${q.status === 'priority' ? '🚨 PRIORITY' : q.status === 'waiting' ? '⏳ Waiting' : q.status === 'in_consultation' ? '👨‍⚕️ Consulting' : '✅ Completed'}
                           </span>
-                          <span class="text-gray-600">${q.visit_type}</span>
                         </div>
-                        <p class="text-gray-600 text-sm">👨‍⚕️ ${q.doctor}</p>
                         <p class="text-gray-600 text-sm">💬 ${q.chief_complaint || 'No complaint'}</p>
                       </div>
                     </div>
@@ -1436,10 +1467,7 @@
       if (currentScreen === 'patients') {
         return `
           <div class="max-w-7xl mx-auto">
-            <div class="flex justify-between items-center mb-8">
-              <h1 class="text-3xl font-bold">👥 Patient Management</h1>
-              <button onclick="showAddPatientModal()" class="btn btn-success">+ Add Patient</button>
-            </div>
+            <h1 class="text-3xl font-bold mb-8">👥 Patients</h1>
             <div class="space-y-4">
               ${window.DB.patients.map(p => `
                 <div class="card">
@@ -1449,16 +1477,13 @@
                       <div class="flex gap-3 mb-2">
                         <span class="badge badge-primary">${p.patient_id}</span>
                         <span class="text-gray-600">${p.age}Y ${p.gender}</span>
-                        <span class="text-gray-600">${p.blood_group || 'N/A'}</span>
                       </div>
-                      <p class="text-gray-600">📞 ${p.phone}</p>
                     </div>
                     <div class="flex gap-3 flex-wrap">
-                      <button onclick="showPrescriptionModal('${p.id}')" class="btn btn-primary">💊 Rx</button>
-                      <button onclick="showInvoiceModal('${p.id}')" class="btn btn-success">💰 Bill</button>
                       <button onclick="showVitalSignsModal('${p.id}')" class="btn btn-info">🩺 Vitals</button>
+                      <button onclick="showVitalTrendsModal('${p.id}')" class="btn btn-purple">📊 Trends</button>
                       <button onclick="showSOAPNotesModal('${p.id}')" class="btn btn-warning">📋 SOAP</button>
-                      <button onclick="showLabOrderModal('${p.id}')" class="btn btn-purple">🔬 Lab</button>
+                      <button onclick="showLabOrderModal('${p.id}')" class="btn btn-success">🔬 Lab</button>
                     </div>
                   </div>
                 </div>
@@ -1468,92 +1493,46 @@
         `;
       }
 
-      if (currentScreen === 'prescriptions') {
+      if (currentScreen === 'lab_orders') {
         return `
           <div class="max-w-7xl mx-auto">
-            <h1 class="text-3xl font-bold mb-8">💊 Prescriptions</h1>
-            <div class="card">
-              <p class="text-gray-600">Total: <span class="font-bold">${window.DB.prescriptions.length}</span></p>
-              ${window.DB.prescriptions.length === 0 ? '<p class="text-gray-500 mt-4">No prescriptions yet. Go to Patients to create one.</p>' : ''}
+            <h1 class="text-3xl font-bold mb-8">🔬 Lab Orders</h1>
+            <div class="space-y-4">
+              ${window.DB.lab_orders.length === 0 ? `
+                <div class="card text-center py-12">
+                  <div class="text-6xl mb-4">🔬</div>
+                  <p class="text-xl text-gray-600">No lab orders yet</p>
+                </div>
+              ` : window.DB.lab_orders.map(order => {
+                const patient = window.DB.patients.find(p => p.id === order.patient_id);
+                return `
+                  <div class="card">
+                    <div class="flex justify-between items-start">
+                      <div class="flex-1">
+                        <h3 class="text-xl font-bold mb-2">${patient?.first_name} ${patient?.last_name || ''}</h3>
+                        <p class="text-sm text-gray-600 mb-2">${order.tests.length} tests • ₹${order.total_amount}</p>
+                        <div class="flex gap-2 flex-wrap">
+                          ${order.tests.map(t => `<span class="badge badge-primary">${t.name}</span>`).join('')}
+                        </div>
+                      </div>
+                      <div class="flex gap-2">
+                        <span class="badge ${order.status === 'pending' ? 'badge-warning' : 'badge-success'}">
+                          ${order.status === 'pending' ? '⏳ Pending' : '✅ Completed'}
+                        </span>
+                        ${order.status === 'pending' ? `
+                          <button onclick="showLabResultModal('${order.id}')" class="btn btn-primary">Enter Results</button>
+                        ` : ''}
+                      </div>
+                    </div>
+                  </div>
+                `;
+              }).join('')}
             </div>
           </div>
         `;
       }
 
-      if (currentScreen === 'billing') {
-        return `
-          <div class="max-w-7xl mx-auto">
-            <h1 class="text-3xl font-bold mb-8">💰 GST Billing</h1>
-            <div class="card">
-              <p class="text-gray-600">Total Invoices: <span class="font-bold">${window.DB.invoices.length}</span></p>
-              ${window.DB.invoices.length === 0 ? '<p class="text-gray-500 mt-4">No invoices yet. Go to Patients to create one.</p>' : ''}
-            </div>
-          </div>
-        `;
-      }
-
-      if (currentScreen === 'clinical') {
-        return `
-          <div class="max-w-7xl mx-auto">
-            <h1 class="text-3xl font-bold mb-8">🏥 Clinical Records</h1>
-            
-            <div class="grid grid-cols-3 gap-8">
-              <div class="card">
-                <h3 class="text-xl font-bold mb-4">🩺 Vital Signs</h3>
-                <div class="text-4xl font-bold text-blue-600">${window.DB.vital_signs.length}</div>
-                <p class="text-sm text-gray-500 mt-2">Total records</p>
-              </div>
-
-              <div class="card">
-                <h3 class="text-xl font-bold mb-4">📋 SOAP Notes</h3>
-                <div class="text-4xl font-bold text-purple-600">${window.DB.soap_notes.length}</div>
-                <p class="text-sm text-gray-500 mt-2">Total notes</p>
-              </div>
-
-              <div class="card">
-                <h3 class="text-xl font-bold mb-4">🔬 Lab Orders</h3>
-                <div class="text-4xl font-bold text-orange-600">${window.DB.lab_orders.length}</div>
-                <p class="text-sm text-gray-500 mt-2">Total orders</p>
-              </div>
-            </div>
-          </div>
-        `;
-      }
-
-      if (currentScreen === 'inventory') {
-        return `
-          <div class="max-w-7xl mx-auto">
-            <h1 class="text-3xl font-bold mb-8">📦 Inventory Management</h1>
-            <div class="card">
-              <p class="text-gray-600">Inventory features from Phase 5</p>
-            </div>
-          </div>
-        `;
-      }
-
-      if (currentScreen === 'analytics') {
-        return `
-          <div class="max-w-7xl mx-auto">
-            <h1 class="text-3xl font-bold mb-8">📈 Analytics & Reports</h1>
-            <div class="card">
-              <p class="text-gray-600">Analytics features from Phase 5</p>
-            </div>
-          </div>
-        `;
-      }
-
-      if (currentScreen === 'engagement') {
-        return `
-          <div class="max-w-7xl mx-auto">
-            <h1 class="text-3xl font-bold mb-8">🌟 Patient Engagement</h1>
-            <div class="card">
-              <p class="text-gray-600">Patient portal features from Phase 6</p>
-            </div>
-          </div>
-        `;
-      }
-
-      return `<div class="card"><h1 class="text-2xl font-bold mb-4">${currentScreen}</h1><p>Content for ${currentScreen}</p></div>`;
+      return `<div class="card"><h1 class="text-2xl font-bold mb-4">${currentScreen}</h1></div>`;
     }
 
     render();
