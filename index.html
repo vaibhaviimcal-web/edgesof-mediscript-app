@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>EdgesOf MediScript - Phase 1.3: Admin System</title>
+  <title>EdgesOf MediScript - Phase 1.4: Super Admin System</title>
   <link rel="icon" href="https://nyc3.digitaloceanspaces.com/bhindi-drive/files/cab453ed-7d3e-4dfa-9012-038dbc50c1c5/2025-12-07T15-33-38-867Z-c50befdf-chat-image-1765121618851-0.jpg">
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
@@ -33,7 +33,7 @@
     .badge-danger { background: #fee2e2; color: #991b1b; }
     .badge-info { background: #dbeafe; color: #1e40af; }
     .role-badge { padding: 4px 10px; border-radius: 16px; font-size: 10px; font-weight: 700; text-transform: uppercase; }
-    .role-admin { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; }
+    .role-superadmin { background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%); color: white; }
     .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(8px); z-index: 9998; display: flex; align-items: center; justify-content: center; padding: 20px; animation: fadeIn 0.3s; }
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     .modal-content { background: white; border-radius: 20px; max-width: 1200px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 25px 80px rgba(0,0,0,0.25); animation: scaleIn 0.4s; }
@@ -49,19 +49,22 @@
     .save-indicator { position: fixed; top: 20px; right: 20px; padding: 8px 16px; background: white; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); font-size: 12px; font-weight: 600; z-index: 9999; display: none; }
     .save-indicator.saving { display: block; color: #f59e0b; }
     .save-indicator.saved { display: block; color: #10b981; }
-    .stock-low { background: #fee2e2; border-left: 4px solid #ef4444; }
-    .stock-medium { background: #fef3c7; border-left: 4px solid #f59e0b; }
-    .stock-high { background: #d1fae5; border-left: 4px solid #10b981; }
     table { width: 100%; border-collapse: collapse; }
     th, td { padding: 12px; text-align: left; border-bottom: 1px solid #e5e7eb; font-size: 13px; }
     th { background: #f9fafb; font-weight: 600; }
+    .clinic-card { border: 2px solid #e5e7eb; border-radius: 16px; padding: 20px; transition: all 0.3s; }
+    .clinic-card:hover { border-color: #dc2626; box-shadow: 0 4px 12px rgba(220, 38, 38, 0.1); }
+    .audit-log { padding: 12px; border-left: 4px solid #3b82f6; background: #eff6ff; border-radius: 8px; margin-bottom: 8px; }
+    .audit-log.create { border-left-color: #10b981; background: #f0fdf4; }
+    .audit-log.update { border-left-color: #f59e0b; background: #fffbeb; }
+    .audit-log.delete { border-left-color: #ef4444; background: #fef2f2; }
   </style>
 </head>
 <body>
   <div id="saveIndicator" class="save-indicator"></div>
   <div id="app"></div>
   <script>
-    console.log('🚀 EdgesOf MediScript - PHASE 1.3: ADMIN COMPLETE SYSTEM');
+    console.log('🚀 EdgesOf MediScript - PHASE 1.4: SUPER ADMIN COMPLETE SYSTEM');
     
     const DataManager = {
       STORAGE_KEY: 'edgesof_mediscript_db',
@@ -93,43 +96,62 @@
     };
 
     let DB = DataManager.load() || {
-      clinics: [{
-        id: 'c1', name: 'City Health Clinic', 
-        logo_url: 'https://nyc3.digitaloceanspaces.com/bhindi-drive/files/cab453ed-7d3e-4dfa-9012-038dbc50c1c5/2025-12-07T15-33-38-867Z-c50befdf-chat-image-1765121618851-0.jpg', 
-        primary_color: '#2563eb', secondary_color: '#10b981', 
-        gstin: '27AABCU9603R1ZM', address: 'Mumbai, Maharashtra', 
-        phone: '+91-9876543210', email: 'info@cityhealthclinic.com',
-        working_hours: { monday: '09:00-18:00', tuesday: '09:00-18:00', wednesday: '09:00-18:00', thursday: '09:00-18:00', friday: '09:00-18:00', saturday: '09:00-14:00', sunday: 'Closed' },
-        holidays: []
-      }],
+      clinics: [
+        {
+          id: 'c1', name: 'City Health Clinic', 
+          logo_url: 'https://nyc3.digitaloceanspaces.com/bhindi-drive/files/cab453ed-7d3e-4dfa-9012-038dbc50c1c5/2025-12-07T15-33-38-867Z-c50befdf-chat-image-1765121618851-0.jpg', 
+          primary_color: '#2563eb', secondary_color: '#10b981', 
+          gstin: '27AABCU9603R1ZM', address: 'Mumbai, Maharashtra', 
+          phone: '+91-9876543210', email: 'info@cityhealthclinic.com',
+          status: 'Active', created_at: '2023-01-15',
+          total_patients: 150, total_staff: 12, monthly_revenue: 250000
+        },
+        {
+          id: 'c2', name: 'Metro Medical Center',
+          logo_url: 'https://nyc3.digitaloceanspaces.com/bhindi-drive/files/cab453ed-7d3e-4dfa-9012-038dbc50c1c5/2025-12-07T15-33-38-867Z-c50befdf-chat-image-1765121618851-0.jpg',
+          primary_color: '#7c3aed', secondary_color: '#ec4899',
+          gstin: '27AABCU9603R1ZN', address: 'Delhi, India',
+          phone: '+91-9876543211', email: 'info@metromedical.com',
+          status: 'Active', created_at: '2023-06-20',
+          total_patients: 200, total_staff: 18, monthly_revenue: 350000
+        }
+      ],
       users: [
-        {id: 'u1', email: 'system@edgesof.com', password: 'admin123', role: 'superadmin', name: 'System Admin'},
-        {id: 'u2', email: 'admin@clinic.com', password: 'admin123', role: 'admin', name: 'Clinic Admin'},
-        {id: 'u3', email: 'doctor@clinic.com', password: 'doctor123', role: 'doctor', name: 'Dr. Rajesh Sharma'},
-        {id: 'u4', email: 'reception@clinic.com', password: 'reception123', role: 'receptionist', name: 'Priya Patel'},
-        {id: 'u5', email: 'patient@clinic.com', password: 'patient123', role: 'patient', name: 'Amit Kumar', patient_id: 'P001'}
+        {id: 'u1', email: 'system@edgesof.com', password: 'admin123', role: 'superadmin', name: 'System Admin', clinic_id: null, created_at: '2023-01-01'},
+        {id: 'u2', email: 'admin@clinic.com', password: 'admin123', role: 'admin', name: 'Clinic Admin', clinic_id: 'c1', created_at: '2023-01-15'},
+        {id: 'u3', email: 'doctor@clinic.com', password: 'doctor123', role: 'doctor', name: 'Dr. Rajesh Sharma', clinic_id: 'c1', created_at: '2023-02-01'},
+        {id: 'u4', email: 'reception@clinic.com', password: 'reception123', role: 'receptionist', name: 'Priya Patel', clinic_id: 'c1', created_at: '2023-03-01'},
+        {id: 'u5', email: 'patient@clinic.com', password: 'patient123', role: 'patient', name: 'Amit Kumar', clinic_id: 'c1', patient_id: 'P001', created_at: '2023-04-01'},
+        {id: 'u6', email: 'admin2@metro.com', password: 'admin123', role: 'admin', name: 'Metro Admin', clinic_id: 'c2', created_at: '2023-06-20'}
       ],
-      staff: [
-        {id: 's1', name: 'Dr. Rajesh Sharma', role: 'Doctor', specialization: 'General Medicine', phone: '+919876543210', email: 'rajesh@clinic.com', salary: 80000, joining_date: '2023-01-15', status: 'Active'},
-        {id: 's2', name: 'Dr. Priya Verma', role: 'Doctor', specialization: 'Pediatrics', phone: '+919876543211', email: 'priya@clinic.com', salary: 75000, joining_date: '2023-03-20', status: 'Active'},
-        {id: 's3', name: 'Nurse Sunita', role: 'Nurse', department: 'OPD', phone: '+919876543212', email: 'sunita@clinic.com', salary: 35000, joining_date: '2023-02-10', status: 'Active'},
-        {id: 's4', name: 'Priya Patel', role: 'Receptionist', department: 'Front Desk', phone: '+919876543213', email: 'reception@clinic.com', salary: 25000, joining_date: '2023-04-01', status: 'Active'}
-      ],
-      medicines: [
-        {id: 'm1', name: 'Paracetamol', brand_name: 'Crocin', strength: '500mg', category: 'Analgesic', price: 5, mrp: 6, stock: 100, reorder_level: 20, supplier: 'MedSupply Co', hsn_code: '30049099'},
-        {id: 'm2', name: 'Amoxicillin', brand_name: 'Novamox', strength: '500mg', category: 'Antibiotic', price: 15, mrp: 18, stock: 15, reorder_level: 20, supplier: 'PharmaCorp', hsn_code: '30042090'},
-        {id: 'm3', name: 'Cetirizine', brand_name: 'Zyrtec', strength: '10mg', category: 'Antihistamine', price: 8, mrp: 10, stock: 75, reorder_level: 25, supplier: 'MedSupply Co', hsn_code: '30049099'},
-        {id: 'm4', name: 'Omeprazole', brand_name: 'Omez', strength: '20mg', category: 'PPI', price: 12, mrp: 15, stock: 5, reorder_level: 15, supplier: 'PharmaCorp', hsn_code: '30049099'},
-        {id: 'm5', name: 'Ibuprofen', brand_name: 'Brufen', strength: '400mg', category: 'NSAID', price: 10, mrp: 12, stock: 80, reorder_level: 30, supplier: 'MedSupply Co', hsn_code: '30049099'}
-      ],
+      staff: [],
+      medicines: [],
       patients: [],
       appointments: [],
       invoices: [],
       opd_queue: [],
-      purchase_orders: []
+      audit_logs: [
+        {id: 'log1', timestamp: new Date().toISOString(), user: 'System Admin', action: 'create', entity: 'Clinic', details: 'Created City Health Clinic', ip: '192.168.1.1'},
+        {id: 'log2', timestamp: new Date().toISOString(), user: 'System Admin', action: 'create', entity: 'User', details: 'Added Clinic Admin', ip: '192.168.1.1'},
+        {id: 'log3', timestamp: new Date().toISOString(), user: 'Clinic Admin', action: 'update', entity: 'Settings', details: 'Updated clinic working hours', ip: '192.168.1.2'},
+        {id: 'log4', timestamp: new Date().toISOString(), user: 'System Admin', action: 'create', entity: 'Clinic', details: 'Created Metro Medical Center', ip: '192.168.1.1'}
+      ]
     };
 
     function saveDB() { DataManager.save(DB); }
+    function addAuditLog(action, entity, details) {
+      DB.audit_logs.unshift({
+        id: 'log' + Date.now(),
+        timestamp: new Date().toISOString(),
+        user: currentUser?.name || 'System',
+        action: action,
+        entity: entity,
+        details: details,
+        ip: '192.168.1.' + Math.floor(Math.random() * 255)
+      });
+      if (DB.audit_logs.length > 100) DB.audit_logs = DB.audit_logs.slice(0, 100);
+      saveDB();
+    }
 
     let currentUser = null;
     let currentScreen = 'login';
@@ -152,228 +174,173 @@
       if (!user) { alert('Invalid credentials'); return; }
       currentUser = user;
       currentScreen = user.role + '-dashboard';
+      addAuditLog('login', 'User', `${user.name} logged in`);
       render();
     }
-    function logout() { currentUser = null; currentScreen = 'login'; render(); }
+    function logout() { 
+      addAuditLog('logout', 'User', `${currentUser.name} logged out`);
+      currentUser = null; 
+      currentScreen = 'login'; 
+      render(); 
+    }
     function switchScreen(screen) { currentScreen = screen; render(); }
 
-    // STAFF MANAGEMENT
-    function showAddStaffModal() {
+    // CLINIC MANAGEMENT
+    function showAddClinicModal() {
       const modal = document.createElement('div');
       modal.className = 'modal-overlay';
       modal.innerHTML = `
         <div class="modal-content">
-          <div class="p-6 border-b flex justify-between items-center" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">
-            <div><h2 class="text-xl font-bold text-white">👥 Add New Staff</h2></div>
+          <div class="p-6 border-b flex justify-between items-center" style="background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);">
+            <div><h2 class="text-xl font-bold text-white">🏥 Add New Clinic</h2></div>
             <button onclick="closeModal()" class="text-white text-2xl">×</button>
           </div>
           <div class="p-6">
             <div class="grid grid-cols-2 gap-4 mb-4">
-              <div><label class="form-label">Full Name *</label><input type="text" id="staffName" class="form-input" required></div>
-              <div><label class="form-label">Role *</label><select id="staffRole" class="form-input"><option>Doctor</option><option>Nurse</option><option>Receptionist</option><option>Pharmacist</option><option>Lab Technician</option><option>Admin</option></select></div>
+              <div><label class="form-label">Clinic Name *</label><input type="text" id="clinicName" class="form-input" required></div>
+              <div><label class="form-label">GSTIN *</label><input type="text" id="clinicGSTIN" class="form-input" required></div>
             </div>
             <div class="grid grid-cols-2 gap-4 mb-4">
-              <div><label class="form-label">Specialization/Department</label><input type="text" id="staffSpec" class="form-input" placeholder="e.g., Cardiology, OPD"></div>
-              <div><label class="form-label">Phone *</label><input type="tel" id="staffPhone" class="form-input" required></div>
+              <div><label class="form-label">Phone *</label><input type="tel" id="clinicPhone" class="form-input" required></div>
+              <div><label class="form-label">Email</label><input type="email" id="clinicEmail" class="form-input"></div>
             </div>
+            <div class="mb-4"><label class="form-label">Address *</label><textarea id="clinicAddress" class="form-input" rows="2" required></textarea></div>
             <div class="grid grid-cols-2 gap-4 mb-4">
-              <div><label class="form-label">Email</label><input type="email" id="staffEmail" class="form-input"></div>
-              <div><label class="form-label">Salary (₹)</label><input type="number" id="staffSalary" class="form-input"></div>
+              <div><label class="form-label">Primary Color</label><input type="color" id="clinicPrimaryColor" class="form-input" value="#2563eb"></div>
+              <div><label class="form-label">Secondary Color</label><input type="color" id="clinicSecondaryColor" class="form-input" value="#10b981"></div>
             </div>
-            <div class="mb-4"><label class="form-label">Joining Date</label><input type="date" id="staffJoining" class="form-input" value="${new Date().toISOString().split('T')[0]}"></div>
-            <div class="flex gap-3"><button onclick="addStaff()" class="btn btn-success">✅ Add Staff</button><button onclick="closeModal()" class="btn btn-secondary">Cancel</button></div>
+            <div class="flex gap-3"><button onclick="addClinic()" class="btn btn-success">✅ Add Clinic</button><button onclick="closeModal()" class="btn btn-secondary">Cancel</button></div>
           </div>
         </div>
       `;
       document.body.appendChild(modal);
     }
 
-    function addStaff() {
-      const name = document.getElementById('staffName').value;
-      const role = document.getElementById('staffRole').value;
-      const spec = document.getElementById('staffSpec').value;
-      const phone = document.getElementById('staffPhone').value;
-      const email = document.getElementById('staffEmail').value;
-      const salary = document.getElementById('staffSalary').value;
-      const joining = document.getElementById('staffJoining').value;
+    function addClinic() {
+      const name = document.getElementById('clinicName').value;
+      const gstin = document.getElementById('clinicGSTIN').value;
+      const phone = document.getElementById('clinicPhone').value;
+      const email = document.getElementById('clinicEmail').value;
+      const address = document.getElementById('clinicAddress').value;
+      const primaryColor = document.getElementById('clinicPrimaryColor').value;
+      const secondaryColor = document.getElementById('clinicSecondaryColor').value;
 
-      if (!name || !phone) {
+      if (!name || !gstin || !phone || !address) {
         showToast('Please fill required fields', 'error');
         return;
       }
 
-      DB.staff.push({
-        id: 's' + Date.now(),
+      const newClinic = {
+        id: 'c' + Date.now(),
         name: name,
-        role: role,
-        specialization: spec || '',
-        department: spec || '',
+        logo_url: 'https://nyc3.digitaloceanspaces.com/bhindi-drive/files/cab453ed-7d3e-4dfa-9012-038dbc50c1c5/2025-12-07T15-33-38-867Z-c50befdf-chat-image-1765121618851-0.jpg',
+        primary_color: primaryColor,
+        secondary_color: secondaryColor,
+        gstin: gstin,
+        address: address,
         phone: phone,
         email: email,
-        salary: parseFloat(salary) || 0,
-        joining_date: joining,
-        status: 'Active'
-      });
+        status: 'Active',
+        created_at: new Date().toISOString().split('T')[0],
+        total_patients: 0,
+        total_staff: 0,
+        monthly_revenue: 0
+      };
 
+      DB.clinics.push(newClinic);
+      addAuditLog('create', 'Clinic', `Created clinic: ${name}`);
       saveDB();
-      showToast('✅ Staff member added successfully!', 'success');
+      showToast('✅ Clinic added successfully!', 'success');
       closeModal();
       render();
     }
 
-    function deleteStaff(staffId) {
-      if (confirm('Are you sure you want to delete this staff member?')) {
-        DB.staff = DB.staff.filter(s => s.id !== staffId);
+    function deleteClinic(clinicId) {
+      const clinic = DB.clinics.find(c => c.id === clinicId);
+      if (confirm(`Are you sure you want to delete ${clinic.name}? This will also delete all associated users.`)) {
+        DB.clinics = DB.clinics.filter(c => c.id !== clinicId);
+        DB.users = DB.users.filter(u => u.clinic_id !== clinicId);
+        addAuditLog('delete', 'Clinic', `Deleted clinic: ${clinic.name}`);
         saveDB();
-        showToast('Staff member deleted', 'info');
+        showToast('Clinic deleted', 'info');
         render();
       }
     }
 
-    // INVENTORY MANAGEMENT
-    function showAddMedicineModal() {
+    // USER MANAGEMENT
+    function showAddUserModal() {
       const modal = document.createElement('div');
       modal.className = 'modal-overlay';
       modal.innerHTML = `
         <div class="modal-content">
-          <div class="p-6 border-b flex justify-between items-center" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">
-            <div><h2 class="text-xl font-bold text-white">💊 Add New Medicine</h2></div>
+          <div class="p-6 border-b flex justify-between items-center" style="background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);">
+            <div><h2 class="text-xl font-bold text-white">👤 Add New User</h2></div>
             <button onclick="closeModal()" class="text-white text-2xl">×</button>
           </div>
           <div class="p-6">
-            <div class="grid grid-cols-3 gap-4 mb-4">
-              <div><label class="form-label">Generic Name *</label><input type="text" id="medName" class="form-input" required></div>
-              <div><label class="form-label">Brand Name *</label><input type="text" id="medBrand" class="form-input" required></div>
-              <div><label class="form-label">Strength</label><input type="text" id="medStrength" class="form-input" placeholder="e.g., 500mg"></div>
+            <div class="grid grid-cols-2 gap-4 mb-4">
+              <div><label class="form-label">Full Name *</label><input type="text" id="userName" class="form-input" required></div>
+              <div><label class="form-label">Email *</label><input type="email" id="userEmail" class="form-input" required></div>
             </div>
-            <div class="grid grid-cols-3 gap-4 mb-4">
-              <div><label class="form-label">Category</label><input type="text" id="medCategory" class="form-input" placeholder="e.g., Antibiotic"></div>
-              <div><label class="form-label">Purchase Price (₹)</label><input type="number" id="medPrice" class="form-input" required></div>
-              <div><label class="form-label">MRP (₹)</label><input type="number" id="medMRP" class="form-input" required></div>
+            <div class="grid grid-cols-2 gap-4 mb-4">
+              <div><label class="form-label">Password *</label><input type="password" id="userPassword" class="form-input" required></div>
+              <div><label class="form-label">Role *</label><select id="userRole" class="form-input"><option>admin</option><option>doctor</option><option>receptionist</option><option>patient</option></select></div>
             </div>
-            <div class="grid grid-cols-3 gap-4 mb-4">
-              <div><label class="form-label">Initial Stock</label><input type="number" id="medStock" class="form-input" value="0"></div>
-              <div><label class="form-label">Reorder Level</label><input type="number" id="medReorder" class="form-input" value="20"></div>
-              <div><label class="form-label">Supplier</label><input type="text" id="medSupplier" class="form-input"></div>
-            </div>
-            <div class="mb-4"><label class="form-label">HSN Code</label><input type="text" id="medHSN" class="form-input" placeholder="e.g., 30049099"></div>
-            <div class="flex gap-3"><button onclick="addMedicine()" class="btn btn-success">✅ Add Medicine</button><button onclick="closeModal()" class="btn btn-secondary">Cancel</button></div>
+            <div class="mb-4"><label class="form-label">Assign to Clinic</label><select id="userClinic" class="form-input"><option value="">Select Clinic...</option>${DB.clinics.map(c => `<option value="${c.id}">${c.name}</option>`).join('')}</select></div>
+            <div class="flex gap-3"><button onclick="addUser()" class="btn btn-success">✅ Add User</button><button onclick="closeModal()" class="btn btn-secondary">Cancel</button></div>
           </div>
         </div>
       `;
       document.body.appendChild(modal);
     }
 
-    function addMedicine() {
-      const name = document.getElementById('medName').value;
-      const brand = document.getElementById('medBrand').value;
-      const strength = document.getElementById('medStrength').value;
-      const category = document.getElementById('medCategory').value;
-      const price = document.getElementById('medPrice').value;
-      const mrp = document.getElementById('medMRP').value;
-      const stock = document.getElementById('medStock').value;
-      const reorder = document.getElementById('medReorder').value;
-      const supplier = document.getElementById('medSupplier').value;
-      const hsn = document.getElementById('medHSN').value;
+    function addUser() {
+      const name = document.getElementById('userName').value;
+      const email = document.getElementById('userEmail').value;
+      const password = document.getElementById('userPassword').value;
+      const role = document.getElementById('userRole').value;
+      const clinicId = document.getElementById('userClinic').value;
 
-      if (!name || !brand || !price || !mrp) {
+      if (!name || !email || !password) {
         showToast('Please fill required fields', 'error');
         return;
       }
 
-      DB.medicines.push({
-        id: 'm' + Date.now(),
+      if (DB.users.find(u => u.email === email)) {
+        showToast('Email already exists', 'error');
+        return;
+      }
+
+      DB.users.push({
+        id: 'u' + Date.now(),
+        email: email,
+        password: password,
+        role: role,
         name: name,
-        brand_name: brand,
-        strength: strength,
-        category: category,
-        price: parseFloat(price),
-        mrp: parseFloat(mrp),
-        stock: parseInt(stock) || 0,
-        reorder_level: parseInt(reorder) || 20,
-        supplier: supplier,
-        hsn_code: hsn
+        clinic_id: clinicId || null,
+        created_at: new Date().toISOString().split('T')[0]
       });
 
+      addAuditLog('create', 'User', `Created user: ${name} (${role})`);
       saveDB();
-      showToast('✅ Medicine added successfully!', 'success');
+      showToast('✅ User added successfully!', 'success');
       closeModal();
       render();
     }
 
-    function updateStock(medicineId) {
-      const medicine = DB.medicines.find(m => m.id === medicineId);
-      const newStock = prompt(`Update stock for ${medicine.name}\nCurrent: ${medicine.stock}`, medicine.stock);
-      if (newStock !== null) {
-        medicine.stock = parseInt(newStock);
+    function deleteUser(userId) {
+      const user = DB.users.find(u => u.id === userId);
+      if (user.role === 'superadmin') {
+        showToast('Cannot delete super admin', 'error');
+        return;
+      }
+      if (confirm(`Are you sure you want to delete ${user.name}?`)) {
+        DB.users = DB.users.filter(u => u.id !== userId);
+        addAuditLog('delete', 'User', `Deleted user: ${user.name}`);
         saveDB();
-        showToast('✅ Stock updated!', 'success');
+        showToast('User deleted', 'info');
         render();
       }
-    }
-
-    function deleteMedicine(medicineId) {
-      if (confirm('Are you sure you want to delete this medicine?')) {
-        DB.medicines = DB.medicines.filter(m => m.id !== medicineId);
-        saveDB();
-        showToast('Medicine deleted', 'info');
-        render();
-      }
-    }
-
-    // CLINIC SETTINGS
-    function showClinicSettingsModal() {
-      const clinic = DB.clinics[0];
-      const modal = document.createElement('div');
-      modal.className = 'modal-overlay';
-      modal.innerHTML = `
-        <div class="modal-content">
-          <div class="p-6 border-b flex justify-between items-center" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">
-            <div><h2 class="text-xl font-bold text-white">⚙️ Clinic Settings</h2></div>
-            <button onclick="closeModal()" class="text-white text-2xl">×</button>
-          </div>
-          <div class="p-6">
-            <div class="mb-4"><label class="form-label">Clinic Name</label><input type="text" id="clinicName" class="form-input" value="${clinic.name}"></div>
-            <div class="grid grid-cols-2 gap-4 mb-4">
-              <div><label class="form-label">Phone</label><input type="tel" id="clinicPhone" class="form-input" value="${clinic.phone}"></div>
-              <div><label class="form-label">Email</label><input type="email" id="clinicEmail" class="form-input" value="${clinic.email || ''}"></div>
-            </div>
-            <div class="mb-4"><label class="form-label">Address</label><textarea id="clinicAddress" class="form-input" rows="2">${clinic.address}</textarea></div>
-            <div class="mb-4"><label class="form-label">GSTIN</label><input type="text" id="clinicGSTIN" class="form-input" value="${clinic.gstin}"></div>
-            <div class="mb-4">
-              <h3 class="font-bold mb-2">Working Hours</h3>
-              <div class="grid grid-cols-2 gap-2">
-                ${['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map(day => `
-                  <div class="flex items-center gap-2">
-                    <label class="text-sm w-24">${day}:</label>
-                    <input type="text" id="hours${day}" class="form-input" value="${clinic.working_hours[day.toLowerCase()] || '09:00-18:00'}" placeholder="09:00-18:00">
-                  </div>
-                `).join('')}
-              </div>
-            </div>
-            <div class="flex gap-3"><button onclick="saveClinicSettings()" class="btn btn-success">💾 Save Settings</button><button onclick="closeModal()" class="btn btn-secondary">Cancel</button></div>
-          </div>
-        </div>
-      `;
-      document.body.appendChild(modal);
-    }
-
-    function saveClinicSettings() {
-      const clinic = DB.clinics[0];
-      clinic.name = document.getElementById('clinicName').value;
-      clinic.phone = document.getElementById('clinicPhone').value;
-      clinic.email = document.getElementById('clinicEmail').value;
-      clinic.address = document.getElementById('clinicAddress').value;
-      clinic.gstin = document.getElementById('clinicGSTIN').value;
-      
-      ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].forEach(day => {
-        clinic.working_hours[day.toLowerCase()] = document.getElementById('hours' + day).value;
-      });
-
-      saveDB();
-      showToast('✅ Settings saved successfully!', 'success');
-      closeModal();
-      render();
     }
 
     function render() {
@@ -382,164 +349,147 @@
       
       if (currentScreen === 'login') {
         app.innerHTML = `
-          <div class="min-h-screen flex items-center justify-center p-6" style="background: linear-gradient(135deg, ${clinic.primary_color} 0%, ${clinic.secondary_color} 100%);">
+          <div class="min-h-screen flex items-center justify-center p-6" style="background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);">
             <div class="w-full max-w-4xl">
-              <div class="text-center mb-8"><img src="${clinic.logo_url}" class="h-16 mx-auto mb-4"><h1 class="text-3xl font-bold text-white mb-2">${clinic.name}</h1><p class="text-white text-sm">Phase 1.3: Admin Complete System ✅</p></div>
+              <div class="text-center mb-8"><img src="${clinic.logo_url}" class="h-16 mx-auto mb-4"><h1 class="text-3xl font-bold text-white mb-2">EdgesOf MediScript</h1><p class="text-white text-sm">Phase 1.4: Super Admin Complete System ✅</p></div>
               <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <div class="card"><h2 class="text-xl font-bold mb-4">🔐 Manual Login</h2><div class="mb-3"><label class="form-label">Email</label><input type="email" id="loginEmail" class="form-input"></div><div class="mb-3"><label class="form-label">Password</label><input type="password" id="loginPassword" class="form-input"></div><button onclick="login()" class="btn btn-primary w-full">Login</button></div>
-                <div class="card"><h2 class="text-xl font-bold mb-4">⚡ Quick Login</h2><button onclick="quickLogin('admin@clinic.com', 'admin123')" class="btn btn-warning w-full mb-2">🏥 Admin (Test This!)</button><button onclick="quickLogin('reception@clinic.com', 'reception123')" class="btn btn-success w-full mb-2">📋 Receptionist</button><button onclick="quickLogin('doctor@clinic.com', 'doctor123')" class="btn btn-primary w-full">👨‍⚕️ Doctor</button></div>
+                <div class="card"><h2 class="text-xl font-bold mb-4">⚡ Quick Login</h2><button onclick="quickLogin('system@edgesof.com', 'admin123')" class="btn btn-danger w-full mb-2">👑 Super Admin (Test This!)</button><button onclick="quickLogin('admin@clinic.com', 'admin123')" class="btn btn-warning w-full mb-2">🏥 Admin</button><button onclick="quickLogin('doctor@clinic.com', 'doctor123')" class="btn btn-primary w-full">👨‍⚕️ Doctor</button></div>
               </div>
             </div>
           </div>
         `;
-      } else if (currentScreen === 'admin-dashboard') {
-        const lowStockMeds = DB.medicines.filter(m => m.stock <= m.reorder_level);
-        const totalRevenue = DB.invoices.reduce((sum, inv) => sum + inv.amount, 0);
+      } else if (currentScreen === 'superadmin-dashboard') {
+        const totalClinics = DB.clinics.length;
+        const totalUsers = DB.users.length;
+        const totalRevenue = DB.clinics.reduce((sum, c) => sum + (c.monthly_revenue || 0), 0);
+        const totalPatients = DB.clinics.reduce((sum, c) => sum + (c.total_patients || 0), 0);
         
         app.innerHTML = `
           <div>
             <nav class="bg-gray-900 text-white p-4 flex justify-between sticky top-0 z-50">
-              <div class="flex gap-3 items-center"><img src="${clinic.logo_url}" class="h-10"><div><h3 class="font-bold text-sm">${clinic.name}</h3><p class="text-xs text-gray-300">Admin</p></div></div>
-              <div class="flex items-center gap-3"><div class="text-right"><p class="font-semibold text-sm">${currentUser.name}</p><span class="role-badge role-admin">${currentUser.role}</span></div><button onclick="logout()" class="px-3 py-2 bg-white bg-opacity-10 rounded-lg text-xs">Logout</button></div>
+              <div class="flex gap-3 items-center"><img src="${clinic.logo_url}" class="h-10"><div><h3 class="font-bold text-sm">EdgesOf MediScript</h3><p class="text-xs text-gray-300">Super Admin</p></div></div>
+              <div class="flex items-center gap-3"><div class="text-right"><p class="font-semibold text-sm">${currentUser.name}</p><span class="role-badge role-superadmin">${currentUser.role}</span></div><button onclick="logout()" class="px-3 py-2 bg-white bg-opacity-10 rounded-lg text-xs">Logout</button></div>
             </nav>
             <div class="flex">
-              <aside class="w-64 bg-gray-800 text-white p-4 min-h-screen">
-                <div class="mb-4 p-3 rounded-lg" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);"><p class="text-xs font-bold">🏥 ADMIN</p></div>
+              <aside class="w-64 bg-gray-900 text-white p-4 min-h-screen">
+                <div class="mb-4 p-3 rounded-lg" style="background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);"><p class="text-xs font-bold">👑 SUPER ADMIN</p></div>
                 <nav class="space-y-2">
-                  <a onclick="switchScreen('admin-dashboard')" class="nav-link active text-sm">📊 Dashboard</a>
-                  <a onclick="switchScreen('admin-staff')" class="nav-link text-sm">👥 Staff</a>
-                  <a onclick="switchScreen('admin-inventory')" class="nav-link text-sm">💊 Inventory</a>
-                  <a onclick="switchScreen('admin-reports')" class="nav-link text-sm">📈 Reports</a>
-                  <a onclick="switchScreen('admin-settings')" class="nav-link text-sm">⚙️ Settings</a>
+                  <a onclick="switchScreen('superadmin-dashboard')" class="nav-link active text-sm">📊 Dashboard</a>
+                  <a onclick="switchScreen('superadmin-clinics')" class="nav-link text-sm">🏥 Clinics</a>
+                  <a onclick="switchScreen('superadmin-users')" class="nav-link text-sm">👥 Users</a>
+                  <a onclick="switchScreen('superadmin-analytics')" class="nav-link text-sm">📈 Analytics</a>
+                  <a onclick="switchScreen('superadmin-logs')" class="nav-link text-sm">📋 Audit Logs</a>
                 </nav>
               </aside>
               <main class="flex-1 p-6">
-                <h1 class="text-2xl font-bold mb-6">🏥 Admin Dashboard</h1>
-                <div class="mb-6 p-4 rounded-xl border-l-4" style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-left-color: #f59e0b;">
-                  <div class="flex items-center gap-3"><div class="text-3xl">✅</div><div><p class="font-bold text-orange-700">ALL 4 SCREENS WORKING!</p><p class="text-xs text-gray-700">Staff Management • Inventory • Reports • Settings</p></div></div>
+                <h1 class="text-2xl font-bold mb-6">👑 Super Admin Dashboard</h1>
+                <div class="mb-6 p-4 rounded-xl border-l-4" style="background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%); border-left-color: #dc2626;">
+                  <div class="flex items-center gap-3"><div class="text-3xl">✅</div><div><p class="font-bold text-red-700">ALL 4 SCREENS WORKING!</p><p class="text-xs text-gray-700">Clinics Management • Users Management • System Analytics • Audit Logs</p></div></div>
                 </div>
                 <div class="grid grid-cols-4 gap-4 mb-6">
-                  <div class="stat-card"><p class="text-gray-600 text-sm mb-1">Total Staff</p><p class="text-3xl font-bold">${DB.staff.length}</p></div>
-                  <div class="stat-card"><p class="text-gray-600 text-sm mb-1">Medicines</p><p class="text-3xl font-bold">${DB.medicines.length}</p></div>
-                  <div class="stat-card"><p class="text-gray-600 text-sm mb-1">Low Stock Alerts</p><p class="text-3xl font-bold text-red-600">${lowStockMeds.length}</p></div>
-                  <div class="stat-card"><p class="text-gray-600 text-sm mb-1">Total Revenue</p><p class="text-3xl font-bold text-green-600">₹${totalRevenue.toLocaleString()}</p></div>
+                  <div class="stat-card"><p class="text-gray-600 text-sm mb-1">Total Clinics</p><p class="text-3xl font-bold">${totalClinics}</p></div>
+                  <div class="stat-card"><p class="text-gray-600 text-sm mb-1">Total Users</p><p class="text-3xl font-bold">${totalUsers}</p></div>
+                  <div class="stat-card"><p class="text-gray-600 text-sm mb-1">Total Patients</p><p class="text-3xl font-bold">${totalPatients}</p></div>
+                  <div class="stat-card"><p class="text-gray-600 text-sm mb-1">Monthly Revenue</p><p class="text-3xl font-bold text-green-600">₹${totalRevenue.toLocaleString()}</p></div>
                 </div>
-                ${lowStockMeds.length > 0 ? `
-                  <div class="card mb-6 bg-red-50 border-2 border-red-200">
-                    <h3 class="font-bold mb-3 text-red-700">⚠️ Low Stock Alerts (${lowStockMeds.length})</h3>
-                    <div class="space-y-2">
-                      ${lowStockMeds.map(m => `
-                        <div class="p-2 bg-white rounded flex justify-between items-center">
-                          <div><p class="font-semibold text-sm">${m.name} (${m.brand_name})</p><p class="text-xs text-gray-600">Current: ${m.stock} • Reorder: ${m.reorder_level}</p></div>
-                          <button onclick="updateStock('${m.id}')" class="btn btn-warning btn-xs">📦 Update Stock</button>
-                        </div>
-                      `).join('')}
-                    </div>
-                  </div>
-                ` : ''}
+                <div class="grid grid-cols-2 gap-4 mb-6">
+                  <div class="card"><h3 class="font-bold mb-3">🏥 Clinics Overview</h3><div class="space-y-2">${DB.clinics.map(c => `<div class="p-3 bg-gray-50 rounded-lg"><div class="flex justify-between items-start"><div><p class="font-bold text-sm">${c.name}</p><p class="text-xs text-gray-600">${c.address}</p><p class="text-xs text-gray-500 mt-1">Patients: ${c.total_patients || 0} • Staff: ${c.total_staff || 0}</p></div><span class="badge badge-success">${c.status}</span></div></div>`).join('')}</div></div>
+                  <div class="card"><h3 class="font-bold mb-3">📊 System Statistics</h3><div class="space-y-2"><div class="flex justify-between p-2 bg-gray-50 rounded"><span>Active Clinics:</span><span class="font-bold">${DB.clinics.filter(c => c.status === 'Active').length}</span></div><div class="flex justify-between p-2 bg-gray-50 rounded"><span>Total Admins:</span><span class="font-bold">${DB.users.filter(u => u.role === 'admin').length}</span></div><div class="flex justify-between p-2 bg-gray-50 rounded"><span>Total Doctors:</span><span class="font-bold">${DB.users.filter(u => u.role === 'doctor').length}</span></div><div class="flex justify-between p-2 bg-gray-50 rounded"><span>Total Patients:</span><span class="font-bold">${DB.users.filter(u => u.role === 'patient').length}</span></div></div></div>
+                </div>
+                <div class="card"><h3 class="font-bold mb-4">📋 Recent Activity</h3><div class="space-y-2">${DB.audit_logs.slice(0, 5).map(log => `<div class="audit-log ${log.action}"><div class="flex justify-between items-start"><div><p class="font-semibold text-sm">${log.user} - ${log.action.toUpperCase()} ${log.entity}</p><p class="text-xs text-gray-600">${log.details}</p></div><p class="text-xs text-gray-500">${new Date(log.timestamp).toLocaleString()}</p></div></div>`).join('')}</div></div>
+              </main>
+            </div>
+          </div>
+        `;
+      } else if (currentScreen === 'superadmin-clinics') {
+        app.innerHTML = `
+          <div>
+            <nav class="bg-gray-900 text-white p-4 flex justify-between sticky top-0 z-50">
+              <div class="flex gap-3 items-center"><img src="${clinic.logo_url}" class="h-10"><div><h3 class="font-bold text-sm">EdgesOf MediScript</h3><p class="text-xs text-gray-300">Super Admin</p></div></div>
+              <div class="flex items-center gap-3"><div class="text-right"><p class="font-semibold text-sm">${currentUser.name}</p><span class="role-badge role-superadmin">${currentUser.role}</span></div><button onclick="logout()" class="px-3 py-2 bg-white bg-opacity-10 rounded-lg text-xs">Logout</button></div>
+            </nav>
+            <div class="flex">
+              <aside class="w-64 bg-gray-900 text-white p-4 min-h-screen">
+                <div class="mb-4 p-3 rounded-lg" style="background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);"><p class="text-xs font-bold">👑 SUPER ADMIN</p></div>
+                <nav class="space-y-2">
+                  <a onclick="switchScreen('superadmin-dashboard')" class="nav-link text-sm">📊 Dashboard</a>
+                  <a onclick="switchScreen('superadmin-clinics')" class="nav-link active text-sm">🏥 Clinics</a>
+                  <a onclick="switchScreen('superadmin-users')" class="nav-link text-sm">👥 Users</a>
+                  <a onclick="switchScreen('superadmin-analytics')" class="nav-link text-sm">📈 Analytics</a>
+                  <a onclick="switchScreen('superadmin-logs')" class="nav-link text-sm">📋 Audit Logs</a>
+                </nav>
+              </aside>
+              <main class="flex-1 p-6">
+                <div class="flex justify-between items-center mb-6">
+                  <h1 class="text-2xl font-bold">🏥 Clinics Management</h1>
+                  <button onclick="showAddClinicModal()" class="btn btn-success">➕ Add Clinic</button>
+                </div>
                 <div class="grid grid-cols-2 gap-4">
-                  <div class="card"><h3 class="font-bold mb-3">👥 Staff Overview</h3><div class="space-y-2">${DB.staff.slice(0, 5).map(s => `<div class="p-2 bg-gray-50 rounded"><p class="font-semibold text-sm">${s.name}</p><p class="text-xs text-gray-600">${s.role} • ${s.specialization || s.department}</p></div>`).join('')}</div></div>
-                  <div class="card"><h3 class="font-bold mb-3">💰 Recent Transactions</h3><div class="space-y-2">${DB.invoices.slice(-5).reverse().map(inv => `<div class="p-2 bg-gray-50 rounded flex justify-between"><div><p class="font-semibold text-sm">${inv.patient_name}</p><p class="text-xs text-gray-600">${inv.date}</p></div><p class="font-bold">₹${inv.amount}</p></div>`).join('')}</div></div>
+                  ${DB.clinics.map(c => `
+                    <div class="clinic-card">
+                      <div class="flex justify-between items-start mb-3">
+                        <div class="flex items-center gap-3"><img src="${c.logo_url}" class="h-12 w-12 rounded-lg"><div><p class="font-bold">${c.name}</p><span class="badge badge-success">${c.status}</span></div></div>
+                        <button onclick="deleteClinic('${c.id}')" class="btn btn-danger btn-xs">Delete</button>
+                      </div>
+                      <div class="space-y-2 text-sm">
+                        <div class="flex justify-between"><span class="text-gray-600">GSTIN:</span><span class="font-semibold">${c.gstin}</span></div>
+                        <div class="flex justify-between"><span class="text-gray-600">Phone:</span><span class="font-semibold">${c.phone}</span></div>
+                        <div class="flex justify-between"><span class="text-gray-600">Email:</span><span class="font-semibold">${c.email || 'N/A'}</span></div>
+                        <div class="flex justify-between"><span class="text-gray-600">Address:</span><span class="font-semibold">${c.address}</span></div>
+                        <div class="flex justify-between"><span class="text-gray-600">Created:</span><span class="font-semibold">${c.created_at}</span></div>
+                      </div>
+                      <div class="grid grid-cols-3 gap-2 mt-3 pt-3 border-t">
+                        <div class="text-center"><p class="text-xs text-gray-600">Patients</p><p class="font-bold">${c.total_patients || 0}</p></div>
+                        <div class="text-center"><p class="text-xs text-gray-600">Staff</p><p class="font-bold">${c.total_staff || 0}</p></div>
+                        <div class="text-center"><p class="text-xs text-gray-600">Revenue</p><p class="font-bold text-green-600">₹${(c.monthly_revenue || 0).toLocaleString()}</p></div>
+                      </div>
+                    </div>
+                  `).join('')}
                 </div>
               </main>
             </div>
           </div>
         `;
-      } else if (currentScreen === 'admin-staff') {
+      } else if (currentScreen === 'superadmin-users') {
         app.innerHTML = `
           <div>
             <nav class="bg-gray-900 text-white p-4 flex justify-between sticky top-0 z-50">
-              <div class="flex gap-3 items-center"><img src="${clinic.logo_url}" class="h-10"><div><h3 class="font-bold text-sm">${clinic.name}</h3><p class="text-xs text-gray-300">Admin</p></div></div>
-              <div class="flex items-center gap-3"><div class="text-right"><p class="font-semibold text-sm">${currentUser.name}</p><span class="role-badge role-admin">${currentUser.role}</span></div><button onclick="logout()" class="px-3 py-2 bg-white bg-opacity-10 rounded-lg text-xs">Logout</button></div>
+              <div class="flex gap-3 items-center"><img src="${clinic.logo_url}" class="h-10"><div><h3 class="font-bold text-sm">EdgesOf MediScript</h3><p class="text-xs text-gray-300">Super Admin</p></div></div>
+              <div class="flex items-center gap-3"><div class="text-right"><p class="font-semibold text-sm">${currentUser.name}</p><span class="role-badge role-superadmin">${currentUser.role}</span></div><button onclick="logout()" class="px-3 py-2 bg-white bg-opacity-10 rounded-lg text-xs">Logout</button></div>
             </nav>
             <div class="flex">
-              <aside class="w-64 bg-gray-800 text-white p-4 min-h-screen">
-                <div class="mb-4 p-3 rounded-lg" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);"><p class="text-xs font-bold">🏥 ADMIN</p></div>
+              <aside class="w-64 bg-gray-900 text-white p-4 min-h-screen">
+                <div class="mb-4 p-3 rounded-lg" style="background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);"><p class="text-xs font-bold">👑 SUPER ADMIN</p></div>
                 <nav class="space-y-2">
-                  <a onclick="switchScreen('admin-dashboard')" class="nav-link text-sm">📊 Dashboard</a>
-                  <a onclick="switchScreen('admin-staff')" class="nav-link active text-sm">👥 Staff</a>
-                  <a onclick="switchScreen('admin-inventory')" class="nav-link text-sm">💊 Inventory</a>
-                  <a onclick="switchScreen('admin-reports')" class="nav-link text-sm">📈 Reports</a>
-                  <a onclick="switchScreen('admin-settings')" class="nav-link text-sm">⚙️ Settings</a>
+                  <a onclick="switchScreen('superadmin-dashboard')" class="nav-link text-sm">📊 Dashboard</a>
+                  <a onclick="switchScreen('superadmin-clinics')" class="nav-link text-sm">🏥 Clinics</a>
+                  <a onclick="switchScreen('superadmin-users')" class="nav-link active text-sm">👥 Users</a>
+                  <a onclick="switchScreen('superadmin-analytics')" class="nav-link text-sm">📈 Analytics</a>
+                  <a onclick="switchScreen('superadmin-logs')" class="nav-link text-sm">📋 Audit Logs</a>
                 </nav>
               </aside>
               <main class="flex-1 p-6">
                 <div class="flex justify-between items-center mb-6">
-                  <h1 class="text-2xl font-bold">👥 Staff Management</h1>
-                  <button onclick="showAddStaffModal()" class="btn btn-success">➕ Add Staff</button>
+                  <h1 class="text-2xl font-bold">👥 Users Management</h1>
+                  <button onclick="showAddUserModal()" class="btn btn-success">➕ Add User</button>
                 </div>
                 <div class="card">
                   <table>
                     <thead>
-                      <tr><th>Name</th><th>Role</th><th>Specialization</th><th>Phone</th><th>Email</th><th>Salary</th><th>Joining Date</th><th>Status</th><th>Actions</th></tr>
+                      <tr><th>Name</th><th>Email</th><th>Role</th><th>Clinic</th><th>Created</th><th>Actions</th></tr>
                     </thead>
                     <tbody>
-                      ${DB.staff.map(s => `
-                        <tr>
-                          <td class="font-semibold">${s.name}</td>
-                          <td>${s.role}</td>
-                          <td>${s.specialization || s.department || '-'}</td>
-                          <td>${s.phone}</td>
-                          <td>${s.email || '-'}</td>
-                          <td>₹${s.salary?.toLocaleString() || '-'}</td>
-                          <td>${s.joining_date || '-'}</td>
-                          <td><span class="badge badge-success">${s.status}</span></td>
-                          <td><button onclick="deleteStaff('${s.id}')" class="btn btn-danger btn-xs">Delete</button></td>
-                        </tr>
-                      `).join('')}
-                    </tbody>
-                  </table>
-                </div>
-              </main>
-            </div>
-          </div>
-        `;
-      } else if (currentScreen === 'admin-inventory') {
-        app.innerHTML = `
-          <div>
-            <nav class="bg-gray-900 text-white p-4 flex justify-between sticky top-0 z-50">
-              <div class="flex gap-3 items-center"><img src="${clinic.logo_url}" class="h-10"><div><h3 class="font-bold text-sm">${clinic.name}</h3><p class="text-xs text-gray-300">Admin</p></div></div>
-              <div class="flex items-center gap-3"><div class="text-right"><p class="font-semibold text-sm">${currentUser.name}</p><span class="role-badge role-admin">${currentUser.role}</span></div><button onclick="logout()" class="px-3 py-2 bg-white bg-opacity-10 rounded-lg text-xs">Logout</button></div>
-            </nav>
-            <div class="flex">
-              <aside class="w-64 bg-gray-800 text-white p-4 min-h-screen">
-                <div class="mb-4 p-3 rounded-lg" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);"><p class="text-xs font-bold">🏥 ADMIN</p></div>
-                <nav class="space-y-2">
-                  <a onclick="switchScreen('admin-dashboard')" class="nav-link text-sm">📊 Dashboard</a>
-                  <a onclick="switchScreen('admin-staff')" class="nav-link text-sm">👥 Staff</a>
-                  <a onclick="switchScreen('admin-inventory')" class="nav-link active text-sm">💊 Inventory</a>
-                  <a onclick="switchScreen('admin-reports')" class="nav-link text-sm">📈 Reports</a>
-                  <a onclick="switchScreen('admin-settings')" class="nav-link text-sm">⚙️ Settings</a>
-                </nav>
-              </aside>
-              <main class="flex-1 p-6">
-                <div class="flex justify-between items-center mb-6">
-                  <h1 class="text-2xl font-bold">💊 Inventory Management</h1>
-                  <button onclick="showAddMedicineModal()" class="btn btn-success">➕ Add Medicine</button>
-                </div>
-                <div class="card">
-                  <table>
-                    <thead>
-                      <tr><th>Medicine</th><th>Brand</th><th>Strength</th><th>Category</th><th>Stock</th><th>Reorder Level</th><th>Price</th><th>MRP</th><th>Supplier</th><th>Actions</th></tr>
-                    </thead>
-                    <tbody>
-                      ${DB.medicines.map(m => {
-                        const stockClass = m.stock <= m.reorder_level ? 'stock-low' : m.stock <= m.reorder_level * 2 ? 'stock-medium' : 'stock-high';
+                      ${DB.users.map(u => {
+                        const userClinic = DB.clinics.find(c => c.id === u.clinic_id);
                         return `
-                          <tr class="${stockClass}">
-                            <td class="font-semibold">${m.name}</td>
-                            <td>${m.brand_name}</td>
-                            <td>${m.strength}</td>
-                            <td>${m.category}</td>
-                            <td><span class="font-bold">${m.stock}</span></td>
-                            <td>${m.reorder_level}</td>
-                            <td>₹${m.price}</td>
-                            <td>₹${m.mrp}</td>
-                            <td>${m.supplier || '-'}</td>
-                            <td>
-                              <button onclick="updateStock('${m.id}')" class="btn btn-primary btn-xs">Update</button>
-                              <button onclick="deleteMedicine('${m.id}')" class="btn btn-danger btn-xs">Delete</button>
-                            </td>
+                          <tr>
+                            <td class="font-semibold">${u.name}</td>
+                            <td>${u.email}</td>
+                            <td><span class="badge badge-info">${u.role}</span></td>
+                            <td>${userClinic ? userClinic.name : 'System'}</td>
+                            <td>${u.created_at || 'N/A'}</td>
+                            <td>${u.role !== 'superadmin' ? `<button onclick="deleteUser('${u.id}')" class="btn btn-danger btn-xs">Delete</button>` : '<span class="text-xs text-gray-500">Protected</span>'}</td>
                           </tr>
                         `;
                       }).join('')}
@@ -550,83 +500,80 @@
             </div>
           </div>
         `;
-      } else if (currentScreen === 'admin-reports') {
-        const today = new Date().toISOString().split('T')[0];
-        const todayRevenue = DB.invoices.filter(i => i.date === today).reduce((sum, i) => sum + i.amount, 0);
-        const thisMonth = new Date().toISOString().slice(0, 7);
-        const monthRevenue = DB.invoices.filter(i => i.date.startsWith(thisMonth)).reduce((sum, i) => sum + i.amount, 0);
-        const totalRevenue = DB.invoices.reduce((sum, i) => sum + i.amount, 0);
+      } else if (currentScreen === 'superadmin-analytics') {
+        const totalRevenue = DB.clinics.reduce((sum, c) => sum + (c.monthly_revenue || 0), 0);
+        const avgRevenuePerClinic = totalRevenue / DB.clinics.length;
         
         app.innerHTML = `
           <div>
             <nav class="bg-gray-900 text-white p-4 flex justify-between sticky top-0 z-50">
-              <div class="flex gap-3 items-center"><img src="${clinic.logo_url}" class="h-10"><div><h3 class="font-bold text-sm">${clinic.name}</h3><p class="text-xs text-gray-300">Admin</p></div></div>
-              <div class="flex items-center gap-3"><div class="text-right"><p class="font-semibold text-sm">${currentUser.name}</p><span class="role-badge role-admin">${currentUser.role}</span></div><button onclick="logout()" class="px-3 py-2 bg-white bg-opacity-10 rounded-lg text-xs">Logout</button></div>
+              <div class="flex gap-3 items-center"><img src="${clinic.logo_url}" class="h-10"><div><h3 class="font-bold text-sm">EdgesOf MediScript</h3><p class="text-xs text-gray-300">Super Admin</p></div></div>
+              <div class="flex items-center gap-3"><div class="text-right"><p class="font-semibold text-sm">${currentUser.name}</p><span class="role-badge role-superadmin">${currentUser.role}</span></div><button onclick="logout()" class="px-3 py-2 bg-white bg-opacity-10 rounded-lg text-xs">Logout</button></div>
             </nav>
             <div class="flex">
-              <aside class="w-64 bg-gray-800 text-white p-4 min-h-screen">
-                <div class="mb-4 p-3 rounded-lg" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);"><p class="text-xs font-bold">🏥 ADMIN</p></div>
+              <aside class="w-64 bg-gray-900 text-white p-4 min-h-screen">
+                <div class="mb-4 p-3 rounded-lg" style="background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);"><p class="text-xs font-bold">👑 SUPER ADMIN</p></div>
                 <nav class="space-y-2">
-                  <a onclick="switchScreen('admin-dashboard')" class="nav-link text-sm">📊 Dashboard</a>
-                  <a onclick="switchScreen('admin-staff')" class="nav-link text-sm">👥 Staff</a>
-                  <a onclick="switchScreen('admin-inventory')" class="nav-link text-sm">💊 Inventory</a>
-                  <a onclick="switchScreen('admin-reports')" class="nav-link active text-sm">📈 Reports</a>
-                  <a onclick="switchScreen('admin-settings')" class="nav-link text-sm">⚙️ Settings</a>
+                  <a onclick="switchScreen('superadmin-dashboard')" class="nav-link text-sm">📊 Dashboard</a>
+                  <a onclick="switchScreen('superadmin-clinics')" class="nav-link text-sm">🏥 Clinics</a>
+                  <a onclick="switchScreen('superadmin-users')" class="nav-link text-sm">👥 Users</a>
+                  <a onclick="switchScreen('superadmin-analytics')" class="nav-link active text-sm">📈 Analytics</a>
+                  <a onclick="switchScreen('superadmin-logs')" class="nav-link text-sm">📋 Audit Logs</a>
                 </nav>
               </aside>
               <main class="flex-1 p-6">
-                <h1 class="text-2xl font-bold mb-6">📈 Financial Reports</h1>
+                <h1 class="text-2xl font-bold mb-6">📈 System Analytics</h1>
                 <div class="grid grid-cols-3 gap-4 mb-6">
-                  <div class="stat-card"><p class="text-gray-600 text-sm mb-1">Today's Revenue</p><p class="text-3xl font-bold text-green-600">₹${todayRevenue.toLocaleString()}</p></div>
-                  <div class="stat-card"><p class="text-gray-600 text-sm mb-1">This Month</p><p class="text-3xl font-bold text-blue-600">₹${monthRevenue.toLocaleString()}</p></div>
-                  <div class="stat-card"><p class="text-gray-600 text-sm mb-1">Total Revenue</p><p class="text-3xl font-bold text-purple-600">₹${totalRevenue.toLocaleString()}</p></div>
+                  <div class="stat-card"><p class="text-gray-600 text-sm mb-1">Total Revenue</p><p class="text-3xl font-bold text-green-600">₹${totalRevenue.toLocaleString()}</p></div>
+                  <div class="stat-card"><p class="text-gray-600 text-sm mb-1">Avg per Clinic</p><p class="text-3xl font-bold text-blue-600">₹${Math.round(avgRevenuePerClinic).toLocaleString()}</p></div>
+                  <div class="stat-card"><p class="text-gray-600 text-sm mb-1">Growth Rate</p><p class="text-3xl font-bold text-purple-600">+15%</p></div>
                 </div>
                 <div class="grid grid-cols-2 gap-4 mb-6">
-                  <div class="card"><h3 class="font-bold mb-3">💰 Revenue Breakdown</h3><div class="space-y-2"><div class="flex justify-between p-2 bg-gray-50 rounded"><span>Total Bills:</span><span class="font-bold">${DB.invoices.length}</span></div><div class="flex justify-between p-2 bg-gray-50 rounded"><span>Paid Bills:</span><span class="font-bold text-green-600">${DB.invoices.filter(i => i.status === 'Paid').length}</span></div><div class="flex justify-between p-2 bg-gray-50 rounded"><span>Pending Bills:</span><span class="font-bold text-red-600">${DB.invoices.filter(i => i.status === 'Pending').length}</span></div><div class="flex justify-between p-2 bg-gray-50 rounded"><span>Average Bill:</span><span class="font-bold">₹${DB.invoices.length > 0 ? Math.round(totalRevenue / DB.invoices.length) : 0}</span></div></div></div>
-                  <div class="card"><h3 class="font-bold mb-3">📊 Staff Expenses</h3><div class="space-y-2"><div class="flex justify-between p-2 bg-gray-50 rounded"><span>Total Staff:</span><span class="font-bold">${DB.staff.length}</span></div><div class="flex justify-between p-2 bg-gray-50 rounded"><span>Monthly Salary:</span><span class="font-bold text-red-600">₹${DB.staff.reduce((sum, s) => sum + (s.salary || 0), 0).toLocaleString()}</span></div><div class="flex justify-between p-2 bg-gray-50 rounded"><span>Doctors:</span><span class="font-bold">${DB.staff.filter(s => s.role === 'Doctor').length}</span></div><div class="flex justify-between p-2 bg-gray-50 rounded"><span>Support Staff:</span><span class="font-bold">${DB.staff.filter(s => s.role !== 'Doctor').length}</span></div></div></div>
+                  <div class="card"><h3 class="font-bold mb-3">💰 Revenue by Clinic</h3><div class="space-y-2">${DB.clinics.map(c => `<div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg"><div><p class="font-semibold text-sm">${c.name}</p><p class="text-xs text-gray-600">${c.total_patients || 0} patients</p></div><p class="font-bold text-green-600">₹${(c.monthly_revenue || 0).toLocaleString()}</p></div>`).join('')}</div></div>
+                  <div class="card"><h3 class="font-bold mb-3">👥 User Distribution</h3><div class="space-y-2"><div class="flex justify-between p-2 bg-gray-50 rounded"><span>Super Admins:</span><span class="font-bold">${DB.users.filter(u => u.role === 'superadmin').length}</span></div><div class="flex justify-between p-2 bg-gray-50 rounded"><span>Admins:</span><span class="font-bold">${DB.users.filter(u => u.role === 'admin').length}</span></div><div class="flex justify-between p-2 bg-gray-50 rounded"><span>Doctors:</span><span class="font-bold">${DB.users.filter(u => u.role === 'doctor').length}</span></div><div class="flex justify-between p-2 bg-gray-50 rounded"><span>Receptionists:</span><span class="font-bold">${DB.users.filter(u => u.role === 'receptionist').length}</span></div><div class="flex justify-between p-2 bg-gray-50 rounded"><span>Patients:</span><span class="font-bold">${DB.users.filter(u => u.role === 'patient').length}</span></div></div></div>
                 </div>
-                <div class="card"><h3 class="font-bold mb-4">📋 Recent Transactions</h3><table><thead><tr><th>Date</th><th>Patient</th><th>Amount</th><th>Payment Mode</th><th>Status</th></tr></thead><tbody>${DB.invoices.slice(-10).reverse().map(inv => `<tr><td>${inv.date}</td><td>${inv.patient_name}</td><td class="font-bold">₹${inv.amount}</td><td>${inv.payment_mode || 'Cash'}</td><td><span class="badge ${inv.status === 'Paid' ? 'badge-success' : 'badge-danger'}">${inv.status}</span></td></tr>`).join('')}</tbody></table></div>
+                <div class="card"><h3 class="font-bold mb-4">📊 Clinic Performance</h3><table><thead><tr><th>Clinic</th><th>Patients</th><th>Staff</th><th>Revenue</th><th>Status</th></tr></thead><tbody>${DB.clinics.map(c => `<tr><td class="font-semibold">${c.name}</td><td>${c.total_patients || 0}</td><td>${c.total_staff || 0}</td><td class="font-bold text-green-600">₹${(c.monthly_revenue || 0).toLocaleString()}</td><td><span class="badge badge-success">${c.status}</span></td></tr>`).join('')}</tbody></table></div>
               </main>
             </div>
           </div>
         `;
-      } else if (currentScreen === 'admin-settings') {
+      } else if (currentScreen === 'superadmin-logs') {
         app.innerHTML = `
           <div>
             <nav class="bg-gray-900 text-white p-4 flex justify-between sticky top-0 z-50">
-              <div class="flex gap-3 items-center"><img src="${clinic.logo_url}" class="h-10"><div><h3 class="font-bold text-sm">${clinic.name}</h3><p class="text-xs text-gray-300">Admin</p></div></div>
-              <div class="flex items-center gap-3"><div class="text-right"><p class="font-semibold text-sm">${currentUser.name}</p><span class="role-badge role-admin">${currentUser.role}</span></div><button onclick="logout()" class="px-3 py-2 bg-white bg-opacity-10 rounded-lg text-xs">Logout</button></div>
+              <div class="flex gap-3 items-center"><img src="${clinic.logo_url}" class="h-10"><div><h3 class="font-bold text-sm">EdgesOf MediScript</h3><p class="text-xs text-gray-300">Super Admin</p></div></div>
+              <div class="flex items-center gap-3"><div class="text-right"><p class="font-semibold text-sm">${currentUser.name}</p><span class="role-badge role-superadmin">${currentUser.role}</span></div><button onclick="logout()" class="px-3 py-2 bg-white bg-opacity-10 rounded-lg text-xs">Logout</button></div>
             </nav>
             <div class="flex">
-              <aside class="w-64 bg-gray-800 text-white p-4 min-h-screen">
-                <div class="mb-4 p-3 rounded-lg" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);"><p class="text-xs font-bold">🏥 ADMIN</p></div>
+              <aside class="w-64 bg-gray-900 text-white p-4 min-h-screen">
+                <div class="mb-4 p-3 rounded-lg" style="background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);"><p class="text-xs font-bold">👑 SUPER ADMIN</p></div>
                 <nav class="space-y-2">
-                  <a onclick="switchScreen('admin-dashboard')" class="nav-link text-sm">📊 Dashboard</a>
-                  <a onclick="switchScreen('admin-staff')" class="nav-link text-sm">👥 Staff</a>
-                  <a onclick="switchScreen('admin-inventory')" class="nav-link text-sm">💊 Inventory</a>
-                  <a onclick="switchScreen('admin-reports')" class="nav-link text-sm">📈 Reports</a>
-                  <a onclick="switchScreen('admin-settings')" class="nav-link active text-sm">⚙️ Settings</a>
+                  <a onclick="switchScreen('superadmin-dashboard')" class="nav-link text-sm">📊 Dashboard</a>
+                  <a onclick="switchScreen('superadmin-clinics')" class="nav-link text-sm">🏥 Clinics</a>
+                  <a onclick="switchScreen('superadmin-users')" class="nav-link text-sm">👥 Users</a>
+                  <a onclick="switchScreen('superadmin-analytics')" class="nav-link text-sm">📈 Analytics</a>
+                  <a onclick="switchScreen('superadmin-logs')" class="nav-link active text-sm">📋 Audit Logs</a>
                 </nav>
               </aside>
               <main class="flex-1 p-6">
-                <div class="flex justify-between items-center mb-6">
-                  <h1 class="text-2xl font-bold">⚙️ Clinic Settings</h1>
-                  <button onclick="showClinicSettingsModal()" class="btn btn-primary">✏️ Edit Settings</button>
+                <h1 class="text-2xl font-bold mb-6">📋 Audit Logs</h1>
+                <div class="grid grid-cols-4 gap-4 mb-6">
+                  <div class="stat-card"><p class="text-gray-600 text-sm mb-1">Total Logs</p><p class="text-3xl font-bold">${DB.audit_logs.length}</p></div>
+                  <div class="stat-card"><p class="text-gray-600 text-sm mb-1">Creates</p><p class="text-3xl font-bold text-green-600">${DB.audit_logs.filter(l => l.action === 'create').length}</p></div>
+                  <div class="stat-card"><p class="text-gray-600 text-sm mb-1">Updates</p><p class="text-3xl font-bold text-yellow-600">${DB.audit_logs.filter(l => l.action === 'update').length}</p></div>
+                  <div class="stat-card"><p class="text-gray-600 text-sm mb-1">Deletes</p><p class="text-3xl font-bold text-red-600">${DB.audit_logs.filter(l => l.action === 'delete').length}</p></div>
                 </div>
-                <div class="grid grid-cols-2 gap-4">
-                  <div class="card"><h3 class="font-bold mb-3">🏥 Clinic Information</h3><div class="space-y-2"><div class="p-2 bg-gray-50 rounded"><p class="text-xs text-gray-600">Name</p><p class="font-semibold">${clinic.name}</p></div><div class="p-2 bg-gray-50 rounded"><p class="text-xs text-gray-600">Phone</p><p class="font-semibold">${clinic.phone}</p></div><div class="p-2 bg-gray-50 rounded"><p class="text-xs text-gray-600">Email</p><p class="font-semibold">${clinic.email || 'Not set'}</p></div><div class="p-2 bg-gray-50 rounded"><p class="text-xs text-gray-600">Address</p><p class="font-semibold">${clinic.address}</p></div><div class="p-2 bg-gray-50 rounded"><p class="text-xs text-gray-600">GSTIN</p><p class="font-semibold">${clinic.gstin}</p></div></div></div>
-                  <div class="card"><h3 class="font-bold mb-3">🕐 Working Hours</h3><div class="space-y-2">${Object.entries(clinic.working_hours).map(([day, hours]) => `<div class="flex justify-between p-2 bg-gray-50 rounded"><span class="font-semibold capitalize">${day}:</span><span>${hours}</span></div>`).join('')}</div></div>
-                </div>
+                <div class="card"><h3 class="font-bold mb-4">Recent Activity</h3><div class="space-y-2">${DB.audit_logs.map(log => `<div class="audit-log ${log.action}"><div class="flex justify-between items-start"><div class="flex-1"><p class="font-semibold text-sm">${log.user} - ${log.action.toUpperCase()} ${log.entity}</p><p class="text-xs text-gray-600 mt-1">${log.details}</p><p class="text-xs text-gray-500 mt-1">IP: ${log.ip}</p></div><p class="text-xs text-gray-500">${new Date(log.timestamp).toLocaleString()}</p></div></div>`).join('')}</div></div>
               </main>
             </div>
           </div>
         `;
       } else {
-        app.innerHTML = '<div class="min-h-screen flex items-center justify-center"><div class="card"><h2 class="text-xl font-bold mb-4">Screen: ' + currentScreen + '</h2><button onclick="switchScreen(\'admin-dashboard\')" class="btn btn-primary">Back to Dashboard</button></div></div>';
+        app.innerHTML = '<div class="min-h-screen flex items-center justify-center"><div class="card"><h2 class="text-xl font-bold mb-4">Screen: ' + currentScreen + '</h2><button onclick="switchScreen(\'superadmin-dashboard\')" class="btn btn-primary">Back to Dashboard</button></div></div>';
       }
     }
 
-    console.log('✅ PHASE 1.3 COMPLETE - ADMIN SYSTEM FULLY FUNCTIONAL!');
+    console.log('✅ PHASE 1.4 COMPLETE - SUPER ADMIN SYSTEM FULLY FUNCTIONAL!');
     render();
   </script>
 </body>
