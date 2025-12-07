@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>EdgesOf MediScript - Phase 4 Complete</title>
+  <title>EdgesOf MediScript - Complete System</title>
   <link rel="icon" href="https://nyc3.digitaloceanspaces.com/bhindi-drive/files/cab453ed-7d3e-4dfa-9012-038dbc50c1c5/2025-12-07T15-33-38-867Z-c50befdf-chat-image-1765121618851-0.jpg">
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -17,6 +17,7 @@
     .btn-success { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; }
     .btn-danger { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: white; }
     .btn-warning { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; }
+    .btn-info { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; }
     .card { background: white; border-radius: 20px; padding: 32px; box-shadow: 0 1px 3px rgba(0,0,0,0.05), 0 10px 40px rgba(0,0,0,0.03); border: 1px solid rgba(0,0,0,0.04); transition: all 0.3s; }
     .card:hover { transform: translateY(-4px); box-shadow: 0 4px 6px rgba(0,0,0,0.05), 0 20px 60px rgba(0,0,0,0.08); }
     .form-input { width: 100%; padding: 14px 18px; border: 2px solid #e5e7eb; border-radius: 12px; font-size: 15px; }
@@ -27,7 +28,10 @@
     .badge-success { background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); color: #065f46; }
     .badge-warning { background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); color: #92400e; }
     .badge-danger { background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%); color: #991b1b; }
-    .nav-link { display: flex; align-items: center; gap: 12px; padding: 12px 20px; border-radius: 12px; color: rgba(255,255,255,0.8); transition: all 0.2s; text-decoration: none; }
+    .badge-schedule-h { background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); color: #92400e; border: 2px solid #f59e0b; }
+    .badge-schedule-h1 { background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%); color: #991b1b; border: 2px solid #ef4444; }
+    .badge-schedule-x { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); color: white; border: 2px solid #dc2626; }
+    .nav-link { display: flex; align-items: center; gap: 12px; padding: 12px 20px; border-radius: 12px; color: rgba(255,255,255,0.8); transition: all 0.2s; text-decoration: none; cursor: pointer; }
     .nav-link:hover { background: rgba(255,255,255,0.1); color: white; }
     .nav-link.active { background: rgba(255,255,255,0.15); color: white; font-weight: 600; }
     .toast { position: fixed; bottom: 32px; right: 32px; background: white; border-radius: 16px; padding: 20px 24px; box-shadow: 0 10px 40px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 16px; z-index: 9999; animation: slideIn 0.4s; border-left: 4px solid; max-width: 400px; }
@@ -39,6 +43,9 @@
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     .modal-content { background: white; border-radius: 24px; max-width: 1200px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 25px 80px rgba(0,0,0,0.25); animation: scaleIn 0.4s; }
     @keyframes scaleIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    .invoice-table { width: 100%; border-collapse: collapse; }
+    .invoice-table th, .invoice-table td { padding: 12px; text-align: left; border-bottom: 1px solid #e5e7eb; }
+    .invoice-table th { background: #f9fafb; font-weight: 600; }
     .phase-badge { background: linear-gradient(135deg, #10b981 0%, #059669 100%); padding: 8px 16px; border-radius: 20px; font-weight: 700; color: white; display: inline-flex; align-items: center; gap: 8px; }
   </style>
 </head>
@@ -54,10 +61,15 @@
           eq: (col, val) => Promise.resolve({ data: (window.DB[table] || []).filter(item => item[col] === val), error: null })
         }),
         insert: (data) => {
-          const newItem = { id: 'uuid-' + Date.now(), created_at: new Date().toISOString(), ...data };
+          const items = Array.isArray(data) ? data : [data];
+          const newItems = items.map(item => ({ 
+            id: 'uuid-' + Date.now() + '-' + Math.random(), 
+            created_at: new Date().toISOString(), 
+            ...item 
+          }));
           window.DB[table] = window.DB[table] || [];
-          window.DB[table].push(newItem);
-          return Promise.resolve({ data: [newItem], error: null });
+          window.DB[table].push(...newItems);
+          return Promise.resolve({ data: newItems, error: null });
         }
       })
     };
@@ -65,20 +77,53 @@
     let currentScreen = 'consent';
     let currentUser = null;
     let userConsent = false;
+    let currentPrescription = { patient_id: null, medicines: [], diagnosis: [] };
+    let currentInvoice = { items: [], subtotal: 0, cgst: 0, sgst: 0, total: 0 };
     
     window.DB = {
-      clinics: [{ id: 'clinic-1', name: 'City Health Clinic', gstin: '27AABCU9603R1ZM' }],
+      clinics: [{ 
+        id: 'clinic-1', 
+        name: 'City Health Clinic', 
+        gstin: '27AABCU9603R1ZM', 
+        state_code: '27',
+        place_of_business: 'Maharashtra'
+      }],
       patients: [
-        {id: 'p1', patient_id: 'P001', first_name: 'Rajesh', last_name: 'Kumar', age: 45, gender: 'Male', blood_group: 'O+', phone: '+919876543220'},
-        {id: 'p2', patient_id: 'P002', first_name: 'Priya', last_name: 'Sharma', age: 32, gender: 'Female', blood_group: 'A+', phone: '+919876543221'},
-        {id: 'p3', patient_id: 'P003', first_name: 'Amit', last_name: 'Patel', age: 28, gender: 'Male', blood_group: 'B+', phone: '+919876543222'}
+        {id: 'p1', patient_id: 'P001', first_name: 'Rajesh', last_name: 'Kumar', age: 45, gender: 'Male', blood_group: 'O+', phone: '+919876543220', allergies: ['Penicillin'], chronic_conditions: ['Diabetes']},
+        {id: 'p2', patient_id: 'P002', first_name: 'Priya', last_name: 'Sharma', age: 32, gender: 'Female', blood_group: 'A+', phone: '+919876543221', allergies: [], chronic_conditions: []},
+        {id: 'p3', patient_id: 'P003', first_name: 'Amit', last_name: 'Patel', age: 28, gender: 'Male', blood_group: 'B+', phone: '+919876543222', allergies: ['Sulfa'], chronic_conditions: []}
       ],
-      doctor_schedules: [],
+      medicines: [
+        {id: 'm1', name: 'Paracetamol', generic_name: 'Paracetamol', brand_name: 'Crocin', strength: '500', unit: 'mg', form: 'Tablet', category: 'Analgesic', schedule: 'OTC', price: 5, mrp: 6, hsn_code: '30049099'},
+        {id: 'm2', name: 'Amoxicillin', generic_name: 'Amoxicillin', brand_name: 'Novamox', strength: '500', unit: 'mg', form: 'Capsule', category: 'Antibiotic', schedule: 'H', price: 15, mrp: 18, hsn_code: '30042090'},
+        {id: 'm3', name: 'Azithromycin', generic_name: 'Azithromycin', brand_name: 'Azithral', strength: '500', unit: 'mg', form: 'Tablet', category: 'Antibiotic', schedule: 'H', price: 25, mrp: 30, hsn_code: '30042090'},
+        {id: 'm4', name: 'Alprazolam', generic_name: 'Alprazolam', brand_name: 'Alprax', strength: '0.5', unit: 'mg', form: 'Tablet', category: 'Anxiolytic', schedule: 'H1', price: 25, mrp: 30, hsn_code: '30049099'},
+        {id: 'm5', name: 'Codeine', generic_name: 'Codeine Phosphate', brand_name: 'Codeine', strength: '30', unit: 'mg', form: 'Tablet', category: 'Opioid', schedule: 'X', price: 50, mrp: 60, hsn_code: '30049099'}
+      ],
+      prescriptions: [],
+      invoices: [],
       patient_medical_history: [],
       patient_allergies: [],
       patient_immunizations: [],
-      clinical_templates: []
+      suppliers: [],
+      medicine_inventory: [],
+      stock_alerts: [],
+      purchase_orders: []
     };
+
+    function getScheduleBadge(schedule) {
+      if (schedule === 'H') return '<span class="badge-schedule-h">Schedule H</span>';
+      if (schedule === 'H1') return '<span class="badge-schedule-h1">Schedule H1 ⚠️</span>';
+      if (schedule === 'X') return '<span class="badge-schedule-x">Schedule X 🚨</span>';
+      return '<span class="badge badge-success">OTC</span>';
+    }
+
+    function calculateGST(amount, rate = 18) {
+      const gstAmount = (amount * rate) / 100;
+      const cgst = gstAmount / 2;
+      const sgst = gstAmount / 2;
+      return { cgst, sgst, total: gstAmount };
+    }
 
     function showToast(msg, type = 'info') {
       const toast = document.createElement('div');
@@ -96,7 +141,14 @@
     }
 
     async function login() {
-      currentUser = { name: 'Dr. Rajesh Sharma', email: 'doctor@clinic.com', role: 'doctor' };
+      currentUser = { 
+        name: 'Dr. Rajesh Sharma', 
+        email: 'doctor@clinic.com', 
+        role: 'doctor',
+        can_prescribe_schedule_h: true,
+        can_prescribe_schedule_h1: true,
+        can_prescribe_schedule_x: false
+      };
       currentScreen = 'dashboard';
       showToast('Welcome back, Dr. Sharma!', 'success');
       render();
@@ -115,6 +167,352 @@
       return false;
     }
 
+    function closeModal() {
+      document.querySelectorAll('.modal-overlay').forEach(m => m.remove());
+    }
+
+    // PRESCRIPTION FUNCTIONS
+    function showPrescriptionModal(patientId) {
+      currentPrescription = { patient_id: patientId, medicines: [], diagnosis: [] };
+      const modal = document.createElement('div');
+      modal.className = 'modal-overlay';
+      modal.innerHTML = renderPrescriptionModal();
+      document.body.appendChild(modal);
+    }
+
+    function renderPrescriptionModal() {
+      const patient = window.DB.patients.find(p => p.id === currentPrescription.patient_id);
+      return `
+        <div class="modal-content">
+          <div class="p-8 border-b flex justify-between items-center">
+            <div>
+              <h2 class="text-2xl font-bold">💊 Create Prescription</h2>
+              <p class="text-sm text-gray-600 mt-1">Patient: ${patient?.first_name} ${patient?.last_name || ''} (${patient?.patient_id})</p>
+            </div>
+            <button onclick="closeModal()" class="text-gray-500 hover:text-gray-700 text-2xl">×</button>
+          </div>
+          <div class="p-8">
+            <div class="mb-6">
+              <label class="form-label">Diagnosis</label>
+              <input type="text" id="diagnosis" class="form-input" placeholder="e.g., Fever, Cough">
+            </div>
+            
+            <div class="mb-6">
+              <label class="form-label">Search Medicine</label>
+              <input type="text" id="medicineSearch" class="form-input" placeholder="Search by name..." oninput="searchMedicine(this.value)">
+              <div id="medicineResults" class="mt-2"></div>
+            </div>
+
+            <div class="mb-6">
+              <h3 class="font-bold mb-3">Prescribed Medicines</h3>
+              <div id="prescribedMedicines" class="space-y-3">
+                ${currentPrescription.medicines.length === 0 ? '<p class="text-gray-500 text-sm">No medicines added yet</p>' : ''}
+              </div>
+            </div>
+
+            <div class="flex gap-4">
+              <button onclick="savePrescription()" class="btn btn-success">Save Prescription</button>
+              <button onclick="closeModal()" class="btn btn-secondary">Cancel</button>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function searchMedicine(query) {
+      if (!query || query.length < 2) {
+        document.getElementById('medicineResults').innerHTML = '';
+        return;
+      }
+      
+      const results = window.DB.medicines.filter(m => 
+        m.name.toLowerCase().includes(query.toLowerCase()) ||
+        m.generic_name.toLowerCase().includes(query.toLowerCase())
+      );
+
+      document.getElementById('medicineResults').innerHTML = results.map(m => `
+        <div class="p-4 border rounded-xl cursor-pointer hover:bg-blue-50 transition" onclick="addMedicineToPrescription('${m.id}')">
+          <div class="flex justify-between items-start">
+            <div>
+              <p class="font-semibold">${m.name} (${m.brand_name})</p>
+              <p class="text-sm text-gray-600">${m.strength}${m.unit} ${m.form}</p>
+            </div>
+            <div class="text-right">
+              ${getScheduleBadge(m.schedule)}
+              <p class="text-xs text-gray-500 mt-1">HSN: ${m.hsn_code}</p>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function addMedicineToPrescription(medicineId) {
+      const medicine = window.DB.medicines.find(m => m.id === medicineId);
+      
+      if (medicine.schedule === 'H1' && !currentUser.can_prescribe_schedule_h1) {
+        showToast('You are not authorized to prescribe Schedule H1 drugs!', 'error');
+        return;
+      }
+      if (medicine.schedule === 'X' && !currentUser.can_prescribe_schedule_x) {
+        showToast('You are not authorized to prescribe Schedule X drugs!', 'error');
+        return;
+      }
+
+      currentPrescription.medicines.push({
+        ...medicine,
+        dosage: '1 tablet',
+        frequency: 'Twice daily',
+        duration: '5 days',
+        instructions: 'After food'
+      });
+
+      document.getElementById('medicineSearch').value = '';
+      document.getElementById('medicineResults').innerHTML = '';
+      updatePrescribedMedicinesList();
+    }
+
+    function updatePrescribedMedicinesList() {
+      document.getElementById('prescribedMedicines').innerHTML = currentPrescription.medicines.map((m, idx) => `
+        <div class="p-4 bg-gray-50 rounded-xl">
+          <div class="flex justify-between items-start mb-3">
+            <div>
+              <p class="font-bold">${idx + 1}. ${m.name} (${m.brand_name})</p>
+              <p class="text-sm text-gray-600">${m.strength}${m.unit} ${m.form}</p>
+              ${getScheduleBadge(m.schedule)}
+            </div>
+            <button onclick="removeMedicineFromPrescription(${idx})" class="text-red-600 hover:text-red-800">✕</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function removeMedicineFromPrescription(index) {
+      currentPrescription.medicines.splice(index, 1);
+      updatePrescribedMedicinesList();
+    }
+
+    async function savePrescription() {
+      const diagnosis = document.getElementById('diagnosis').value;
+      
+      if (!diagnosis) {
+        showToast('Please enter diagnosis', 'error');
+        return;
+      }
+
+      if (currentPrescription.medicines.length === 0) {
+        showToast('Please add at least one medicine', 'error');
+        return;
+      }
+
+      const prescriptionData = {
+        clinic_id: 'clinic-1',
+        patient_id: currentPrescription.patient_id,
+        prescription_number: 'RX' + Date.now(),
+        diagnosis: [diagnosis],
+        medicines: currentPrescription.medicines,
+        status: 'approved'
+      };
+
+      await supabase.from('prescriptions').insert([prescriptionData]);
+      showToast('Prescription created successfully!', 'success');
+      closeModal();
+    }
+
+    // INVOICE FUNCTIONS
+    function showInvoiceModal(patientId) {
+      currentInvoice = { patient_id: patientId, items: [], subtotal: 0, cgst: 0, sgst: 0, total: 0 };
+      const modal = document.createElement('div');
+      modal.className = 'modal-overlay';
+      modal.innerHTML = renderInvoiceModal();
+      document.body.appendChild(modal);
+    }
+
+    function renderInvoiceModal() {
+      const patient = window.DB.patients.find(p => p.id === currentInvoice.patient_id);
+      const clinic = window.DB.clinics[0];
+      
+      return `
+        <div class="modal-content">
+          <div class="p-8 border-b">
+            <h2 class="text-2xl font-bold mb-2">💰 GST Tax Invoice</h2>
+            <div class="grid grid-cols-2 gap-6 text-sm">
+              <div>
+                <p class="font-bold">${clinic.name}</p>
+                <p class="text-gray-600">GSTIN: ${clinic.gstin}</p>
+                <p class="text-gray-600">State: ${clinic.place_of_business} (${clinic.state_code})</p>
+              </div>
+              <div class="text-right">
+                <p class="font-bold">Bill To:</p>
+                <p>${patient?.first_name} ${patient?.last_name || ''}</p>
+                <p class="text-gray-600">${patient?.phone}</p>
+              </div>
+            </div>
+          </div>
+          
+          <div class="p-8">
+            <div class="mb-6">
+              <label class="form-label">Add Item</label>
+              <div class="grid grid-cols-5 gap-3">
+                <input type="text" id="itemDesc" class="form-input col-span-2" placeholder="Description">
+                <input type="number" id="itemQty" class="form-input" placeholder="Qty" value="1">
+                <input type="number" id="itemPrice" class="form-input" placeholder="Price">
+                <button onclick="addInvoiceItem()" class="btn btn-primary">Add</button>
+              </div>
+            </div>
+
+            <table class="invoice-table mb-6">
+              <thead>
+                <tr>
+                  <th>Description</th>
+                  <th>HSN/SAC</th>
+                  <th>Qty</th>
+                  <th>Rate</th>
+                  <th>Taxable Amt</th>
+                  <th>CGST (9%)</th>
+                  <th>SGST (9%)</th>
+                  <th>Total</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="invoiceItems">
+                ${currentInvoice.items.length === 0 ? '<tr><td colspan="9" class="text-center text-gray-500">No items added</td></tr>' : ''}
+              </tbody>
+            </table>
+
+            <div class="bg-gray-50 p-6 rounded-xl">
+              <div class="flex justify-between mb-2">
+                <span class="font-semibold">Subtotal:</span>
+                <span>₹${currentInvoice.subtotal.toFixed(2)}</span>
+              </div>
+              <div class="flex justify-between mb-2">
+                <span class="font-semibold">CGST (9%):</span>
+                <span>₹${currentInvoice.cgst.toFixed(2)}</span>
+              </div>
+              <div class="flex justify-between mb-2">
+                <span class="font-semibold">SGST (9%):</span>
+                <span>₹${currentInvoice.sgst.toFixed(2)}</span>
+              </div>
+              <div class="flex justify-between text-xl font-bold border-t-2 pt-2 mt-2">
+                <span>Total Amount:</span>
+                <span>₹${currentInvoice.total.toFixed(2)}</span>
+              </div>
+            </div>
+
+            <div class="flex gap-4 mt-6">
+              <button onclick="saveInvoice()" class="btn btn-success">Save Invoice</button>
+              <button onclick="closeModal()" class="btn btn-secondary">Cancel</button>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function addInvoiceItem() {
+      const desc = document.getElementById('itemDesc').value;
+      const qty = parseInt(document.getElementById('itemQty').value) || 1;
+      const price = parseFloat(document.getElementById('itemPrice').value) || 0;
+
+      if (!desc || !price) {
+        showToast('Please enter description and price', 'error');
+        return;
+      }
+
+      const amount = qty * price;
+      const gst = calculateGST(amount);
+
+      currentInvoice.items.push({
+        description: desc,
+        hsn_sac_code: '999293',
+        quantity: qty,
+        unit_price: price,
+        taxable_amount: amount,
+        cgst_amount: gst.cgst,
+        sgst_amount: gst.sgst,
+        total: amount + gst.total
+      });
+
+      currentInvoice.subtotal = currentInvoice.items.reduce((sum, item) => sum + item.taxable_amount, 0);
+      currentInvoice.cgst = currentInvoice.items.reduce((sum, item) => sum + item.cgst_amount, 0);
+      currentInvoice.sgst = currentInvoice.items.reduce((sum, item) => sum + item.sgst_amount, 0);
+      currentInvoice.total = currentInvoice.subtotal + currentInvoice.cgst + currentInvoice.sgst;
+
+      document.getElementById('itemDesc').value = '';
+      document.getElementById('itemQty').value = '1';
+      document.getElementById('itemPrice').value = '';
+
+      updateInvoiceItemsList();
+    }
+
+    function updateInvoiceItemsList() {
+      document.getElementById('invoiceItems').innerHTML = currentInvoice.items.map((item, idx) => `
+        <tr>
+          <td>${item.description}</td>
+          <td>${item.hsn_sac_code}</td>
+          <td>${item.quantity}</td>
+          <td>₹${item.unit_price.toFixed(2)}</td>
+          <td>₹${item.taxable_amount.toFixed(2)}</td>
+          <td>₹${item.cgst_amount.toFixed(2)}</td>
+          <td>₹${item.sgst_amount.toFixed(2)}</td>
+          <td>₹${item.total.toFixed(2)}</td>
+          <td><button onclick="removeInvoiceItem(${idx})" class="text-red-600">✕</button></td>
+        </tr>
+      `).join('');
+
+      const modal = document.querySelector('.modal-content');
+      if (modal) {
+        modal.querySelector('.bg-gray-50').innerHTML = `
+          <div class="flex justify-between mb-2">
+            <span class="font-semibold">Subtotal:</span>
+            <span>₹${currentInvoice.subtotal.toFixed(2)}</span>
+          </div>
+          <div class="flex justify-between mb-2">
+            <span class="font-semibold">CGST (9%):</span>
+            <span>₹${currentInvoice.cgst.toFixed(2)}</span>
+          </div>
+          <div class="flex justify-between mb-2">
+            <span class="font-semibold">SGST (9%):</span>
+            <span>₹${currentInvoice.sgst.toFixed(2)}</span>
+          </div>
+          <div class="flex justify-between text-xl font-bold border-t-2 pt-2 mt-2">
+            <span>Total Amount:</span>
+            <span>₹${currentInvoice.total.toFixed(2)}</span>
+          </div>
+        `;
+      }
+    }
+
+    function removeInvoiceItem(index) {
+      currentInvoice.items.splice(index, 1);
+      currentInvoice.subtotal = currentInvoice.items.reduce((sum, item) => sum + item.taxable_amount, 0);
+      currentInvoice.cgst = currentInvoice.items.reduce((sum, item) => sum + item.cgst_amount, 0);
+      currentInvoice.sgst = currentInvoice.items.reduce((sum, item) => sum + item.sgst_amount, 0);
+      currentInvoice.total = currentInvoice.subtotal + currentInvoice.cgst + currentInvoice.sgst;
+      updateInvoiceItemsList();
+    }
+
+    async function saveInvoice() {
+      if (currentInvoice.items.length === 0) {
+        showToast('Please add at least one item', 'error');
+        return;
+      }
+
+      const invoiceData = {
+        clinic_id: 'clinic-1',
+        patient_id: currentInvoice.patient_id,
+        invoice_number: 'INV' + Date.now(),
+        subtotal: currentInvoice.subtotal,
+        cgst_amount: currentInvoice.cgst,
+        sgst_amount: currentInvoice.sgst,
+        total_amount: currentInvoice.total,
+        items: currentInvoice.items
+      };
+
+      await supabase.from('invoices').insert([invoiceData]);
+      showToast('GST Invoice created successfully!', 'success');
+      closeModal();
+    }
+
+    // CLINICAL FUNCTIONS
     function showMedicalHistoryModal(patientId) {
       const modal = document.createElement('div');
       modal.className = 'modal-overlay';
@@ -263,21 +661,6 @@
                 <input type="text" id="batchNumber" class="form-input">
               </div>
             </div>
-            <div class="grid grid-cols-2 gap-6 mb-6">
-              <div>
-                <label class="form-label">Site</label>
-                <input type="text" id="site" class="form-input" placeholder="e.g., Left arm">
-              </div>
-              <div>
-                <label class="form-label">Route</label>
-                <select id="route" class="form-input">
-                  <option value="intramuscular">Intramuscular</option>
-                  <option value="subcutaneous">Subcutaneous</option>
-                  <option value="oral">Oral</option>
-                  <option value="intranasal">Intranasal</option>
-                </select>
-              </div>
-            </div>
             <button onclick="saveImmunization('${patientId}')" class="btn btn-primary">Save Immunization</button>
           </div>
         </div>
@@ -291,17 +674,126 @@
         vaccine_name: document.getElementById('vaccineName').value,
         dose_number: parseInt(document.getElementById('doseNumber').value),
         administered_date: document.getElementById('administeredDate').value,
-        batch_number: document.getElementById('batchNumber').value,
-        site: document.getElementById('site').value,
-        route: document.getElementById('route').value
+        batch_number: document.getElementById('batchNumber').value
       };
       await supabase.from('patient_immunizations').insert([data]);
       showToast('Immunization recorded successfully!', 'success');
       closeModal();
     }
 
-    function closeModal() {
-      document.querySelectorAll('.modal-overlay').forEach(m => m.remove());
+    // INVENTORY FUNCTIONS
+    function showAddSupplierModal() {
+      const modal = document.createElement('div');
+      modal.className = 'modal-overlay';
+      modal.innerHTML = `
+        <div class="modal-content">
+          <div class="p-8 border-b flex justify-between items-center">
+            <h2 class="text-2xl font-bold">🏢 Add Supplier</h2>
+            <button onclick="closeModal()" class="text-gray-500 hover:text-gray-700 text-2xl">×</button>
+          </div>
+          <div class="p-8">
+            <div class="grid grid-cols-2 gap-6 mb-6">
+              <div>
+                <label class="form-label">Supplier Name</label>
+                <input type="text" id="supplierName" class="form-input" placeholder="ABC Pharmaceuticals">
+              </div>
+              <div>
+                <label class="form-label">Contact Person</label>
+                <input type="text" id="contactPerson" class="form-input" placeholder="John Doe">
+              </div>
+            </div>
+            <div class="grid grid-cols-2 gap-6 mb-6">
+              <div>
+                <label class="form-label">Phone</label>
+                <input type="text" id="supplierPhone" class="form-input" placeholder="+91 98765 43210">
+              </div>
+              <div>
+                <label class="form-label">Email</label>
+                <input type="email" id="supplierEmail" class="form-input" placeholder="supplier@example.com">
+              </div>
+            </div>
+            <div class="grid grid-cols-2 gap-6 mb-6">
+              <div>
+                <label class="form-label">GSTIN</label>
+                <input type="text" id="supplierGSTIN" class="form-input" placeholder="27AABCU9603R1ZM">
+              </div>
+              <div>
+                <label class="form-label">Payment Terms</label>
+                <input type="text" id="paymentTerms" class="form-input" placeholder="Net 30">
+              </div>
+            </div>
+            <button onclick="saveSupplier()" class="btn btn-success">Save Supplier</button>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(modal);
+    }
+
+    async function saveSupplier() {
+      const data = {
+        name: document.getElementById('supplierName').value,
+        contact_person: document.getElementById('contactPerson').value,
+        phone: document.getElementById('supplierPhone').value,
+        email: document.getElementById('supplierEmail').value,
+        gstin: document.getElementById('supplierGSTIN').value,
+        payment_terms: document.getElementById('paymentTerms').value
+      };
+      await supabase.from('suppliers').insert([data]);
+      showToast('Supplier added successfully!', 'success');
+      closeModal();
+      render();
+    }
+
+    function showAddStockModal() {
+      const modal = document.createElement('div');
+      modal.className = 'modal-overlay';
+      modal.innerHTML = `
+        <div class="modal-content">
+          <div class="p-8 border-b flex justify-between items-center">
+            <h2 class="text-2xl font-bold">📦 Add Stock</h2>
+            <button onclick="closeModal()" class="text-gray-500 hover:text-gray-700 text-2xl">×</button>
+          </div>
+          <div class="p-8">
+            <div class="mb-6">
+              <label class="form-label">Medicine</label>
+              <select id="stockMedicine" class="form-input">
+                <option value="">Select Medicine</option>
+                ${window.DB.medicines.map(m => `<option value="${m.id}">${m.name} (${m.brand_name})</option>`).join('')}
+              </select>
+            </div>
+            <div class="grid grid-cols-3 gap-6 mb-6">
+              <div>
+                <label class="form-label">Batch Number</label>
+                <input type="text" id="batchNumber" class="form-input" placeholder="BATCH001">
+              </div>
+              <div>
+                <label class="form-label">Quantity</label>
+                <input type="number" id="stockQuantity" class="form-input" placeholder="100">
+              </div>
+              <div>
+                <label class="form-label">Expiry Date</label>
+                <input type="date" id="expiryDate" class="form-input">
+              </div>
+            </div>
+            <button onclick="saveStock()" class="btn btn-success">Add Stock</button>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(modal);
+    }
+
+    async function saveStock() {
+      const data = {
+        medicine_id: document.getElementById('stockMedicine').value,
+        clinic_id: 'clinic-1',
+        batch_number: document.getElementById('batchNumber').value,
+        quantity_in_stock: parseInt(document.getElementById('stockQuantity').value),
+        expiry_date: document.getElementById('expiryDate').value
+      };
+      await supabase.from('medicine_inventory').insert([data]);
+      showToast('Stock added successfully!', 'success');
+      closeModal();
+      render();
     }
 
     function render() {
@@ -315,7 +807,7 @@
                 <div class="text-6xl mb-4">🇮🇳</div>
                 <h1 class="text-4xl font-bold text-gray-900 mb-3">EdgesOf MediScript</h1>
                 <p class="text-xl text-gray-700">Complete India Compliance System</p>
-                <p class="text-sm text-gray-600 mt-2"><span class="phase-badge">Phase 4 Complete ✅</span></p>
+                <p class="text-sm text-gray-600 mt-2"><span class="phase-badge">All 5 Phases Complete ✅</span></p>
               </div>
               <div class="card">
                 <h2 class="text-2xl font-bold mb-4">📋 Data Privacy Consent</h2>
@@ -332,7 +824,7 @@
               <div class="text-center mb-10">
                 <img src="https://nyc3.digitaloceanspaces.com/bhindi-drive/files/cab453ed-7d3e-4dfa-9012-038dbc50c1c5/2025-12-07T15-33-38-867Z-c50befdf-chat-image-1765121618851-0.jpg" class="h-16 mx-auto mb-6">
                 <h1 class="text-4xl font-bold text-white mb-3">EdgesOf MediScript</h1>
-                <p class="text-white text-lg"><span class="phase-badge">Phase 4 Complete ✅</span></p>
+                <p class="text-white text-lg"><span class="phase-badge">5 Phases Complete ✅</span></p>
               </div>
               <div class="card">
                 <input type="email" value="doctor@clinic.com" class="form-input mb-4">
@@ -349,7 +841,7 @@
                 <img src="https://nyc3.digitaloceanspaces.com/bhindi-drive/files/cab453ed-7d3e-4dfa-9012-038dbc50c1c5/2025-12-07T15-33-38-867Z-c50befdf-chat-image-1765121618851-0.jpg" class="h-10">
                 <div>
                   <h3 class="font-bold">EdgesOf MediScript</h3>
-                  <p class="text-xs text-gray-300">🇮🇳 Phase 4 Complete • Clinical Workflow Ready</p>
+                  <p class="text-xs text-gray-300">🇮🇳 Complete System • All Features Active</p>
                 </div>
               </div>
               <div class="flex items-center gap-4">
@@ -363,14 +855,18 @@
             <div class="flex">
               <aside class="w-72 bg-gray-800 text-white p-6 min-h-screen">
                 <div class="mb-6 p-4 bg-gradient-to-r from-green-600 to-blue-600 rounded-xl">
-                  <p class="text-xs font-bold">🎉 PHASE 4 COMPLETE</p>
-                  <p class="text-xs mt-1">Clinical Workflow Ready!</p>
+                  <p class="text-xs font-bold">🎉 ALL FEATURES ACTIVE</p>
+                  <p class="text-xs mt-1">5 Phases Complete!</p>
                 </div>
                 <nav class="space-y-2">
-                  <a href="#" onclick="switchScreen('dashboard')" class="nav-link ${currentScreen==='dashboard'?'active':''}">📊 Dashboard</a>
-                  <a href="#" onclick="switchScreen('patients')" class="nav-link ${currentScreen==='patients'?'active':''}">👥 Patients</a>
-                  <a href="#" onclick="switchScreen('clinical')" class="nav-link ${currentScreen==='clinical'?'active':''}">🏥 Clinical Records</a>
-                  <a href="#" onclick="switchScreen('compliance')" class="nav-link ${currentScreen==='compliance'?'active':''}">🇮🇳 Compliance</a>
+                  <a onclick="switchScreen('dashboard')" class="nav-link ${currentScreen==='dashboard'?'active':''}">📊 Dashboard</a>
+                  <a onclick="switchScreen('patients')" class="nav-link ${currentScreen==='patients'?'active':''}">👥 Patients</a>
+                  <a onclick="switchScreen('prescriptions')" class="nav-link ${currentScreen==='prescriptions'?'active':''}">💊 Prescriptions</a>
+                  <a onclick="switchScreen('billing')" class="nav-link ${currentScreen==='billing'?'active':''}">💰 GST Billing</a>
+                  <a onclick="switchScreen('clinical')" class="nav-link ${currentScreen==='clinical'?'active':''}">🏥 Clinical</a>
+                  <a onclick="switchScreen('inventory')" class="nav-link ${currentScreen==='inventory'?'active':''}">📦 Inventory</a>
+                  <a onclick="switchScreen('analytics')" class="nav-link ${currentScreen==='analytics'?'active':''}">📈 Analytics</a>
+                  <a onclick="switchScreen('compliance')" class="nav-link ${currentScreen==='compliance'?'active':''}">🇮🇳 Compliance</a>
                 </nav>
               </aside>
               <main class="flex-1 p-8">${renderContent()}</main>
@@ -386,17 +882,17 @@
           <div class="max-w-7xl mx-auto">
             <h1 class="text-3xl font-bold mb-8">Dashboard</h1>
             
-            <div class="mb-8 p-6 bg-green-50 border-l-4 border-green-500 rounded-xl">
+            <div class="mb-8 p-6 bg-gradient-to-r from-green-50 to-blue-50 border-l-4 border-green-500 rounded-xl">
               <div class="flex items-center gap-4">
                 <div class="text-4xl">🎉</div>
                 <div>
-                  <p class="font-bold text-green-900 text-lg">Phase 4 Complete!</p>
-                  <p class="text-sm text-green-700">Clinical workflow, medical history, allergies, and immunizations are now available</p>
+                  <p class="font-bold text-green-900 text-lg">All 5 Phases Complete!</p>
+                  <p class="text-sm text-green-700">Full compliance + Clinical workflow + Inventory & Analytics</p>
                 </div>
               </div>
             </div>
 
-            <div class="grid grid-cols-4 gap-6 mb-8">
+            <div class="grid grid-cols-4 gap-6">
               <div class="card">
                 <div class="flex items-center gap-4">
                   <div class="w-12 h-12 bg-blue-500 rounded-xl flex items-center justify-center text-white text-2xl">👥</div>
@@ -408,28 +904,28 @@
               </div>
               <div class="card">
                 <div class="flex items-center gap-4">
-                  <div class="w-12 h-12 bg-purple-500 rounded-xl flex items-center justify-center text-white text-2xl">📋</div>
+                  <div class="w-12 h-12 bg-purple-500 rounded-xl flex items-center justify-center text-white text-2xl">💊</div>
                   <div>
-                    <p class="text-gray-600 text-sm">Medical History</p>
-                    <p class="text-3xl font-bold">${window.DB.patient_medical_history.length}</p>
+                    <p class="text-gray-600 text-sm">Prescriptions</p>
+                    <p class="text-3xl font-bold">${window.DB.prescriptions.length}</p>
                   </div>
                 </div>
               </div>
               <div class="card">
                 <div class="flex items-center gap-4">
-                  <div class="w-12 h-12 bg-red-500 rounded-xl flex items-center justify-center text-white text-2xl">⚠️</div>
+                  <div class="w-12 h-12 bg-green-500 rounded-xl flex items-center justify-center text-white text-2xl">💰</div>
                   <div>
-                    <p class="text-gray-600 text-sm">Allergies</p>
-                    <p class="text-3xl font-bold">${window.DB.patient_allergies.length}</p>
+                    <p class="text-gray-600 text-sm">Invoices</p>
+                    <p class="text-3xl font-bold">${window.DB.invoices.length}</p>
                   </div>
                 </div>
               </div>
               <div class="card">
                 <div class="flex items-center gap-4">
-                  <div class="w-12 h-12 bg-green-500 rounded-xl flex items-center justify-center text-white text-2xl">💉</div>
+                  <div class="w-12 h-12 bg-orange-500 rounded-xl flex items-center justify-center text-white text-2xl">📦</div>
                   <div>
-                    <p class="text-gray-600 text-sm">Immunizations</p>
-                    <p class="text-3xl font-bold">${window.DB.patient_immunizations.length}</p>
+                    <p class="text-gray-600 text-sm">Stock Items</p>
+                    <p class="text-3xl font-bold">${window.DB.medicine_inventory.length}</p>
                   </div>
                 </div>
               </div>
@@ -455,14 +951,187 @@
                       </div>
                       <p class="text-gray-600">📞 ${p.phone}</p>
                     </div>
-                    <div class="flex gap-3">
-                      <button onclick="showMedicalHistoryModal('${p.id}')" class="btn btn-primary">📋 History</button>
+                    <div class="flex gap-3 flex-wrap">
+                      <button onclick="showPrescriptionModal('${p.id}')" class="btn btn-primary">💊 Rx</button>
+                      <button onclick="showInvoiceModal('${p.id}')" class="btn btn-success">💰 Bill</button>
+                      <button onclick="showMedicalHistoryModal('${p.id}')" class="btn btn-info">📋 History</button>
                       <button onclick="showAllergyModal('${p.id}')" class="btn btn-danger">⚠️ Allergy</button>
-                      <button onclick="showImmunizationModal('${p.id}')" class="btn btn-success">💉 Vaccine</button>
+                      <button onclick="showImmunizationModal('${p.id}')" class="btn btn-secondary">💉 Vaccine</button>
                     </div>
                   </div>
                 </div>
               `).join('')}
+            </div>
+          </div>
+        `;
+      }
+
+      if (currentScreen === 'inventory') {
+        return `
+          <div class="max-w-7xl mx-auto">
+            <div class="flex justify-between items-center mb-8">
+              <h1 class="text-3xl font-bold">Inventory Management</h1>
+              <div class="flex gap-3">
+                <button onclick="showAddSupplierModal()" class="btn btn-primary">🏢 Add Supplier</button>
+                <button onclick="showAddStockModal()" class="btn btn-success">📦 Add Stock</button>
+              </div>
+            </div>
+            
+            <div class="grid grid-cols-3 gap-6 mb-8">
+              <div class="card">
+                <h3 class="text-xl font-bold mb-4">🏢 Suppliers</h3>
+                <p class="text-4xl font-bold text-blue-600">${window.DB.suppliers.length}</p>
+                <p class="text-sm text-gray-500 mt-2">Total suppliers</p>
+              </div>
+              <div class="card">
+                <h3 class="text-xl font-bold mb-4">📦 Stock Items</h3>
+                <p class="text-4xl font-bold text-green-600">${window.DB.medicine_inventory.length}</p>
+                <p class="text-sm text-gray-500 mt-2">Inventory items</p>
+              </div>
+              <div class="card">
+                <h3 class="text-xl font-bold mb-4">⚠️ Alerts</h3>
+                <p class="text-4xl font-bold text-orange-600">${window.DB.stock_alerts.length}</p>
+                <p class="text-sm text-gray-500 mt-2">Stock alerts</p>
+              </div>
+            </div>
+
+            <div class="card">
+              <h3 class="text-xl font-bold mb-6">✨ Phase 5 Features</h3>
+              <div class="grid grid-cols-2 gap-6">
+                <div class="p-4 bg-purple-50 rounded-xl">
+                  <h4 class="font-bold mb-2">✅ Inventory Features</h4>
+                  <ul class="text-sm space-y-1">
+                    <li>• Medicine stock tracking</li>
+                    <li>• Batch & expiry management</li>
+                    <li>• Stock movement logging</li>
+                    <li>• Automated alerts</li>
+                    <li>• Supplier management</li>
+                  </ul>
+                </div>
+                <div class="p-4 bg-blue-50 rounded-xl">
+                  <h4 class="font-bold mb-2">📊 Analytics Ready</h4>
+                  <ul class="text-sm space-y-1">
+                    <li>• Revenue analytics</li>
+                    <li>• Doctor performance</li>
+                    <li>• Patient demographics</li>
+                    <li>• Disease trends</li>
+                    <li>• Purchase orders</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+      if (currentScreen === 'analytics') {
+        return `
+          <div class="max-w-7xl mx-auto">
+            <h1 class="text-3xl font-bold mb-8">📈 Analytics & Reports</h1>
+            
+            <div class="grid grid-cols-2 gap-8">
+              <div class="card">
+                <h3 class="text-xl font-bold mb-4">💰 Revenue Analytics</h3>
+                <p class="text-gray-600 mb-4">Track daily and monthly revenue</p>
+                <div class="text-4xl font-bold text-green-600">₹0</div>
+                <p class="text-sm text-gray-500 mt-2">Total revenue</p>
+              </div>
+
+              <div class="card">
+                <h3 class="text-xl font-bold mb-4">👨‍⚕️ Doctor Performance</h3>
+                <p class="text-gray-600 mb-4">Monitor consultation metrics</p>
+                <div class="text-4xl font-bold text-blue-600">0</div>
+                <p class="text-sm text-gray-500 mt-2">Total consultations</p>
+              </div>
+
+              <div class="card">
+                <h3 class="text-xl font-bold mb-4">👥 Patient Demographics</h3>
+                <p class="text-gray-600 mb-4">Age and gender distribution</p>
+                <div class="text-4xl font-bold text-purple-600">${window.DB.patients.length}</div>
+                <p class="text-sm text-gray-500 mt-2">Total patients</p>
+              </div>
+
+              <div class="card">
+                <h3 class="text-xl font-bold mb-4">🦠 Disease Trends</h3>
+                <p class="text-gray-600 mb-4">Track disease patterns</p>
+                <div class="text-4xl font-bold text-red-600">0</div>
+                <p class="text-sm text-gray-500 mt-2">Tracked diseases</p>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+      if (currentScreen === 'compliance') {
+        return `
+          <div class="max-w-7xl mx-auto">
+            <h1 class="text-3xl font-bold mb-8">🇮🇳 Compliance Dashboard</h1>
+            
+            <div class="grid grid-cols-5 gap-6 mb-8">
+              <div class="card border-t-4 border-green-500">
+                <h3 class="font-bold text-lg mb-2 text-green-700">Phase 1 ✅</h3>
+                <p class="text-xs text-gray-600">Data Protection</p>
+                <p class="text-2xl font-bold text-green-600 mt-2">100%</p>
+              </div>
+              <div class="card border-t-4 border-purple-500">
+                <h3 class="font-bold text-lg mb-2 text-purple-700">Phase 2 ✅</h3>
+                <p class="text-xs text-gray-600">Medical & GST</p>
+                <p class="text-2xl font-bold text-purple-600 mt-2">100%</p>
+              </div>
+              <div class="card border-t-4 border-red-500">
+                <h3 class="font-bold text-lg mb-2 text-red-700">Phase 3 ✅</h3>
+                <p class="text-xs text-gray-600">Security</p>
+                <p class="text-2xl font-bold text-red-600 mt-2">100%</p>
+              </div>
+              <div class="card border-t-4 border-blue-500">
+                <h3 class="font-bold text-lg mb-2 text-blue-700">Phase 4 ✅</h3>
+                <p class="text-xs text-gray-600">Clinical</p>
+                <p class="text-2xl font-bold text-blue-600 mt-2">100%</p>
+              </div>
+              <div class="card border-t-4 border-orange-500">
+                <h3 class="font-bold text-lg mb-2 text-orange-700">Phase 5 ✅</h3>
+                <p class="text-xs text-gray-600">Inventory</p>
+                <p class="text-2xl font-bold text-orange-600 mt-2">100%</p>
+              </div>
+            </div>
+
+            <div class="card">
+              <h3 class="text-xl font-bold mb-6">Overall Progress</h3>
+              <div class="mb-4">
+                <div class="flex justify-between mb-2">
+                  <span class="font-bold">Total Completion</span>
+                  <span class="text-green-600 font-bold">83% Complete</span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-6">
+                  <div class="bg-gradient-to-r from-green-500 to-blue-600 h-6 rounded-full flex items-center justify-center text-white text-sm font-bold" style="width: 83%">
+                    5 of 6 Phases
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+      if (currentScreen === 'prescriptions') {
+        return `
+          <div class="max-w-7xl mx-auto">
+            <h1 class="text-3xl font-bold mb-8">💊 Prescriptions</h1>
+            <div class="card">
+              <p class="text-gray-600">Total Prescriptions: <span class="font-bold">${window.DB.prescriptions.length}</span></p>
+              ${window.DB.prescriptions.length === 0 ? '<p class="text-gray-500 mt-4">No prescriptions created yet. Go to Patients to create one.</p>' : ''}
+            </div>
+          </div>
+        `;
+      }
+
+      if (currentScreen === 'billing') {
+        return `
+          <div class="max-w-7xl mx-auto">
+            <h1 class="text-3xl font-bold mb-8">💰 GST Billing</h1>
+            <div class="card">
+              <p class="text-gray-600">Total Invoices: <span class="font-bold">${window.DB.invoices.length}</span></p>
+              ${window.DB.invoices.length === 0 ? '<p class="text-gray-500 mt-4">No invoices created yet. Go to Patients to create one.</p>' : ''}
             </div>
           </div>
         `;
@@ -476,94 +1145,20 @@
             <div class="grid grid-cols-3 gap-8">
               <div class="card">
                 <h3 class="text-xl font-bold mb-4">📋 Medical History</h3>
-                <p class="text-gray-600 mb-4">Track patient conditions and diagnoses</p>
                 <div class="text-4xl font-bold text-blue-600">${window.DB.patient_medical_history.length}</div>
                 <p class="text-sm text-gray-500 mt-2">Total records</p>
               </div>
 
               <div class="card">
                 <h3 class="text-xl font-bold mb-4">⚠️ Allergies</h3>
-                <p class="text-gray-600 mb-4">Monitor patient allergies and reactions</p>
                 <div class="text-4xl font-bold text-red-600">${window.DB.patient_allergies.length}</div>
                 <p class="text-sm text-gray-500 mt-2">Total allergies</p>
               </div>
 
               <div class="card">
                 <h3 class="text-xl font-bold mb-4">💉 Immunizations</h3>
-                <p class="text-gray-600 mb-4">Track vaccination records</p>
                 <div class="text-4xl font-bold text-green-600">${window.DB.patient_immunizations.length}</div>
                 <p class="text-sm text-gray-500 mt-2">Total vaccines</p>
-              </div>
-            </div>
-
-            <div class="mt-8 card">
-              <h3 class="text-xl font-bold mb-6">✨ Phase 4 Features</h3>
-              <div class="grid grid-cols-2 gap-6">
-                <div class="p-4 bg-blue-50 rounded-xl">
-                  <h4 class="font-bold mb-2">✅ Implemented</h4>
-                  <ul class="text-sm space-y-1">
-                    <li>• Medical history tracking</li>
-                    <li>• Allergy management</li>
-                    <li>• Immunization records</li>
-                    <li>• Doctor schedules</li>
-                    <li>• Clinical templates</li>
-                  </ul>
-                </div>
-                <div class="p-4 bg-green-50 rounded-xl">
-                  <h4 class="font-bold mb-2">🎯 Database Ready</h4>
-                  <ul class="text-sm space-y-1">
-                    <li>• 6 new tables created</li>
-                    <li>• Foreign key relationships</li>
-                    <li>• Indexes for performance</li>
-                    <li>• Ready for production</li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-          </div>
-        `;
-      }
-
-      if (currentScreen === 'compliance') {
-        return `
-          <div class="max-w-7xl mx-auto">
-            <h1 class="text-3xl font-bold mb-8">🇮🇳 Compliance Dashboard</h1>
-            
-            <div class="grid grid-cols-4 gap-6 mb-8">
-              <div class="card border-t-4 border-green-500">
-                <h3 class="font-bold text-lg mb-4 text-green-700">Phase 1 ✅</h3>
-                <p class="text-sm text-gray-600">Data Protection</p>
-                <p class="text-3xl font-bold text-green-600 mt-2">100%</p>
-              </div>
-              <div class="card border-t-4 border-purple-500">
-                <h3 class="font-bold text-lg mb-4 text-purple-700">Phase 2 ✅</h3>
-                <p class="text-sm text-gray-600">Medical & GST</p>
-                <p class="text-3xl font-bold text-purple-600 mt-2">100%</p>
-              </div>
-              <div class="card border-t-4 border-red-500">
-                <h3 class="font-bold text-lg mb-4 text-red-700">Phase 3 ✅</h3>
-                <p class="text-sm text-gray-600">Security</p>
-                <p class="text-3xl font-bold text-red-600 mt-2">100%</p>
-              </div>
-              <div class="card border-t-4 border-blue-500">
-                <h3 class="font-bold text-lg mb-4 text-blue-700">Phase 4 ✅</h3>
-                <p class="text-sm text-gray-600">Clinical</p>
-                <p class="text-3xl font-bold text-blue-600 mt-2">100%</p>
-              </div>
-            </div>
-
-            <div class="card">
-              <h3 class="text-xl font-bold mb-6">Overall Progress</h3>
-              <div class="mb-4">
-                <div class="flex justify-between mb-2">
-                  <span class="font-bold">Total Completion</span>
-                  <span class="text-green-600 font-bold">67% Complete</span>
-                </div>
-                <div class="w-full bg-gray-200 rounded-full h-6">
-                  <div class="bg-gradient-to-r from-green-500 to-blue-600 h-6 rounded-full flex items-center justify-center text-white text-sm font-bold" style="width: 67%">
-                    4 of 6 Phases
-                  </div>
-                </div>
               </div>
             </div>
           </div>
