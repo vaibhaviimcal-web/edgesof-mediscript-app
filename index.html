@@ -18,6 +18,7 @@
     .btn-danger { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: white; }
     .btn-info { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; }
     .btn-purple { background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); color: white; }
+    .btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.15); }
     .card { background: white; border-radius: 20px; padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.05), 0 10px 40px rgba(0,0,0,0.03); transition: all 0.3s; }
     .card:hover { transform: translateY(-4px); box-shadow: 0 4px 6px rgba(0,0,0,0.05), 0 20px 60px rgba(0,0,0,0.08); }
     .stat-card { background: white; border-radius: 16px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
@@ -27,12 +28,13 @@
     .role-doctor { background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%); color: white; }
     .role-receptionist { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; }
     .role-patient { background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); color: white; }
+    .quick-login-btn { width: 100%; justify-content: center; margin-bottom: 8px; }
   </style>
 </head>
 <body>
   <div id="app"></div>
   <script>
-    console.log('🚀 EdgesOf MediScript v2.0 - Complete System');
+    console.log('🚀 EdgesOf MediScript v2.0 - Testing Mode with Quick Login');
     
     const DB = {
       clinics: [{id: 'c1', name: 'City Health Clinic', logo_url: 'https://nyc3.digitaloceanspaces.com/bhindi-drive/files/cab453ed-7d3e-4dfa-9012-038dbc50c1c5/2025-12-07T15-33-38-867Z-c50befdf-chat-image-1765121618851-0.jpg', primary_color: '#2563eb', secondary_color: '#10b981'}],
@@ -74,6 +76,12 @@
     let currentUser = null;
     let currentScreen = 'login';
 
+    function quickLogin(email, password) {
+      document.getElementById('loginEmail').value = email;
+      document.getElementById('loginPassword').value = password;
+      login();
+    }
+
     function login() {
       const email = document.getElementById('loginEmail').value;
       const password = document.getElementById('loginPassword').value;
@@ -94,20 +102,89 @@
       if (currentScreen === 'login') {
         app.innerHTML = `
           <div class="min-h-screen flex items-center justify-center p-6" style="background: linear-gradient(135deg, ${clinic.primary_color} 0%, ${clinic.secondary_color} 100%);">
-            <div class="w-full max-w-md">
-              <div class="text-center mb-8"><img src="${clinic.logo_url}" class="h-16 mx-auto mb-4"><h1 class="text-3xl font-bold text-white mb-2">${clinic.name}</h1><p class="text-white text-sm">Complete System v2.0 - All Roles Functional</p></div>
-              <div class="card">
-                <h2 class="text-xl font-bold mb-4">Login</h2>
-                <div class="mb-3"><label class="block text-sm font-semibold mb-2">Email</label><input type="email" id="loginEmail" class="w-full p-3 border-2 rounded-lg" value="doctor@clinic.com"></div>
-                <div class="mb-3"><label class="block text-sm font-semibold mb-2">Password</label><input type="password" id="loginPassword" class="w-full p-3 border-2 rounded-lg" value="doctor123"></div>
-                <button onclick="login()" class="btn btn-primary w-full">Login</button>
-                <div class="mt-4 p-3 bg-gray-50 rounded-lg text-xs">
-                  <p class="font-bold mb-2">✅ All Roles Working:</p>
-                  <p>👑 Super Admin: system@edgesof.com / admin123</p>
-                  <p>🏥 Admin: admin@clinic.com / admin123</p>
-                  <p>👨‍⚕️ Doctor: doctor@clinic.com / doctor123</p>
-                  <p>📋 Receptionist: reception@clinic.com / reception123</p>
-                  <p>👤 Patient: patient@clinic.com / patient123</p>
+            <div class="w-full max-w-4xl">
+              <div class="text-center mb-8">
+                <img src="${clinic.logo_url}" class="h-16 mx-auto mb-4">
+                <h1 class="text-3xl font-bold text-white mb-2">${clinic.name}</h1>
+                <p class="text-white text-sm">Complete System v2.0 - Testing Mode</p>
+              </div>
+              
+              <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Manual Login -->
+                <div class="card">
+                  <h2 class="text-xl font-bold mb-4">🔐 Manual Login</h2>
+                  <div class="mb-3">
+                    <label class="block text-sm font-semibold mb-2">Email</label>
+                    <input type="email" id="loginEmail" class="w-full p-3 border-2 rounded-lg" placeholder="Enter email">
+                  </div>
+                  <div class="mb-3">
+                    <label class="block text-sm font-semibold mb-2">Password</label>
+                    <input type="password" id="loginPassword" class="w-full p-3 border-2 rounded-lg" placeholder="Enter password">
+                  </div>
+                  <button onclick="login()" class="btn btn-primary w-full">Login</button>
+                </div>
+
+                <!-- Quick Login Buttons -->
+                <div class="card">
+                  <h2 class="text-xl font-bold mb-4">⚡ Quick Login (Testing)</h2>
+                  <p class="text-xs text-gray-600 mb-4">Click any button to login instantly</p>
+                  
+                  <button onclick="quickLogin('system@edgesof.com', 'admin123')" class="btn btn-danger quick-login-btn">
+                    <span>👑</span>
+                    <span>Super Admin</span>
+                  </button>
+                  
+                  <button onclick="quickLogin('admin@clinic.com', 'admin123')" class="btn btn-warning quick-login-btn">
+                    <span>🏥</span>
+                    <span>Admin</span>
+                  </button>
+                  
+                  <button onclick="quickLogin('doctor@clinic.com', 'doctor123')" class="btn btn-primary quick-login-btn">
+                    <span>👨‍⚕️</span>
+                    <span>Doctor</span>
+                  </button>
+                  
+                  <button onclick="quickLogin('reception@clinic.com', 'reception123')" class="btn btn-success quick-login-btn">
+                    <span>📋</span>
+                    <span>Receptionist</span>
+                  </button>
+                  
+                  <button onclick="quickLogin('patient@clinic.com', 'patient123')" class="btn btn-purple quick-login-btn">
+                    <span>👤</span>
+                    <span>Patient</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Credentials Reference -->
+              <div class="card mt-6">
+                <h3 class="font-bold mb-3 text-sm">📋 Test Credentials Reference</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 text-xs">
+                  <div class="p-2 bg-red-50 rounded">
+                    <p class="font-bold">👑 Super Admin</p>
+                    <p class="text-gray-600">system@edgesof.com</p>
+                    <p class="text-gray-600">admin123</p>
+                  </div>
+                  <div class="p-2 bg-orange-50 rounded">
+                    <p class="font-bold">🏥 Admin</p>
+                    <p class="text-gray-600">admin@clinic.com</p>
+                    <p class="text-gray-600">admin123</p>
+                  </div>
+                  <div class="p-2 bg-blue-50 rounded">
+                    <p class="font-bold">👨‍⚕️ Doctor</p>
+                    <p class="text-gray-600">doctor@clinic.com</p>
+                    <p class="text-gray-600">doctor123</p>
+                  </div>
+                  <div class="p-2 bg-green-50 rounded">
+                    <p class="font-bold">📋 Receptionist</p>
+                    <p class="text-gray-600">reception@clinic.com</p>
+                    <p class="text-gray-600">reception123</p>
+                  </div>
+                  <div class="p-2 bg-purple-50 rounded">
+                    <p class="font-bold">👤 Patient</p>
+                    <p class="text-gray-600">patient@clinic.com</p>
+                    <p class="text-gray-600">patient123</p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -118,7 +195,7 @@
           <div>
             <nav class="bg-gray-900 text-white p-4 flex justify-between sticky top-0 z-50">
               <div class="flex gap-3 items-center"><img src="${clinic.logo_url}" class="h-10"><div><h3 class="font-bold text-sm">${clinic.name}</h3><p class="text-xs text-gray-300">Super Admin Dashboard</p></div></div>
-              <div class="flex items-center gap-3"><div class="text-right"><p class="font-semibold text-sm">${currentUser.name}</p><span class="role-badge role-superadmin">${currentUser.role}</span></div><button onclick="logout()" class="px-3 py-2 bg-white bg-opacity-10 rounded-lg text-xs">Logout</button></div>
+              <div class="flex items-center gap-3"><div class="text-right"><p class="font-semibold text-sm">${currentUser.name}</p><span class="role-badge role-superadmin">${currentUser.role}</span></div><button onclick="logout()" class="px-3 py-2 bg-white bg-opacity-10 rounded-lg text-xs hover:bg-opacity-20">Logout</button></div>
             </nav>
             <div class="p-6">
               <h1 class="text-2xl font-bold mb-6">👑 Super Admin Dashboard</h1>
@@ -142,7 +219,7 @@
           <div>
             <nav class="bg-gray-900 text-white p-4 flex justify-between sticky top-0 z-50">
               <div class="flex gap-3 items-center"><img src="${clinic.logo_url}" class="h-10"><div><h3 class="font-bold text-sm">${clinic.name}</h3><p class="text-xs text-gray-300">Admin Dashboard</p></div></div>
-              <div class="flex items-center gap-3"><div class="text-right"><p class="font-semibold text-sm">${currentUser.name}</p><span class="role-badge role-admin">${currentUser.role}</span></div><button onclick="logout()" class="px-3 py-2 bg-white bg-opacity-10 rounded-lg text-xs">Logout</button></div>
+              <div class="flex items-center gap-3"><div class="text-right"><p class="font-semibold text-sm">${currentUser.name}</p><span class="role-badge role-admin">${currentUser.role}</span></div><button onclick="logout()" class="px-3 py-2 bg-white bg-opacity-10 rounded-lg text-xs hover:bg-opacity-20">Logout</button></div>
             </nav>
             <div class="p-6">
               <h1 class="text-2xl font-bold mb-6">🏥 Admin Dashboard</h1>
@@ -168,7 +245,7 @@
           <div>
             <nav class="bg-gray-900 text-white p-4 flex justify-between sticky top-0 z-50">
               <div class="flex gap-3 items-center"><img src="${clinic.logo_url}" class="h-10"><div><h3 class="font-bold text-sm">${clinic.name}</h3><p class="text-xs text-gray-300">Doctor Dashboard</p></div></div>
-              <div class="flex items-center gap-3"><div class="text-right"><p class="font-semibold text-sm">${currentUser.name}</p><span class="role-badge role-doctor">${currentUser.role}</span></div><button onclick="logout()" class="px-3 py-2 bg-white bg-opacity-10 rounded-lg text-xs">Logout</button></div>
+              <div class="flex items-center gap-3"><div class="text-right"><p class="font-semibold text-sm">${currentUser.name}</p><span class="role-badge role-doctor">${currentUser.role}</span></div><button onclick="logout()" class="px-3 py-2 bg-white bg-opacity-10 rounded-lg text-xs hover:bg-opacity-20">Logout</button></div>
             </nav>
             <div class="p-6">
               <h1 class="text-2xl font-bold mb-6">👨‍⚕️ Doctor Dashboard</h1>
@@ -188,7 +265,7 @@
           <div>
             <nav class="bg-gray-900 text-white p-4 flex justify-between sticky top-0 z-50">
               <div class="flex gap-3 items-center"><img src="${clinic.logo_url}" class="h-10"><div><h3 class="font-bold text-sm">${clinic.name}</h3><p class="text-xs text-gray-300">Receptionist Dashboard</p></div></div>
-              <div class="flex items-center gap-3"><div class="text-right"><p class="font-semibold text-sm">${currentUser.name}</p><span class="role-badge role-receptionist">${currentUser.role}</span></div><button onclick="logout()" class="px-3 py-2 bg-white bg-opacity-10 rounded-lg text-xs">Logout</button></div>
+              <div class="flex items-center gap-3"><div class="text-right"><p class="font-semibold text-sm">${currentUser.name}</p><span class="role-badge role-receptionist">${currentUser.role}</span></div><button onclick="logout()" class="px-3 py-2 bg-white bg-opacity-10 rounded-lg text-xs hover:bg-opacity-20">Logout</button></div>
             </nav>
             <div class="p-6">
               <h1 class="text-2xl font-bold mb-6">📋 Receptionist Dashboard</h1>
@@ -218,7 +295,7 @@
           <div>
             <nav class="bg-gray-900 text-white p-4 flex justify-between sticky top-0 z-50">
               <div class="flex gap-3 items-center"><img src="${clinic.logo_url}" class="h-10"><div><h3 class="font-bold text-sm">${clinic.name}</h3><p class="text-xs text-gray-300">Patient Portal</p></div></div>
-              <div class="flex items-center gap-3"><div class="text-right"><p class="font-semibold text-sm">${currentUser.name}</p><span class="role-badge role-patient">${currentUser.role}</span></div><button onclick="logout()" class="px-3 py-2 bg-white bg-opacity-10 rounded-lg text-xs">Logout</button></div>
+              <div class="flex items-center gap-3"><div class="text-right"><p class="font-semibold text-sm">${currentUser.name}</p><span class="role-badge role-patient">${currentUser.role}</span></div><button onclick="logout()" class="px-3 py-2 bg-white bg-opacity-10 rounded-lg text-xs hover:bg-opacity-20">Logout</button></div>
             </nav>
             <div class="p-6">
               <h1 class="text-2xl font-bold mb-6">👤 Patient Portal</h1>
@@ -240,7 +317,7 @@
       }
     }
 
-    console.log('✅ Complete System v2.0 Loaded - All 5 Roles Functional!');
+    console.log('✅ Testing Mode Active - Quick Login Enabled!');
     render();
   </script>
 </body>
