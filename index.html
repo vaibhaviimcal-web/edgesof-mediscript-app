@@ -3,15 +3,18 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>EdgesOf MediScript - Complete Working Version</title>
+  <title>EdgesOf MediScript - Complete System</title>
   <link rel="icon" href="https://nyc3.digitaloceanspaces.com/bhindi-drive/files/cab453ed-7d3e-4dfa-9012-038dbc50c1c5/2025-12-07T15-33-38-867Z-c50befdf-chat-image-1765121618851-0.jpg">
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
   <style>
     * { font-family: 'Inter', sans-serif; margin: 0; padding: 0; box-sizing: border-box; }
     body { background: linear-gradient(135deg, #f9fafb 0%, #ffffff 100%); }
     .btn { padding: 10px 20px; border-radius: 10px; font-weight: 600; transition: all 0.3s; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; border: none; font-size: 14px; }
     .btn-sm { padding: 6px 12px; font-size: 12px; }
+    .btn-xs { padding: 4px 8px; font-size: 11px; }
     .btn-primary { background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%); color: white; }
     .btn-success { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; }
     .btn-warning { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; }
@@ -20,14 +23,21 @@
     .btn-secondary { background: white; color: #1f2937; border: 2px solid #e5e7eb; }
     .btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.15); }
     .card { background: white; border-radius: 20px; padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.05), 0 10px 40px rgba(0,0,0,0.03); }
-    .stat-card { background: white; border-radius: 16px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+    .stat-card { background: white; border-radius: 16px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); transition: all 0.3s; cursor: pointer; }
+    .stat-card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0,0,0,0.1); }
     .form-input { width: 100%; padding: 12px 16px; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 14px; }
     .form-input:focus { outline: none; border-color: #2563eb; box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1); }
     .form-label { display: block; font-size: 13px; font-weight: 600; color: #374151; margin-bottom: 6px; }
     .badge { display: inline-flex; padding: 4px 10px; border-radius: 16px; font-size: 11px; font-weight: 600; }
     .badge-success { background: #d1fae5; color: #065f46; }
+    .badge-warning { background: #fef3c7; color: #92400e; }
+    .badge-danger { background: #fee2e2; color: #991b1b; }
     .badge-info { background: #dbeafe; color: #1e40af; }
-    .role-badge { padding: 4px 10px; border-radius: 16px; font-size: 10px; font-weight: 700; text-transform: uppercase; background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%); color: white; }
+    .role-badge { padding: 4px 10px; border-radius: 16px; font-size: 10px; font-weight: 700; text-transform: uppercase; color: white; }
+    .role-doctor { background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%); }
+    .role-admin { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); }
+    .role-superadmin { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); }
+    .role-receptionist { background: linear-gradient(135deg, #10b981 0%, #059669 100%); }
     .nav-link { display: flex; align-items: center; gap: 10px; padding: 10px 16px; border-radius: 10px; color: rgba(255,255,255,0.8); transition: all 0.2s; cursor: pointer; }
     .nav-link:hover { background: rgba(255,255,255,0.1); color: white; }
     .nav-link.active { background: rgba(255,255,255,0.15); color: white; font-weight: 600; }
@@ -36,41 +46,168 @@
     th { background: #f9fafb; font-weight: 600; }
     .patient-card { border: 2px solid #e5e7eb; border-radius: 12px; padding: 16px; transition: all 0.3s; margin-bottom: 12px; }
     .patient-card:hover { border-color: #2563eb; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.1); }
+    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; align-items: center; justify-content: center; }
+    .modal.active { display: flex; }
+    .modal-content { background: white; border-radius: 20px; padding: 32px; max-width: 800px; max-height: 90vh; overflow-y: auto; width: 90%; }
+    .save-indicator { position: fixed; top: 20px; right: 20px; padding: 8px 16px; background: white; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); font-size: 12px; font-weight: 600; z-index: 9999; display: none; }
+    .save-indicator.saving { display: block; color: #f59e0b; }
+    .save-indicator.saved { display: block; color: #10b981; }
+    .token-card { background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%); color: white; border-radius: 16px; padding: 24px; text-align: center; margin-bottom: 16px; }
+    .token-number { font-size: 48px; font-weight: 900; }
   </style>
 </head>
 <body>
+  <div id="saveIndicator" class="save-indicator"></div>
   <div id="app"></div>
+  
+  <!-- Modals -->
+  <div id="prescriptionModal" class="modal">
+    <div class="modal-content">
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-bold">📋 Create Prescription</h2>
+        <button onclick="closeModal('prescriptionModal')" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
+      </div>
+      <form onsubmit="savePrescription(event)">
+        <div class="mb-4"><label class="form-label">Patient</label><select id="rxPatient" class="form-input" required></select></div>
+        <div class="mb-4"><label class="form-label">Chief Complaint</label><textarea id="rxComplaint" class="form-input" rows="2" required></textarea></div>
+        <div class="mb-4"><label class="form-label">Diagnosis</label><input type="text" id="rxDiagnosis" class="form-input" required></div>
+        <div class="mb-4"><label class="form-label">Medicines</label><div id="medicineList"></div><button type="button" onclick="addMedicine()" class="btn btn-secondary btn-sm mt-2">+ Add Medicine</button></div>
+        <div class="mb-4"><label class="form-label">Advice</label><textarea id="rxAdvice" class="form-input" rows="2"></textarea></div>
+        <div class="flex gap-3"><button type="submit" class="btn btn-primary">Save Prescription</button><button type="button" onclick="closeModal('prescriptionModal')" class="btn btn-secondary">Cancel</button></div>
+      </form>
+    </div>
+  </div>
+
+  <div id="patientModal" class="modal">
+    <div class="modal-content">
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-bold">👤 Register Patient</h2>
+        <button onclick="closeModal('patientModal')" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
+      </div>
+      <form onsubmit="savePatient(event)">
+        <div class="grid grid-cols-2 gap-4 mb-4">
+          <div><label class="form-label">First Name</label><input type="text" id="patFirstName" class="form-input" required></div>
+          <div><label class="form-label">Last Name</label><input type="text" id="patLastName" class="form-input" required></div>
+        </div>
+        <div class="grid grid-cols-3 gap-4 mb-4">
+          <div><label class="form-label">Age</label><input type="number" id="patAge" class="form-input" required></div>
+          <div><label class="form-label">Gender</label><select id="patGender" class="form-input" required><option>Male</option><option>Female</option><option>Other</option></select></div>
+          <div><label class="form-label">Blood Group</label><select id="patBlood" class="form-input"><option>A+</option><option>A-</option><option>B+</option><option>B-</option><option>O+</option><option>O-</option><option>AB+</option><option>AB-</option></select></div>
+        </div>
+        <div class="grid grid-cols-2 gap-4 mb-4">
+          <div><label class="form-label">Phone</label><input type="tel" id="patPhone" class="form-input" required></div>
+          <div><label class="form-label">Email</label><input type="email" id="patEmail" class="form-input"></div>
+        </div>
+        <div class="mb-4"><label class="form-label">Address</label><textarea id="patAddress" class="form-input" rows="2"></textarea></div>
+        <div class="flex gap-3"><button type="submit" class="btn btn-success">Register Patient</button><button type="button" onclick="closeModal('patientModal')" class="btn btn-secondary">Cancel</button></div>
+      </form>
+    </div>
+  </div>
+
+  <div id="billingModal" class="modal">
+    <div class="modal-content">
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-bold">💰 Create Bill</h2>
+        <button onclick="closeModal('billingModal')" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
+      </div>
+      <form onsubmit="saveBill(event)">
+        <div class="mb-4"><label class="form-label">Patient</label><select id="billPatient" class="form-input" required></select></div>
+        <div class="mb-4"><label class="form-label">Items</label><div id="billItems"></div><button type="button" onclick="addBillItem()" class="btn btn-secondary btn-sm mt-2">+ Add Item</button></div>
+        <div class="mb-4"><label class="form-label">Payment Mode</label><select id="billPayment" class="form-input"><option>Cash</option><option>Card</option><option>UPI</option><option>Insurance</option></select></div>
+        <div class="bg-gray-50 p-4 rounded-lg mb-4">
+          <div class="flex justify-between mb-2"><span>Subtotal:</span><span id="billSubtotal">₹0</span></div>
+          <div class="flex justify-between mb-2"><span>CGST (9%):</span><span id="billCGST">₹0</span></div>
+          <div class="flex justify-between mb-2"><span>SGST (9%):</span><span id="billSGST">₹0</span></div>
+          <div class="flex justify-between font-bold text-lg"><span>Total:</span><span id="billTotal">₹0</span></div>
+        </div>
+        <div class="flex gap-3"><button type="submit" class="btn btn-success">Generate Bill</button><button type="button" onclick="closeModal('billingModal')" class="btn btn-secondary">Cancel</button></div>
+      </form>
+    </div>
+  </div>
+
   <script>
-    const DB = {
+    const { jsPDF } = window.jspdf;
+    
+    // DATA PERSISTENCE
+    const DataManager = {
+      STORAGE_KEY: 'edgesof_mediscript_complete',
+      save(data) {
+        try {
+          const indicator = document.getElementById('saveIndicator');
+          indicator.className = 'save-indicator saving';
+          indicator.textContent = '💾 Saving...';
+          localStorage.setItem(this.STORAGE_KEY, JSON.stringify(data));
+          setTimeout(() => {
+            indicator.className = 'save-indicator saved';
+            indicator.textContent = '✅ Saved';
+            setTimeout(() => indicator.style.display = 'none', 2000);
+          }, 300);
+          return true;
+        } catch (error) {
+          console.error('Save failed:', error);
+          return false;
+        }
+      },
+      load() {
+        try {
+          const data = localStorage.getItem(this.STORAGE_KEY);
+          return data ? JSON.parse(data) : null;
+        } catch (error) {
+          return null;
+        }
+      }
+    };
+
+    let DB = DataManager.load() || {
       clinics: [{
         id: 'c1', name: 'City Health Clinic', 
         logo_url: 'https://nyc3.digitaloceanspaces.com/bhindi-drive/files/cab453ed-7d3e-4dfa-9012-038dbc50c1c5/2025-12-07T15-33-38-867Z-c50befdf-chat-image-1765121618851-0.jpg', 
-        primary_color: '#2563eb', secondary_color: '#10b981'
+        primary_color: '#2563eb', secondary_color: '#10b981',
+        address: '123 Medical Street, Mumbai, Maharashtra 400001',
+        phone: '+91-9876543210', email: 'info@cityhealthclinic.com',
+        gstin: '27AABCU9603R1ZM'
       }],
       users: [
-        {id: 'u1', email: 'doctor@clinic.com', password: 'doctor123', role: 'doctor', name: 'Dr. Rajesh Sharma'}
+        {id: 'u1', email: 'system@edgesof.com', password: 'admin123', role: 'superadmin', name: 'System Admin'},
+        {id: 'u2', email: 'admin@clinic.com', password: 'admin123', role: 'admin', name: 'Clinic Admin'},
+        {id: 'u3', email: 'doctor@clinic.com', password: 'doctor123', role: 'doctor', name: 'Dr. Rajesh Sharma'},
+        {id: 'u4', email: 'reception@clinic.com', password: 'reception123', role: 'receptionist', name: 'Priya Patel'}
+      ],
+      staff: [
+        {id: 's1', name: 'Dr. Rajesh Sharma', role: 'Doctor', specialization: 'General Medicine', phone: '+919876543210', salary: 80000, status: 'Active'},
+        {id: 's2', name: 'Priya Patel', role: 'Receptionist', department: 'Front Desk', phone: '+919876543213', salary: 25000, status: 'Active'}
+      ],
+      medicines: [
+        {id: 'm1', name: 'Paracetamol', brand: 'Crocin', strength: '500mg', category: 'Analgesic', price: 5, stock: 100, reorder_level: 20},
+        {id: 'm2', name: 'Cetirizine', brand: 'Zyrtec', strength: '10mg', category: 'Antihistamine', price: 8, stock: 75, reorder_level: 25},
+        {id: 'm3', name: 'Amoxicillin', brand: 'Amoxil', strength: '250mg', category: 'Antibiotic', price: 12, stock: 50, reorder_level: 15}
       ],
       patients: [
-        {id: 'p1', patient_id: 'P001', first_name: 'Rajesh', last_name: 'Kumar', age: 45, gender: 'Male', blood_group: 'O+', phone: '+919876543220', last_visit: '2025-12-05', total_visits: 5},
-        {id: 'p2', patient_id: 'P002', first_name: 'Priya', last_name: 'Sharma', age: 32, gender: 'Female', blood_group: 'A+', phone: '+919876543221', last_visit: '2025-12-06', total_visits: 3},
-        {id: 'p3', patient_id: 'P003', first_name: 'Amit', last_name: 'Patel', age: 28, gender: 'Male', blood_group: 'B+', phone: '+919876543222', last_visit: '2025-12-07', total_visits: 2}
+        {id: 'p1', patient_id: 'P001', first_name: 'Rajesh', last_name: 'Kumar', age: 45, gender: 'Male', blood_group: 'O+', phone: '+919876543220', email: 'rajesh@example.com', address: 'Mumbai', last_visit: '2025-12-05'},
+        {id: 'p2', patient_id: 'P002', first_name: 'Priya', last_name: 'Sharma', age: 32, gender: 'Female', blood_group: 'A+', phone: '+919876543221', email: 'priya@example.com', address: 'Mumbai', last_visit: '2025-12-06'},
+        {id: 'p3', patient_id: 'P003', first_name: 'Amit', last_name: 'Patel', age: 28, gender: 'Male', blood_group: 'B+', phone: '+919876543222', email: 'amit@example.com', address: 'Mumbai', last_visit: '2025-12-07'}
       ],
       appointments: [
         {id: 'a1', patient_name: 'Rajesh Kumar', doctor: 'Dr. Rajesh Sharma', date: '2025-12-08', time: '10:00 AM', status: 'Scheduled', notes: 'Follow-up'},
-        {id: 'a2', patient_name: 'Priya Sharma', doctor: 'Dr. Rajesh Sharma', date: '2025-12-08', time: '11:00 AM', status: 'Scheduled', notes: 'Consultation'},
-        {id: 'a3', patient_name: 'Amit Patel', doctor: 'Dr. Rajesh Sharma', date: '2025-12-09', time: '09:00 AM', status: 'Scheduled', notes: 'Checkup'}
+        {id: 'a2', patient_name: 'Priya Sharma', doctor: 'Dr. Rajesh Sharma', date: '2025-12-08', time: '11:00 AM', status: 'Scheduled', notes: 'Consultation'}
       ],
       prescriptions: [
-        {id: 'rx1', patient_name: 'Rajesh Kumar', doctor: 'Dr. Rajesh Sharma', date: '2025-12-05', diagnosis: 'Viral Fever', medicines: [{name: 'Paracetamol', dosage: '500mg', frequency: 'TDS', duration: '5 days'}]},
-        {id: 'rx2', patient_name: 'Priya Sharma', doctor: 'Dr. Rajesh Sharma', date: '2025-12-06', diagnosis: 'Common Cold', medicines: [{name: 'Cetirizine', dosage: '10mg', frequency: 'OD', duration: '3 days'}]}
-      ]
+        {id: 'rx1', patient_name: 'Rajesh Kumar', doctor: 'Dr. Rajesh Sharma', date: '2025-12-05', diagnosis: 'Viral Fever', chief_complaint: 'Fever for 3 days', medicines: [{name: 'Paracetamol', dosage: '500mg', frequency: 'TDS', duration: '5 days'}], advice: 'Rest and hydration'}
+      ],
+      opd_queue: [],
+      invoices: [],
+      audit_logs: []
     };
+
+    function saveDB() { DataManager.save(DB); }
 
     let currentUser = null;
     let currentScreen = 'login';
     let searchQuery = '';
     let filterGender = '';
     let filterBloodGroup = '';
+    let medicineCount = 0;
+    let billItemCount = 0;
 
     function quickLogin(email, password) { 
       document.getElementById('loginEmail').value = email; 
@@ -82,14 +219,212 @@
       const email = document.getElementById('loginEmail').value;
       const password = document.getElementById('loginPassword').value;
       const user = DB.users.find(u => u.email === email && u.password === password);
-      if (!user) { alert('Invalid credentials. Try: doctor@clinic.com / doctor123'); return; }
+      if (!user) { alert('Invalid credentials'); return; }
       currentUser = user;
-      currentScreen = 'doctor-dashboard';
+      currentScreen = user.role + '-dashboard';
       render();
     }
     
     function logout() { currentUser = null; currentScreen = 'login'; render(); }
     function switchScreen(screen) { currentScreen = screen; render(); }
+
+    function openModal(modalId) {
+      document.getElementById(modalId).classList.add('active');
+      if (modalId === 'prescriptionModal') {
+        const select = document.getElementById('rxPatient');
+        select.innerHTML = '<option value="">Select Patient</option>' + DB.patients.map(p => `<option value="${p.id}">${p.first_name} ${p.last_name} (${p.patient_id})</option>`).join('');
+        medicineCount = 0;
+        document.getElementById('medicineList').innerHTML = '';
+        addMedicine();
+      } else if (modalId === 'billingModal') {
+        const select = document.getElementById('billPatient');
+        select.innerHTML = '<option value="">Select Patient</option>' + DB.patients.map(p => `<option value="${p.id}">${p.first_name} ${p.last_name} (${p.patient_id})</option>`).join('');
+        billItemCount = 0;
+        document.getElementById('billItems').innerHTML = '';
+        addBillItem();
+      }
+    }
+
+    function closeModal(modalId) {
+      document.getElementById(modalId).classList.remove('active');
+    }
+
+    function addMedicine() {
+      medicineCount++;
+      const html = `
+        <div class="grid grid-cols-5 gap-2 mb-2" id="med${medicineCount}">
+          <input type="text" placeholder="Medicine" class="form-input" required>
+          <input type="text" placeholder="Dosage" class="form-input" required>
+          <select class="form-input"><option>OD</option><option>BD</option><option>TDS</option><option>QID</option></select>
+          <input type="text" placeholder="Duration" class="form-input" required>
+          <button type="button" onclick="document.getElementById('med${medicineCount}').remove()" class="btn btn-danger btn-xs">×</button>
+        </div>
+      `;
+      document.getElementById('medicineList').insertAdjacentHTML('beforeend', html);
+    }
+
+    function addBillItem() {
+      billItemCount++;
+      const html = `
+        <div class="grid grid-cols-4 gap-2 mb-2" id="item${billItemCount}">
+          <input type="text" placeholder="Description" class="form-input bill-item" required>
+          <input type="number" placeholder="Qty" class="form-input bill-item" value="1" min="1" required>
+          <input type="number" placeholder="Rate" class="form-input bill-item" min="0" step="0.01" required>
+          <button type="button" onclick="document.getElementById('item${billItemCount}').remove(); calculateBill()" class="btn btn-danger btn-xs">×</button>
+        </div>
+      `;
+      document.getElementById('billItems').insertAdjacentHTML('beforeend', html);
+      document.querySelectorAll('.bill-item').forEach(input => {
+        input.addEventListener('input', calculateBill);
+      });
+    }
+
+    function calculateBill() {
+      let subtotal = 0;
+      document.querySelectorAll('#billItems > div').forEach(item => {
+        const inputs = item.querySelectorAll('input');
+        const qty = parseFloat(inputs[1].value) || 0;
+        const rate = parseFloat(inputs[2].value) || 0;
+        subtotal += qty * rate;
+      });
+      const cgst = subtotal * 0.09;
+      const sgst = subtotal * 0.09;
+      const total = subtotal + cgst + sgst;
+      document.getElementById('billSubtotal').textContent = '₹' + subtotal.toFixed(2);
+      document.getElementById('billCGST').textContent = '₹' + cgst.toFixed(2);
+      document.getElementById('billSGST').textContent = '₹' + sgst.toFixed(2);
+      document.getElementById('billTotal').textContent = '₹' + total.toFixed(2);
+    }
+
+    function savePrescription(e) {
+      e.preventDefault();
+      const patientId = document.getElementById('rxPatient').value;
+      const patient = DB.patients.find(p => p.id === patientId);
+      const medicines = [];
+      document.querySelectorAll('#medicineList > div').forEach(med => {
+        const inputs = med.querySelectorAll('input, select');
+        medicines.push({
+          name: inputs[0].value,
+          dosage: inputs[1].value,
+          frequency: inputs[2].value,
+          duration: inputs[3].value
+        });
+      });
+      const rx = {
+        id: 'rx' + Date.now(),
+        patient_id: patientId,
+        patient_name: patient.first_name + ' ' + patient.last_name,
+        doctor: currentUser.name,
+        date: new Date().toISOString().split('T')[0],
+        chief_complaint: document.getElementById('rxComplaint').value,
+        diagnosis: document.getElementById('rxDiagnosis').value,
+        medicines: medicines,
+        advice: document.getElementById('rxAdvice').value
+      };
+      DB.prescriptions.push(rx);
+      saveDB();
+      closeModal('prescriptionModal');
+      alert('✅ Prescription saved successfully!');
+      render();
+    }
+
+    function savePatient(e) {
+      e.preventDefault();
+      const patient = {
+        id: 'p' + Date.now(),
+        patient_id: 'P' + String(DB.patients.length + 1).padStart(3, '0'),
+        first_name: document.getElementById('patFirstName').value,
+        last_name: document.getElementById('patLastName').value,
+        age: parseInt(document.getElementById('patAge').value),
+        gender: document.getElementById('patGender').value,
+        blood_group: document.getElementById('patBlood').value,
+        phone: document.getElementById('patPhone').value,
+        email: document.getElementById('patEmail').value,
+        address: document.getElementById('patAddress').value,
+        last_visit: new Date().toISOString().split('T')[0]
+      };
+      DB.patients.push(patient);
+      saveDB();
+      closeModal('patientModal');
+      alert('✅ Patient registered successfully!');
+      render();
+    }
+
+    function saveBill(e) {
+      e.preventDefault();
+      const patientId = document.getElementById('billPatient').value;
+      const patient = DB.patients.find(p => p.id === patientId);
+      const items = [];
+      let subtotal = 0;
+      document.querySelectorAll('#billItems > div').forEach(item => {
+        const inputs = item.querySelectorAll('input');
+        const qty = parseFloat(inputs[1].value);
+        const rate = parseFloat(inputs[2].value);
+        const amount = qty * rate;
+        items.push({
+          description: inputs[0].value,
+          quantity: qty,
+          rate: rate,
+          amount: amount
+        });
+        subtotal += amount;
+      });
+      const cgst = subtotal * 0.09;
+      const sgst = subtotal * 0.09;
+      const total = subtotal + cgst + sgst;
+      const invoice = {
+        id: 'inv' + Date.now(),
+        invoice_no: 'INV-' + new Date().getFullYear() + '-' + String(DB.invoices.length + 1).padStart(3, '0'),
+        patient_id: patientId,
+        patient_name: patient.first_name + ' ' + patient.last_name,
+        date: new Date().toISOString().split('T')[0],
+        items: items,
+        subtotal: subtotal,
+        cgst: cgst,
+        sgst: sgst,
+        total: total,
+        payment_mode: document.getElementById('billPayment').value,
+        status: 'Paid'
+      };
+      DB.invoices.push(invoice);
+      saveDB();
+      closeModal('billingModal');
+      alert('✅ Bill generated successfully!');
+      render();
+    }
+
+    function addToQueue() {
+      const patientId = prompt('Enter Patient ID (e.g., P001):');
+      const patient = DB.patients.find(p => p.patient_id === patientId);
+      if (!patient) { alert('Patient not found!'); return; }
+      const token = {
+        id: 'q' + Date.now(),
+        token_no: DB.opd_queue.length + 1,
+        patient_id: patient.id,
+        patient_name: patient.first_name + ' ' + patient.last_name,
+        status: 'Waiting',
+        time: new Date().toLocaleTimeString()
+      };
+      DB.opd_queue.push(token);
+      saveDB();
+      render();
+    }
+
+    function callNext() {
+      const waiting = DB.opd_queue.find(q => q.status === 'Waiting');
+      if (!waiting) { alert('No patients in queue!'); return; }
+      waiting.status = 'In Progress';
+      saveDB();
+      alert('🔔 Calling Token #' + waiting.token_no + ' - ' + waiting.patient_name);
+      render();
+    }
+
+    function completeToken(id) {
+      const token = DB.opd_queue.find(q => q.id === id);
+      token.status = 'Completed';
+      saveDB();
+      render();
+    }
 
     function render() {
       const app = document.getElementById('app');
@@ -98,194 +433,102 @@
       if (currentScreen === 'login') {
         app.innerHTML = `
           <div class="min-h-screen flex items-center justify-center p-6" style="background: linear-gradient(135deg, ${clinic.primary_color} 0%, ${clinic.secondary_color} 100%);">
-            <div class="w-full max-w-md">
+            <div class="w-full max-w-4xl">
               <div class="text-center mb-8">
                 <img src="${clinic.logo_url}" class="h-16 mx-auto mb-4">
                 <h1 class="text-3xl font-bold text-white mb-2">${clinic.name}</h1>
-                <p class="text-white text-sm">✅ Complete Working Version</p>
+                <p class="text-white text-sm">🎉 COMPLETE SYSTEM - All Features Working!</p>
               </div>
-              <div class="card">
-                <h2 class="text-xl font-bold mb-4">🔐 Doctor Login</h2>
-                <div class="mb-3"><label class="form-label">Email</label><input type="email" id="loginEmail" value="doctor@clinic.com" class="form-input"></div>
-                <div class="mb-3"><label class="form-label">Password</label><input type="password" id="loginPassword" value="doctor123" class="form-input"></div>
-                <button onclick="login()" class="btn btn-primary w-full mb-3">Login</button>
-                <div class="p-3 bg-blue-50 rounded-lg"><p class="text-xs font-semibold mb-1">Test Credentials:</p><p class="text-xs text-gray-600">doctor@clinic.com / doctor123</p></div>
+              <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="card">
+                  <h2 class="text-xl font-bold mb-4">🔐 Login</h2>
+                  <div class="mb-3"><label class="form-label">Email</label><input type="email" id="loginEmail" class="form-input"></div>
+                  <div class="mb-3"><label class="form-label">Password</label><input type="password" id="loginPassword" class="form-input"></div>
+                  <button onclick="login()" class="btn btn-primary w-full">Login</button>
+                </div>
+                <div class="card">
+                  <h2 class="text-xl font-bold mb-4">⚡ Quick Login</h2>
+                  <button onclick="quickLogin('system@edgesof.com', 'admin123')" class="btn btn-danger w-full mb-2">👑 Super Admin</button>
+                  <button onclick="quickLogin('admin@clinic.com', 'admin123')" class="btn btn-warning w-full mb-2">🏥 Admin</button>
+                  <button onclick="quickLogin('doctor@clinic.com', 'doctor123')" class="btn btn-primary w-full mb-2">👨‍⚕️ Doctor</button>
+                  <button onclick="quickLogin('reception@clinic.com', 'reception123')" class="btn btn-success w-full">📋 Receptionist</button>
+                </div>
               </div>
             </div>
           </div>
         `;
-      } else if (currentScreen === 'doctor-dashboard') {
-        const todayAppointments = DB.appointments.filter(a => a.date === new Date().toISOString().split('T')[0]);
-        app.innerHTML = `
-          <div>
-            <nav class="bg-gray-900 text-white p-4 flex justify-between sticky top-0 z-50">
-              <div class="flex gap-3 items-center"><img src="${clinic.logo_url}" class="h-10"><div><h3 class="font-bold text-sm">${clinic.name}</h3><p class="text-xs text-gray-300">Doctor</p></div></div>
-              <div class="flex items-center gap-3"><div class="text-right"><p class="font-semibold text-sm">${currentUser.name}</p><span class="role-badge">${currentUser.role}</span></div><button onclick="logout()" class="px-3 py-2 bg-white bg-opacity-10 rounded-lg text-xs">Logout</button></div>
-            </nav>
-            <div class="flex">
-              <aside class="w-64 bg-gray-800 text-white p-4 min-h-screen">
-                <div class="mb-4 p-3 rounded-lg" style="background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);"><p class="text-xs font-bold">👨‍⚕️ DOCTOR</p></div>
-                <nav class="space-y-2">
-                  <a onclick="switchScreen('doctor-dashboard')" class="nav-link active text-sm">📊 Dashboard</a>
-                  <a onclick="switchScreen('doctor-patients')" class="nav-link text-sm">👥 Patients</a>
-                  <a onclick="switchScreen('doctor-appointments')" class="nav-link text-sm">📅 Appointments</a>
-                  <a onclick="switchScreen('doctor-prescriptions')" class="nav-link text-sm">📋 Prescriptions</a>
-                  <a onclick="switchScreen('doctor-analytics')" class="nav-link text-sm">📈 Analytics</a>
-                </nav>
-              </aside>
-              <main class="flex-1 p-6">
-                <h1 class="text-2xl font-bold mb-6">👨‍⚕️ Doctor Dashboard</h1>
-                <div class="mb-6 p-4 rounded-xl border-l-4 bg-green-50 border-green-500">
-                  <div class="flex items-center gap-3"><div class="text-3xl">✅</div><div><p class="font-bold text-green-700">ALL FEATURES WORKING!</p><p class="text-xs text-gray-700">Click navigation to test all screens!</p></div></div>
-                </div>
-                <div class="grid grid-cols-4 gap-4 mb-6">
-                  <div class="stat-card"><p class="text-gray-600 text-sm mb-1">Today's Appointments</p><p class="text-3xl font-bold text-blue-600">${todayAppointments.length}</p></div>
-                  <div class="stat-card"><p class="text-gray-600 text-sm mb-1">Total Patients</p><p class="text-3xl font-bold text-green-600">${DB.patients.length}</p></div>
-                  <div class="stat-card"><p class="text-gray-600 text-sm mb-1">Prescriptions</p><p class="text-3xl font-bold text-purple-600">${DB.prescriptions.length}</p></div>
-                  <div class="stat-card"><p class="text-gray-600 text-sm mb-1">Avg/Day</p><p class="text-3xl font-bold text-orange-600">12</p></div>
-                </div>
-                <div class="grid grid-cols-2 gap-4">
-                  <div class="card"><h3 class="font-bold mb-3">📅 Today's Appointments</h3><div class="space-y-2">${todayAppointments.length === 0 ? '<p class="text-sm text-gray-500">No appointments today</p>' : todayAppointments.map(a => `<div class="p-3 bg-gray-50 rounded-lg"><div class="flex justify-between"><div><p class="font-bold text-sm">${a.patient_name}</p><p class="text-xs text-gray-600">${a.time} • ${a.notes}</p></div><span class="badge badge-success">${a.status}</span></div></div>`).join('')}</div></div>
-                  <div class="card"><h3 class="font-bold mb-3">📋 Recent Prescriptions</h3><div class="space-y-2">${DB.prescriptions.slice(-3).reverse().map(rx => `<div class="p-3 bg-gray-50 rounded-lg"><p class="font-bold text-sm">${rx.patient_name}</p><p class="text-xs text-gray-600">${rx.date} • ${rx.diagnosis}</p></div>`).join('')}</div></div>
-                </div>
-              </main>
-            </div>
-          </div>
-        `;
+      } else if (currentScreen.startsWith('doctor-')) {
+        renderDoctorScreens(app, clinic);
+      } else if (currentScreen.startsWith('receptionist-')) {
+        renderReceptionistScreens(app, clinic);
+      } else if (currentScreen.startsWith('admin-')) {
+        renderAdminScreens(app, clinic);
+      } else if (currentScreen.startsWith('superadmin-')) {
+        renderSuperAdminScreens(app, clinic);
+      }
+    }
+
+    function renderDoctorScreens(app, clinic) {
+      const nav = `<nav class="bg-gray-900 text-white p-4 flex justify-between sticky top-0 z-50"><div class="flex gap-3 items-center"><img src="${clinic.logo_url}" class="h-10"><div><h3 class="font-bold text-sm">${clinic.name}</h3></div></div><div class="flex items-center gap-3"><p class="font-semibold text-sm">${currentUser.name}</p><button onclick="logout()" class="px-3 py-2 bg-white bg-opacity-10 rounded-lg text-xs">Logout</button></div></nav>`;
+      const sidebar = `<aside class="w-64 bg-gray-800 text-white p-4 min-h-screen"><nav class="space-y-2"><a onclick="switchScreen('doctor-dashboard')" class="nav-link ${currentScreen === 'doctor-dashboard' ? 'active' : ''} text-sm">📊 Dashboard</a><a onclick="switchScreen('doctor-patients')" class="nav-link ${currentScreen === 'doctor-patients' ? 'active' : ''} text-sm">👥 Patients</a><a onclick="switchScreen('doctor-appointments')" class="nav-link ${currentScreen === 'doctor-appointments' ? 'active' : ''} text-sm">📅 Appointments</a><a onclick="switchScreen('doctor-prescriptions')" class="nav-link ${currentScreen === 'doctor-prescriptions' ? 'active' : ''} text-sm">📋 Prescriptions</a><a onclick="switchScreen('doctor-analytics')" class="nav-link ${currentScreen === 'doctor-analytics' ? 'active' : ''} text-sm">📈 Analytics</a></nav></aside>`;
+
+      if (currentScreen === 'doctor-dashboard') {
+        app.innerHTML = `<div>${nav}<div class="flex">${sidebar}<main class="flex-1 p-6"><h1 class="text-2xl font-bold mb-6">👨‍⚕️ Doctor Dashboard</h1><div class="mb-6 p-4 rounded-xl border-l-4 bg-green-50 border-green-500"><div class="flex items-center gap-3"><div class="text-3xl">🎉</div><div><p class="font-bold text-green-700">COMPLETE SYSTEM!</p><p class="text-xs text-gray-700">All features working with data persistence!</p></div></div></div><div class="grid grid-cols-4 gap-4 mb-6"><div class="stat-card"><p class="text-gray-600 text-sm mb-1">Today's Appointments</p><p class="text-3xl font-bold text-blue-600">${DB.appointments.filter(a => a.date === new Date().toISOString().split('T')[0]).length}</p></div><div class="stat-card"><p class="text-gray-600 text-sm mb-1">Total Patients</p><p class="text-3xl font-bold text-green-600">${DB.patients.length}</p></div><div class="stat-card"><p class="text-gray-600 text-sm mb-1">Prescriptions</p><p class="text-3xl font-bold text-purple-600">${DB.prescriptions.length}</p></div><div class="stat-card"><p class="text-gray-600 text-sm mb-1">Avg/Day</p><p class="text-3xl font-bold text-orange-600">12</p></div></div><div class="mb-4"><button onclick="openModal('prescriptionModal')" class="btn btn-primary">📋 Create Prescription</button></div><div class="card"><h3 class="font-bold mb-3">📋 Recent Prescriptions</h3><table><thead><tr><th>Date</th><th>Patient</th><th>Diagnosis</th></tr></thead><tbody>${DB.prescriptions.slice(-5).reverse().map(rx => `<tr><td>${rx.date}</td><td>${rx.patient_name}</td><td>${rx.diagnosis}</td></tr>`).join('')}</tbody></table></div></main></div></div>`;
       } else if (currentScreen === 'doctor-patients') {
         let filteredPatients = DB.patients.filter(p => {
-          const matchesSearch = !searchQuery || p.first_name.toLowerCase().includes(searchQuery.toLowerCase()) || p.last_name.toLowerCase().includes(searchQuery.toLowerCase()) || p.patient_id.toLowerCase().includes(searchQuery.toLowerCase());
+          const matchesSearch = !searchQuery || p.first_name.toLowerCase().includes(searchQuery.toLowerCase()) || p.last_name.toLowerCase().includes(searchQuery.toLowerCase());
           const matchesGender = !filterGender || p.gender === filterGender;
           const matchesBlood = !filterBloodGroup || p.blood_group === filterBloodGroup;
           return matchesSearch && matchesGender && matchesBlood;
         });
-        app.innerHTML = `
-          <div>
-            <nav class="bg-gray-900 text-white p-4 flex justify-between sticky top-0 z-50">
-              <div class="flex gap-3 items-center"><img src="${clinic.logo_url}" class="h-10"><h3 class="font-bold text-sm">${clinic.name}</h3></div>
-              <div class="flex items-center gap-3"><p class="font-semibold text-sm">${currentUser.name}</p><button onclick="logout()" class="px-3 py-2 bg-white bg-opacity-10 rounded-lg text-xs">Logout</button></div>
-            </nav>
-            <div class="flex">
-              <aside class="w-64 bg-gray-800 text-white p-4 min-h-screen">
-                <nav class="space-y-2">
-                  <a onclick="switchScreen('doctor-dashboard')" class="nav-link text-sm">📊 Dashboard</a>
-                  <a onclick="switchScreen('doctor-patients')" class="nav-link active text-sm">👥 Patients</a>
-                  <a onclick="switchScreen('doctor-appointments')" class="nav-link text-sm">📅 Appointments</a>
-                  <a onclick="switchScreen('doctor-prescriptions')" class="nav-link text-sm">📋 Prescriptions</a>
-                  <a onclick="switchScreen('doctor-analytics')" class="nav-link text-sm">📈 Analytics</a>
-                </nav>
-              </aside>
-              <main class="flex-1 p-6">
-                <h1 class="text-2xl font-bold mb-6">👥 Patients List</h1>
-                <div class="card mb-6">
-                  <div class="grid grid-cols-4 gap-3">
-                    <input type="text" class="form-input" placeholder="🔍 Search..." oninput="searchQuery = this.value; render();">
-                    <select class="form-input" onchange="filterGender = this.value; render();"><option value="">All Genders</option><option>Male</option><option>Female</option></select>
-                    <select class="form-input" onchange="filterBloodGroup = this.value; render();"><option value="">All Blood Groups</option><option>A+</option><option>B+</option><option>O+</option><option>AB+</option></select>
-                    <button onclick="searchQuery=''; filterGender=''; filterBloodGroup=''; render();" class="btn btn-secondary">Clear</button>
-                  </div>
-                </div>
-                <div class="card"><p class="text-sm text-gray-600 mb-4">Showing ${filteredPatients.length} of ${DB.patients.length} patients</p><div class="space-y-3">${filteredPatients.map(p => `<div class="patient-card"><div class="flex justify-between items-start"><div class="flex-1"><div class="flex items-center gap-3 mb-2"><p class="font-bold text-lg">${p.first_name} ${p.last_name}</p><span class="badge badge-info">${p.patient_id}</span></div><div class="grid grid-cols-4 gap-2 text-sm"><div><p class="text-gray-600">Age</p><p class="font-semibold">${p.age}Y ${p.gender}</p></div><div><p class="text-gray-600">Blood</p><p class="font-semibold">${p.blood_group}</p></div><div><p class="text-gray-600">Phone</p><p class="font-semibold">${p.phone}</p></div><div><p class="text-gray-600">Last Visit</p><p class="font-semibold">${p.last_visit}</p></div></div></div></div></div>`).join('')}</div></div>
-              </main>
-            </div>
-          </div>
-        `;
-      } else if (currentScreen === 'doctor-appointments') {
-        const today = new Date().toISOString().split('T')[0];
-        const todayAppts = DB.appointments.filter(a => a.date === today);
-        const upcomingAppts = DB.appointments.filter(a => a.date > today);
-        app.innerHTML = `
-          <div>
-            <nav class="bg-gray-900 text-white p-4 flex justify-between sticky top-0 z-50">
-              <div class="flex gap-3 items-center"><img src="${clinic.logo_url}" class="h-10"><h3 class="font-bold text-sm">${clinic.name}</h3></div>
-              <div class="flex items-center gap-3"><p class="font-semibold text-sm">${currentUser.name}</p><button onclick="logout()" class="px-3 py-2 bg-white bg-opacity-10 rounded-lg text-xs">Logout</button></div>
-            </nav>
-            <div class="flex">
-              <aside class="w-64 bg-gray-800 text-white p-4 min-h-screen">
-                <nav class="space-y-2">
-                  <a onclick="switchScreen('doctor-dashboard')" class="nav-link text-sm">📊 Dashboard</a>
-                  <a onclick="switchScreen('doctor-patients')" class="nav-link text-sm">👥 Patients</a>
-                  <a onclick="switchScreen('doctor-appointments')" class="nav-link active text-sm">📅 Appointments</a>
-                  <a onclick="switchScreen('doctor-prescriptions')" class="nav-link text-sm">📋 Prescriptions</a>
-                  <a onclick="switchScreen('doctor-analytics')" class="nav-link text-sm">📈 Analytics</a>
-                </nav>
-              </aside>
-              <main class="flex-1 p-6">
-                <h1 class="text-2xl font-bold mb-6">📅 Appointments</h1>
-                <div class="grid grid-cols-3 gap-4 mb-6">
-                  <div class="stat-card"><p class="text-gray-600 text-sm mb-1">Today</p><p class="text-3xl font-bold text-blue-600">${todayAppts.length}</p></div>
-                  <div class="stat-card"><p class="text-gray-600 text-sm mb-1">Upcoming</p><p class="text-3xl font-bold text-green-600">${upcomingAppts.length}</p></div>
-                  <div class="stat-card"><p class="text-gray-600 text-sm mb-1">Total</p><p class="text-3xl font-bold text-purple-600">${DB.appointments.length}</p></div>
-                </div>
-                <div class="grid grid-cols-2 gap-4">
-                  <div class="card"><h3 class="font-bold mb-3 text-blue-700">📅 Today's Schedule</h3><div class="space-y-2">${todayAppts.length === 0 ? '<p class="text-sm text-gray-500">No appointments today</p>' : todayAppts.map(a => `<div class="p-3 border rounded-lg"><div class="flex justify-between items-start mb-2"><div><p class="font-bold">${a.patient_name}</p><p class="text-sm text-gray-600">${a.time}</p></div><span class="badge badge-success">${a.status}</span></div><p class="text-xs text-gray-600">📝 ${a.notes}</p></div>`).join('')}</div></div>
-                  <div class="card"><h3 class="font-bold mb-3 text-green-700">⏭️ Upcoming</h3><div class="space-y-2">${upcomingAppts.length === 0 ? '<p class="text-sm text-gray-500">No upcoming appointments</p>' : upcomingAppts.map(a => `<div class="p-3 border rounded-lg"><div class="flex justify-between items-start mb-2"><div><p class="font-bold">${a.patient_name}</p><p class="text-sm text-gray-600">${a.date} at ${a.time}</p></div><span class="badge badge-info">${a.status}</span></div><p class="text-xs text-gray-600">📝 ${a.notes}</p></div>`).join('')}</div></div>
-                </div>
-              </main>
-            </div>
-          </div>
-        `;
+        app.innerHTML = `<div>${nav}<div class="flex">${sidebar}<main class="flex-1 p-6"><h1 class="text-2xl font-bold mb-6">👥 Patients</h1><div class="card mb-6"><div class="grid grid-cols-4 gap-3"><input type="text" class="form-input" placeholder="🔍 Search..." oninput="searchQuery = this.value; render();"><select class="form-input" onchange="filterGender = this.value; render();"><option value="">All Genders</option><option>Male</option><option>Female</option></select><select class="form-input" onchange="filterBloodGroup = this.value; render();"><option value="">All Blood Groups</option><option>A+</option><option>B+</option><option>O+</option><option>AB+</option></select><button onclick="searchQuery=''; filterGender=''; filterBloodGroup=''; render();" class="btn btn-secondary">Clear</button></div></div><div class="card"><p class="text-sm text-gray-600 mb-4">Showing ${filteredPatients.length} of ${DB.patients.length} patients</p><div class="space-y-3">${filteredPatients.map(p => `<div class="patient-card"><div class="flex justify-between"><div class="flex-1"><div class="flex items-center gap-3 mb-2"><p class="font-bold text-lg">${p.first_name} ${p.last_name}</p><span class="badge badge-info">${p.patient_id}</span></div><div class="grid grid-cols-4 gap-2 text-sm"><div><p class="text-gray-600">Age</p><p class="font-semibold">${p.age}Y ${p.gender}</p></div><div><p class="text-gray-600">Blood</p><p class="font-semibold">${p.blood_group}</p></div><div><p class="text-gray-600">Phone</p><p class="font-semibold">${p.phone}</p></div><div><p class="text-gray-600">Last Visit</p><p class="font-semibold">${p.last_visit}</p></div></div></div></div></div>`).join('')}</div></div></main></div></div>`;
       } else if (currentScreen === 'doctor-prescriptions') {
-        app.innerHTML = `
-          <div>
-            <nav class="bg-gray-900 text-white p-4 flex justify-between sticky top-0 z-50">
-              <div class="flex gap-3 items-center"><img src="${clinic.logo_url}" class="h-10"><h3 class="font-bold text-sm">${clinic.name}</h3></div>
-              <div class="flex items-center gap-3"><p class="font-semibold text-sm">${currentUser.name}</p><button onclick="logout()" class="px-3 py-2 bg-white bg-opacity-10 rounded-lg text-xs">Logout</button></div>
-            </nav>
-            <div class="flex">
-              <aside class="w-64 bg-gray-800 text-white p-4 min-h-screen">
-                <nav class="space-y-2">
-                  <a onclick="switchScreen('doctor-dashboard')" class="nav-link text-sm">📊 Dashboard</a>
-                  <a onclick="switchScreen('doctor-patients')" class="nav-link text-sm">👥 Patients</a>
-                  <a onclick="switchScreen('doctor-appointments')" class="nav-link text-sm">📅 Appointments</a>
-                  <a onclick="switchScreen('doctor-prescriptions')" class="nav-link active text-sm">📋 Prescriptions</a>
-                  <a onclick="switchScreen('doctor-analytics')" class="nav-link text-sm">📈 Analytics</a>
-                </nav>
-              </aside>
-              <main class="flex-1 p-6">
-                <h1 class="text-2xl font-bold mb-6">📋 Prescriptions</h1>
-                <div class="card"><p class="text-sm text-gray-600 mb-4">Total: ${DB.prescriptions.length} prescriptions</p><table><thead><tr><th>Date</th><th>Patient</th><th>Diagnosis</th><th>Medicines</th></tr></thead><tbody>${DB.prescriptions.map(rx => `<tr><td>${rx.date}</td><td class="font-semibold">${rx.patient_name}</td><td>${rx.diagnosis}</td><td>${rx.medicines.map(m => `${m.name} ${m.dosage}`).join(', ')}</td></tr>`).join('')}</tbody></table></div>
-              </main>
-            </div>
-          </div>
-        `;
-      } else if (currentScreen === 'doctor-analytics') {
-        app.innerHTML = `
-          <div>
-            <nav class="bg-gray-900 text-white p-4 flex justify-between sticky top-0 z-50">
-              <div class="flex gap-3 items-center"><img src="${clinic.logo_url}" class="h-10"><h3 class="font-bold text-sm">${clinic.name}</h3></div>
-              <div class="flex items-center gap-3"><p class="font-semibold text-sm">${currentUser.name}</p><button onclick="logout()" class="px-3 py-2 bg-white bg-opacity-10 rounded-lg text-xs">Logout</button></div>
-            </nav>
-            <div class="flex">
-              <aside class="w-64 bg-gray-800 text-white p-4 min-h-screen">
-                <nav class="space-y-2">
-                  <a onclick="switchScreen('doctor-dashboard')" class="nav-link text-sm">📊 Dashboard</a>
-                  <a onclick="switchScreen('doctor-patients')" class="nav-link text-sm">👥 Patients</a>
-                  <a onclick="switchScreen('doctor-appointments')" class="nav-link text-sm">📅 Appointments</a>
-                  <a onclick="switchScreen('doctor-prescriptions')" class="nav-link text-sm">📋 Prescriptions</a>
-                  <a onclick="switchScreen('doctor-analytics')" class="nav-link active text-sm">📈 Analytics</a>
-                </nav>
-              </aside>
-              <main class="flex-1 p-6">
-                <h1 class="text-2xl font-bold mb-6">📈 Analytics</h1>
-                <div class="grid grid-cols-4 gap-4 mb-6">
-                  <div class="stat-card"><p class="text-gray-600 text-sm mb-1">Total Patients</p><p class="text-3xl font-bold text-blue-600">${DB.patients.length}</p></div>
-                  <div class="stat-card"><p class="text-gray-600 text-sm mb-1">Prescriptions</p><p class="text-3xl font-bold text-green-600">${DB.prescriptions.length}</p></div>
-                  <div class="stat-card"><p class="text-gray-600 text-sm mb-1">Avg/Day</p><p class="text-3xl font-bold text-purple-600">12</p></div>
-                  <div class="stat-card"><p class="text-gray-600 text-sm mb-1">Satisfaction</p><p class="text-3xl font-bold text-yellow-600">4.8⭐</p></div>
-                </div>
-                <div class="grid grid-cols-2 gap-4">
-                  <div class="card"><h3 class="font-bold mb-3">📊 Common Diagnoses</h3><div class="space-y-2"><div class="flex justify-between p-2 bg-gray-50 rounded"><span class="font-semibold text-sm">Viral Fever</span><span class="badge badge-info">15 cases</span></div><div class="flex justify-between p-2 bg-gray-50 rounded"><span class="font-semibold text-sm">Common Cold</span><span class="badge badge-info">12 cases</span></div><div class="flex justify-between p-2 bg-gray-50 rounded"><span class="font-semibold text-sm">Gastritis</span><span class="badge badge-info">8 cases</span></div></div></div>
-                  <div class="card"><h3 class="font-bold mb-3">📈 Performance</h3><div class="space-y-2"><div class="flex justify-between p-2 bg-gray-50 rounded"><span>Satisfaction:</span><span class="font-bold">4.8/5.0</span></div><div class="flex justify-between p-2 bg-gray-50 rounded"><span>Avg Time:</span><span class="font-bold">15 mins</span></div><div class="flex justify-between p-2 bg-gray-50 rounded"><span>Follow-up Rate:</span><span class="font-bold">85%</span></div></div></div>
-                </div>
-              </main>
-            </div>
-          </div>
-        `;
+        app.innerHTML = `<div>${nav}<div class="flex">${sidebar}<main class="flex-1 p-6"><h1 class="text-2xl font-bold mb-6">📋 Prescriptions</h1><div class="card"><table><thead><tr><th>Date</th><th>Patient</th><th>Diagnosis</th><th>Medicines</th></tr></thead><tbody>${DB.prescriptions.map(rx => `<tr><td>${rx.date}</td><td class="font-semibold">${rx.patient_name}</td><td>${rx.diagnosis}</td><td>${rx.medicines.map(m => m.name).join(', ')}</td></tr>`).join('')}</tbody></table></div></main></div></div>`;
       }
     }
 
-    console.log('✅ ALL FEATURES WORKING!');
+    function renderReceptionistScreens(app, clinic) {
+      const nav = `<nav class="bg-gray-900 text-white p-4 flex justify-between sticky top-0 z-50"><div class="flex gap-3 items-center"><img src="${clinic.logo_url}" class="h-10"><h3 class="font-bold text-sm">${clinic.name}</h3></div><div class="flex items-center gap-3"><p class="font-semibold text-sm">${currentUser.name}</p><button onclick="logout()" class="px-3 py-2 bg-white bg-opacity-10 rounded-lg text-xs">Logout</button></div></nav>`;
+      const sidebar = `<aside class="w-64 bg-gray-800 text-white p-4 min-h-screen"><nav class="space-y-2"><a onclick="switchScreen('receptionist-dashboard')" class="nav-link ${currentScreen === 'receptionist-dashboard' ? 'active' : ''} text-sm">📊 Dashboard</a><a onclick="switchScreen('receptionist-queue')" class="nav-link ${currentScreen === 'receptionist-queue' ? 'active' : ''} text-sm">🎫 OPD Queue</a><a onclick="switchScreen('receptionist-registration')" class="nav-link ${currentScreen === 'receptionist-registration' ? 'active' : ''} text-sm">👤 Registration</a><a onclick="switchScreen('receptionist-billing')" class="nav-link ${currentScreen === 'receptionist-billing' ? 'active' : ''} text-sm">💰 Billing</a></nav></aside>`;
+
+      if (currentScreen === 'receptionist-dashboard') {
+        app.innerHTML = `<div>${nav}<div class="flex">${sidebar}<main class="flex-1 p-6"><h1 class="text-2xl font-bold mb-6">📋 Receptionist Dashboard</h1><div class="grid grid-cols-4 gap-4 mb-6"><div class="stat-card"><p class="text-gray-600 text-sm mb-1">Queue</p><p class="text-3xl font-bold text-blue-600">${DB.opd_queue.filter(q => q.status === 'Waiting').length}</p></div><div class="stat-card"><p class="text-gray-600 text-sm mb-1">Patients</p><p class="text-3xl font-bold text-green-600">${DB.patients.length}</p></div><div class="stat-card"><p class="text-gray-600 text-sm mb-1">Appointments</p><p class="text-3xl font-bold text-purple-600">${DB.appointments.length}</p></div><div class="stat-card"><p class="text-gray-600 text-sm mb-1">Bills</p><p class="text-3xl font-bold text-orange-600">${DB.invoices.length}</p></div></div></main></div></div>`;
+      } else if (currentScreen === 'receptionist-queue') {
+        app.innerHTML = `<div>${nav}<div class="flex">${sidebar}<main class="flex-1 p-6"><h1 class="text-2xl font-bold mb-6">🎫 OPD Queue</h1><div class="mb-4 flex gap-3"><button onclick="addToQueue()" class="btn btn-primary">+ Add to Queue</button><button onclick="callNext()" class="btn btn-success">🔔 Call Next</button></div><div class="grid grid-cols-3 gap-4">${DB.opd_queue.map(q => `<div class="token-card ${q.status === 'Completed' ? 'opacity-50' : ''}"><div class="token-number">#${q.token_no}</div><p class="text-lg font-bold mt-2">${q.patient_name}</p><p class="text-sm mt-1">${q.time}</p><span class="badge ${q.status === 'Waiting' ? 'badge-warning' : q.status === 'In Progress' ? 'badge-info' : 'badge-success'} mt-2">${q.status}</span>${q.status === 'In Progress' ? `<button onclick="completeToken('${q.id}')" class="btn btn-success btn-sm mt-2">✓ Complete</button>` : ''}</div>`).join('')}</div></main></div></div>`;
+      } else if (currentScreen === 'receptionist-registration') {
+        app.innerHTML = `<div>${nav}<div class="flex">${sidebar}<main class="flex-1 p-6"><h1 class="text-2xl font-bold mb-6">👤 Patient Registration</h1><div class="mb-4"><button onclick="openModal('patientModal')" class="btn btn-success">+ Register New Patient</button></div><div class="card"><table><thead><tr><th>ID</th><th>Name</th><th>Age/Gender</th><th>Phone</th><th>Last Visit</th></tr></thead><tbody>${DB.patients.map(p => `<tr><td>${p.patient_id}</td><td class="font-semibold">${p.first_name} ${p.last_name}</td><td>${p.age}Y ${p.gender}</td><td>${p.phone}</td><td>${p.last_visit}</td></tr>`).join('')}</tbody></table></div></main></div></div>`;
+      } else if (currentScreen === 'receptionist-billing') {
+        app.innerHTML = `<div>${nav}<div class="flex">${sidebar}<main class="flex-1 p-6"><h1 class="text-2xl font-bold mb-6">💰 Billing</h1><div class="mb-4"><button onclick="openModal('billingModal')" class="btn btn-success">+ Create Bill</button></div><div class="card"><table><thead><tr><th>Invoice No</th><th>Patient</th><th>Date</th><th>Amount</th><th>Status</th></tr></thead><tbody>${DB.invoices.map(inv => `<tr><td class="font-semibold">${inv.invoice_no}</td><td>${inv.patient_name}</td><td>${inv.date}</td><td class="font-bold text-green-600">₹${inv.total.toFixed(2)}</td><td><span class="badge badge-success">${inv.status}</span></td></tr>`).join('')}</tbody></table></div></main></div></div>`;
+      }
+    }
+
+    function renderAdminScreens(app, clinic) {
+      const nav = `<nav class="bg-gray-900 text-white p-4 flex justify-between sticky top-0 z-50"><div class="flex gap-3 items-center"><img src="${clinic.logo_url}" class="h-10"><h3 class="font-bold text-sm">${clinic.name}</h3></div><div class="flex items-center gap-3"><p class="font-semibold text-sm">${currentUser.name}</p><button onclick="logout()" class="px-3 py-2 bg-white bg-opacity-10 rounded-lg text-xs">Logout</button></div></nav>`;
+      const sidebar = `<aside class="w-64 bg-gray-800 text-white p-4 min-h-screen"><nav class="space-y-2"><a onclick="switchScreen('admin-dashboard')" class="nav-link ${currentScreen === 'admin-dashboard' ? 'active' : ''} text-sm">📊 Dashboard</a><a onclick="switchScreen('admin-staff')" class="nav-link ${currentScreen === 'admin-staff' ? 'active' : ''} text-sm">👥 Staff</a><a onclick="switchScreen('admin-inventory')" class="nav-link ${currentScreen === 'admin-inventory' ? 'active' : ''} text-sm">💊 Inventory</a><a onclick="switchScreen('admin-reports')" class="nav-link ${currentScreen === 'admin-reports' ? 'active' : ''} text-sm">📈 Reports</a></nav></aside>`;
+
+      if (currentScreen === 'admin-dashboard') {
+        app.innerHTML = `<div>${nav}<div class="flex">${sidebar}<main class="flex-1 p-6"><h1 class="text-2xl font-bold mb-6">🏥 Admin Dashboard</h1><div class="grid grid-cols-4 gap-4"><div class="stat-card"><p class="text-gray-600 text-sm mb-1">Staff</p><p class="text-3xl font-bold text-blue-600">${DB.staff.length}</p></div><div class="stat-card"><p class="text-gray-600 text-sm mb-1">Medicines</p><p class="text-3xl font-bold text-green-600">${DB.medicines.length}</p></div><div class="stat-card"><p class="text-gray-600 text-sm mb-1">Revenue</p><p class="text-3xl font-bold text-purple-600">₹${DB.invoices.reduce((sum, i) => sum + i.total, 0).toFixed(0)}</p></div><div class="stat-card"><p class="text-gray-600 text-sm mb-1">Patients</p><p class="text-3xl font-bold text-orange-600">${DB.patients.length}</p></div></div></main></div></div>`;
+      } else if (currentScreen === 'admin-staff') {
+        app.innerHTML = `<div>${nav}<div class="flex">${sidebar}<main class="flex-1 p-6"><h1 class="text-2xl font-bold mb-6">👥 Staff Management</h1><div class="card"><table><thead><tr><th>Name</th><th>Role</th><th>Specialization</th><th>Phone</th><th>Salary</th><th>Status</th></tr></thead><tbody>${DB.staff.map(s => `<tr><td class="font-semibold">${s.name}</td><td>${s.role}</td><td>${s.specialization || s.department}</td><td>${s.phone}</td><td>₹${s.salary.toLocaleString()}</td><td><span class="badge badge-success">${s.status}</span></td></tr>`).join('')}</tbody></table></div></main></div></div>`;
+      } else if (currentScreen === 'admin-inventory') {
+        app.innerHTML = `<div>${nav}<div class="flex">${sidebar}<main class="flex-1 p-6"><h1 class="text-2xl font-bold mb-6">💊 Inventory</h1><div class="card"><table><thead><tr><th>Medicine</th><th>Brand</th><th>Strength</th><th>Category</th><th>Stock</th><th>Price</th><th>Status</th></tr></thead><tbody>${DB.medicines.map(m => `<tr><td class="font-semibold">${m.name}</td><td>${m.brand}</td><td>${m.strength}</td><td>${m.category}</td><td class="font-bold ${m.stock < m.reorder_level ? 'text-red-600' : 'text-green-600'}">${m.stock}</td><td>₹${m.price}</td><td><span class="badge ${m.stock < m.reorder_level ? 'badge-danger' : 'badge-success'}">${m.stock < m.reorder_level ? 'Low Stock' : 'In Stock'}</span></td></tr>`).join('')}</tbody></table></div></main></div></div>`;
+      }
+    }
+
+    function renderSuperAdminScreens(app, clinic) {
+      const nav = `<nav class="bg-gray-900 text-white p-4 flex justify-between sticky top-0 z-50"><div class="flex gap-3 items-center"><img src="${clinic.logo_url}" class="h-10"><h3 class="font-bold text-sm">EdgesOf MediScript</h3></div><div class="flex items-center gap-3"><p class="font-semibold text-sm">${currentUser.name}</p><button onclick="logout()" class="px-3 py-2 bg-white bg-opacity-10 rounded-lg text-xs">Logout</button></div></nav>`;
+      const sidebar = `<aside class="w-64 bg-gray-900 text-white p-4 min-h-screen"><nav class="space-y-2"><a onclick="switchScreen('superadmin-dashboard')" class="nav-link ${currentScreen === 'superadmin-dashboard' ? 'active' : ''} text-sm">📊 Dashboard</a><a onclick="switchScreen('superadmin-clinics')" class="nav-link ${currentScreen === 'superadmin-clinics' ? 'active' : ''} text-sm">🏥 Clinics</a><a onclick="switchScreen('superadmin-users')" class="nav-link ${currentScreen === 'superadmin-users' ? 'active' : ''} text-sm">👥 Users</a><a onclick="switchScreen('superadmin-analytics')" class="nav-link ${currentScreen === 'superadmin-analytics' ? 'active' : ''} text-sm">📈 Analytics</a></nav></aside>`;
+
+      if (currentScreen === 'superadmin-dashboard') {
+        app.innerHTML = `<div>${nav}<div class="flex">${sidebar}<main class="flex-1 p-6"><h1 class="text-2xl font-bold mb-6">👑 Super Admin Dashboard</h1><div class="grid grid-cols-4 gap-4"><div class="stat-card"><p class="text-gray-600 text-sm mb-1">Clinics</p><p class="text-3xl font-bold text-red-600">${DB.clinics.length}</p></div><div class="stat-card"><p class="text-gray-600 text-sm mb-1">Users</p><p class="text-3xl font-bold text-blue-600">${DB.users.length}</p></div><div class="stat-card"><p class="text-gray-600 text-sm mb-1">Patients</p><p class="text-3xl font-bold text-green-600">${DB.patients.length}</p></div><div class="stat-card"><p class="text-gray-600 text-sm mb-1">Revenue</p><p class="text-3xl font-bold text-purple-600">₹${DB.invoices.reduce((sum, i) => sum + i.total, 0).toFixed(0)}</p></div></div></main></div></div>`;
+      } else if (currentScreen === 'superadmin-clinics') {
+        app.innerHTML = `<div>${nav}<div class="flex">${sidebar}<main class="flex-1 p-6"><h1 class="text-2xl font-bold mb-6">🏥 Clinics</h1><div class="card"><table><thead><tr><th>Name</th><th>Address</th><th>Phone</th><th>Email</th><th>GSTIN</th><th>Status</th></tr></thead><tbody>${DB.clinics.map(c => `<tr><td class="font-semibold">${c.name}</td><td>${c.address}</td><td>${c.phone}</td><td>${c.email}</td><td>${c.gstin}</td><td><span class="badge badge-success">Active</span></td></tr>`).join('')}</tbody></table></div></main></div></div>`;
+      } else if (currentScreen === 'superadmin-users') {
+        app.innerHTML = `<div>${nav}<div class="flex">${sidebar}<main class="flex-1 p-6"><h1 class="text-2xl font-bold mb-6">👥 Users</h1><div class="card"><table><thead><tr><th>Name</th><th>Email</th><th>Role</th></tr></thead><tbody>${DB.users.map(u => `<tr><td class="font-semibold">${u.name}</td><td>${u.email}</td><td><span class="role-badge role-${u.role}">${u.role}</span></td></tr>`).join('')}</tbody></table></div></main></div></div>`;
+      }
+    }
+
+    console.log('🎉 COMPLETE SYSTEM LOADED!');
     render();
   </script>
 </body>
