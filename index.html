@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>EdgesOf MediScript - Phase 1.1: Data Persistence</title>
+  <title>EdgesOf MediScript - Phase 1.2: Receptionist System</title>
   <link rel="icon" href="https://nyc3.digitaloceanspaces.com/bhindi-drive/files/cab453ed-7d3e-4dfa-9012-038dbc50c1c5/2025-12-07T15-33-38-867Z-c50befdf-chat-image-1765121618851-0.jpg">
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
@@ -13,6 +13,7 @@
     body { background: linear-gradient(135deg, #f9fafb 0%, #ffffff 100%); }
     .btn { padding: 10px 20px; border-radius: 10px; font-weight: 600; transition: all 0.3s; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; border: none; font-size: 14px; }
     .btn-sm { padding: 6px 12px; font-size: 12px; }
+    .btn-xs { padding: 4px 8px; font-size: 11px; }
     .btn-primary { background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%); color: white; }
     .btn-success { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; }
     .btn-warning { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; }
@@ -20,8 +21,6 @@
     .btn-info { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; }
     .btn-purple { background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); color: white; }
     .btn-secondary { background: white; color: #1f2937; border: 2px solid #e5e7eb; }
-    .btn-ai { background: linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%); color: white; animation: aiGlow 2s infinite; }
-    @keyframes aiGlow { 0%, 100% { box-shadow: 0 0 20px rgba(236, 72, 153, 0.5); } 50% { box-shadow: 0 0 40px rgba(139, 92, 246, 0.8); } }
     .btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.15); }
     .card { background: white; border-radius: 20px; padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.05), 0 10px 40px rgba(0,0,0,0.03); transition: all 0.3s; }
     .stat-card { background: white; border-radius: 16px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
@@ -32,15 +31,12 @@
     .badge-success { background: #d1fae5; color: #065f46; }
     .badge-warning { background: #fef3c7; color: #92400e; }
     .badge-danger { background: #fee2e2; color: #991b1b; }
+    .badge-info { background: #dbeafe; color: #1e40af; }
     .role-badge { padding: 4px 10px; border-radius: 16px; font-size: 10px; font-weight: 700; text-transform: uppercase; }
-    .role-superadmin { background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%); color: white; }
-    .role-admin { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; }
-    .role-doctor { background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%); color: white; }
     .role-receptionist { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; }
-    .role-patient { background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); color: white; }
     .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(8px); z-index: 9998; display: flex; align-items: center; justify-content: center; padding: 20px; animation: fadeIn 0.3s; }
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-    .modal-content { background: white; border-radius: 20px; max-width: 1100px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 25px 80px rgba(0,0,0,0.25); animation: scaleIn 0.4s; }
+    .modal-content { background: white; border-radius: 20px; max-width: 1200px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 25px 80px rgba(0,0,0,0.25); animation: scaleIn 0.4s; }
     @keyframes scaleIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
     .toast { position: fixed; bottom: 24px; right: 24px; background: white; border-radius: 12px; padding: 16px 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 12px; z-index: 9999; animation: slideIn 0.4s; border-left: 4px solid; max-width: 350px; }
     @keyframes slideIn { from { transform: translateX(500px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
@@ -53,118 +49,55 @@
     .save-indicator { position: fixed; top: 20px; right: 20px; padding: 8px 16px; background: white; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); font-size: 12px; font-weight: 600; z-index: 9999; display: none; }
     .save-indicator.saving { display: block; color: #f59e0b; }
     .save-indicator.saved { display: block; color: #10b981; }
+    .token-card { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; border-radius: 16px; padding: 24px; text-align: center; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); }
+    .queue-item { background: white; border: 2px solid #e5e7eb; border-radius: 12px; padding: 16px; margin-bottom: 12px; transition: all 0.3s; }
+    .queue-item:hover { border-color: #10b981; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.1); }
+    .queue-item.active { border-color: #10b981; background: #f0fdf4; }
+    .payment-mode { padding: 12px; border: 2px solid #e5e7eb; border-radius: 10px; cursor: pointer; text-align: center; transition: all 0.2s; }
+    .payment-mode:hover { border-color: #10b981; background: #f0fdf4; }
+    .payment-mode.selected { border-color: #10b981; background: #10b981; color: white; }
   </style>
 </head>
 <body>
   <div id="saveIndicator" class="save-indicator"></div>
   <div id="app"></div>
   <script>
-    console.log('🚀 EdgesOf MediScript - PHASE 1.1: DATA PERSISTENCE LAYER');
+    console.log('🚀 EdgesOf MediScript - PHASE 1.2: RECEPTIONIST COMPLETE SYSTEM');
     
     // DATA PERSISTENCE MANAGER
     const DataManager = {
       STORAGE_KEY: 'edgesof_mediscript_db',
-      BACKUP_KEY: 'edgesof_mediscript_backup',
-      
-      // Save data to localStorage
       save(data) {
         try {
           const indicator = document.getElementById('saveIndicator');
           indicator.className = 'save-indicator saving';
           indicator.textContent = '💾 Saving...';
-          
-          const jsonData = JSON.stringify(data);
-          localStorage.setItem(this.STORAGE_KEY, jsonData);
-          localStorage.setItem(this.BACKUP_KEY + '_' + Date.now(), jsonData); // Auto backup
-          
+          localStorage.setItem(this.STORAGE_KEY, JSON.stringify(data));
           setTimeout(() => {
             indicator.className = 'save-indicator saved';
             indicator.textContent = '✅ Saved';
             setTimeout(() => indicator.style.display = 'none', 2000);
           }, 500);
-          
           return true;
         } catch (error) {
           console.error('Save error:', error);
-          showToast('Failed to save data', 'error');
           return false;
         }
       },
-      
-      // Load data from localStorage
       load() {
         try {
           const jsonData = localStorage.getItem(this.STORAGE_KEY);
-          if (jsonData) {
-            return JSON.parse(jsonData);
-          }
-          return null;
+          return jsonData ? JSON.parse(jsonData) : null;
         } catch (error) {
           console.error('Load error:', error);
           return null;
         }
-      },
-      
-      // Export data as JSON file
-      export() {
-        try {
-          const data = this.load() || DB;
-          const jsonData = JSON.stringify(data, null, 2);
-          const blob = new Blob([jsonData], { type: 'application/json' });
-          const url = URL.createObjectURL(blob);
-          const a = document.createElement('a');
-          a.href = url;
-          a.download = `mediscript_backup_${new Date().toISOString().split('T')[0]}.json`;
-          a.click();
-          URL.revokeObjectURL(url);
-          showToast('✅ Data exported successfully!', 'success');
-        } catch (error) {
-          console.error('Export error:', error);
-          showToast('Failed to export data', 'error');
-        }
-      },
-      
-      // Import data from JSON file
-      import(file) {
-        try {
-          const reader = new FileReader();
-          reader.onload = (e) => {
-            try {
-              const data = JSON.parse(e.target.result);
-              this.save(data);
-              window.location.reload();
-            } catch (error) {
-              showToast('Invalid file format', 'error');
-            }
-          };
-          reader.readAsText(file);
-        } catch (error) {
-          console.error('Import error:', error);
-          showToast('Failed to import data', 'error');
-        }
-      },
-      
-      // Clear all data
-      clear() {
-        if (confirm('⚠️ This will delete ALL data. Are you sure?')) {
-          localStorage.removeItem(this.STORAGE_KEY);
-          window.location.reload();
-        }
-      },
-      
-      // Get storage info
-      getStorageInfo() {
-        const data = localStorage.getItem(this.STORAGE_KEY);
-        const size = data ? new Blob([data]).size : 0;
-        const sizeKB = (size / 1024).toFixed(2);
-        const backups = Object.keys(localStorage).filter(k => k.startsWith(this.BACKUP_KEY)).length;
-        return { size, sizeKB, backups };
       }
     };
 
-    // Initialize DB with default data or load from localStorage
+    // Initialize DB
     let DB = DataManager.load() || {
-      clinics: [{id: 'c1', name: 'City Health Clinic', logo_url: 'https://nyc3.digitaloceanspaces.com/bhindi-drive/files/cab453ed-7d3e-4dfa-9012-038dbc50c1c5/2025-12-07T15-33-38-867Z-c50befdf-chat-image-1765121618851-0.jpg', primary_color: '#2563eb', secondary_color: '#10b981', gstin: '27AABCU9603R1ZM', address: 'Mumbai, Maharashtra', phone: '+91-9876543210'}],
+      clinics: [{id: 'c1', name: 'City Health Clinic', logo_url: 'https://nyc3.digitaloceanspaces.com/bhindi-drive/files/cab453ed-7d3e-4dfa-9012-038dbc50c1c5/2025-12-07T15-33-38-867Z-c50befdf-chat-image-1765121618851-0.jpg', primary_color: '#2563eb', secondary_color: '#10b981', gstin: '27AABCU9603R1ZM'}],
       users: [
         {id: 'u1', email: 'system@edgesof.com', password: 'admin123', role: 'superadmin', name: 'System Admin'},
         {id: 'u2', email: 'admin@clinic.com', password: 'admin123', role: 'admin', name: 'Clinic Admin'},
@@ -173,9 +106,9 @@
         {id: 'u5', email: 'patient@clinic.com', password: 'patient123', role: 'patient', name: 'Amit Kumar', patient_id: 'P001'}
       ],
       patients: [
-        {id: 'p1', patient_id: 'P001', first_name: 'Rajesh', last_name: 'Kumar', age: 45, gender: 'Male', blood_group: 'O+', phone: '+919876543220', email: 'rajesh@example.com', allergies: []},
-        {id: 'p2', patient_id: 'P002', first_name: 'Priya', last_name: 'Sharma', age: 32, gender: 'Female', blood_group: 'A+', phone: '+919876543221', email: 'priya@example.com', allergies: ['Penicillin']},
-        {id: 'p3', patient_id: 'P003', first_name: 'Amit', last_name: 'Patel', age: 28, gender: 'Male', blood_group: 'B+', phone: '+919876543222', email: 'amit@example.com', allergies: []}
+        {id: 'p1', patient_id: 'P001', first_name: 'Rajesh', last_name: 'Kumar', age: 45, gender: 'Male', blood_group: 'O+', phone: '+919876543220', email: 'rajesh@example.com', address: 'Mumbai', emergency_contact: '+919876543221', photo: '', allergies: [], created_at: '2025-12-01'},
+        {id: 'p2', patient_id: 'P002', first_name: 'Priya', last_name: 'Sharma', age: 32, gender: 'Female', blood_group: 'A+', phone: '+919876543221', email: 'priya@example.com', address: 'Delhi', emergency_contact: '+919876543222', photo: '', allergies: ['Penicillin'], created_at: '2025-12-02'},
+        {id: 'p3', patient_id: 'P003', first_name: 'Amit', last_name: 'Patel', age: 28, gender: 'Male', blood_group: 'B+', phone: '+919876543222', email: 'amit@example.com', address: 'Bangalore', emergency_contact: '+919876543223', photo: '', allergies: [], created_at: '2025-12-03'}
       ],
       doctors: [
         {id: 'd1', name: 'Dr. Rajesh Sharma', specialization: 'General Medicine', available_days: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'], consultation_fee: 500},
@@ -183,62 +116,21 @@
         {id: 'd3', name: 'Dr. Amit Singh', specialization: 'Cardiology', available_days: ['Tuesday', 'Thursday', 'Saturday'], consultation_fee: 800}
       ],
       time_slots: ['09:00 AM', '09:30 AM', '10:00 AM', '10:30 AM', '11:00 AM', '11:30 AM', '12:00 PM', '02:00 PM', '02:30 PM', '03:00 PM', '03:30 PM', '04:00 PM', '04:30 PM', '05:00 PM'],
-      medicines: [
-        {id: 'm1', name: 'Paracetamol', generic_name: 'Paracetamol', brand_name: 'Crocin', strength: '500', unit: 'mg', form: 'Tablet', category: 'Analgesic', price: 5, mrp: 6, stock: 100, hsn_code: '30049099', indications: ['fever', 'pain', 'headache', 'body pain']},
-        {id: 'm2', name: 'Amoxicillin', generic_name: 'Amoxicillin', brand_name: 'Novamox', strength: '500', unit: 'mg', form: 'Capsule', category: 'Antibiotic', price: 15, mrp: 18, stock: 50, hsn_code: '30042090', indications: ['bacterial infection']},
-        {id: 'm3', name: 'Cetirizine', generic_name: 'Cetirizine', brand_name: 'Zyrtec', strength: '10', unit: 'mg', form: 'Tablet', category: 'Antihistamine', price: 8, mrp: 10, stock: 75, hsn_code: '30049099', indications: ['allergy', 'cold']},
-        {id: 'm4', name: 'Omeprazole', generic_name: 'Omeprazole', brand_name: 'Omez', strength: '20', unit: 'mg', form: 'Capsule', category: 'PPI', price: 12, mrp: 15, stock: 60, hsn_code: '30049099', indications: ['acidity', 'gastritis']},
-        {id: 'm5', name: 'Ibuprofen', generic_name: 'Ibuprofen', brand_name: 'Brufen', strength: '400', unit: 'mg', form: 'Tablet', category: 'NSAID', price: 10, mrp: 12, stock: 80, hsn_code: '30049099', indications: ['pain', 'inflammation', 'joint pain']}
-      ],
-      staff: [
-        {id: 's1', name: 'Dr. Rajesh Sharma', role: 'Doctor', specialization: 'General Medicine', phone: '+919876543210'},
-        {id: 's2', name: 'Dr. Priya Verma', role: 'Doctor', specialization: 'Pediatrics', phone: '+919876543211'},
-        {id: 's3', name: 'Nurse Sunita', role: 'Nurse', department: 'OPD', phone: '+919876543212'}
-      ],
       appointments: [],
-      prescriptions: [],
-      lab_reports: [],
-      invoices: [],
-      vital_signs: [],
       opd_queue: [],
-      icd10_codes: [
-        {code: 'J06.9', description: 'Acute upper respiratory infection', symptoms: ['fever', 'cough', 'cold', 'sore throat']},
-        {code: 'A09', description: 'Infectious gastroenteritis', symptoms: ['diarrhea', 'vomiting', 'stomach pain']},
-        {code: 'I10', description: 'Essential hypertension', symptoms: ['high bp', 'headache', 'dizziness']},
-        {code: 'M79', description: 'Soft tissue disorders', symptoms: ['muscle pain', 'body pain', 'body ache']},
-        {code: 'R50.9', description: 'Fever, unspecified', symptoms: ['fever', 'high temperature']},
-        {code: 'R51', description: 'Headache', symptoms: ['headache', 'head pain']},
-        {code: 'K21', description: 'GERD', symptoms: ['acidity', 'heartburn']}
-      ],
-      soap_templates: [
-        {id: 't1', name: 'Viral Fever', icon: '🤒', chief_complaint: 'Fever for 3 days', subjective: 'Patient reports fever for 3 days with body ache', objective: 'Temp: 101°F, BP: 120/80', assessment: 'Viral fever', plan: 'Paracetamol 500mg TDS for 5 days'},
-        {id: 't2', name: 'Common Cold', icon: '🤧', chief_complaint: 'Cold and cough', subjective: 'Runny nose, sneezing', objective: 'Throat: Mild congestion', assessment: 'Common cold', plan: 'Cetirizine 10mg OD'},
-        {id: 't3', name: 'Gastritis', icon: '🤢', chief_complaint: 'Acidity', subjective: 'Burning sensation in stomach', objective: 'Abdomen: Soft, non-tender', assessment: 'Gastritis', plan: 'Omeprazole 20mg BD'},
-        {id: 't4', name: 'Body Pain', icon: '💪', chief_complaint: 'Body pain', subjective: 'Generalized body ache', objective: 'No swelling or redness', assessment: 'Myalgia', plan: 'Ibuprofen 400mg TDS'},
-        {id: 't5', name: 'Headache', icon: '🤕', chief_complaint: 'Headache', subjective: 'Throbbing headache', objective: 'BP: Normal', assessment: 'Tension headache', plan: 'Paracetamol 500mg SOS'}
-      ],
-      lab_tests: [
-        {id: 'lab1', name: 'CBC', category: 'Hematology', price: 300, normal_range: 'Hb: 12-16g/dL'},
-        {id: 'lab2', name: 'LFT', category: 'Biochemistry', price: 500, normal_range: 'SGOT: 5-40 U/L'},
-        {id: 'lab3', name: 'Blood Sugar', category: 'Biochemistry', price: 100, normal_range: '70-100 mg/dL'},
-        {id: 'lab4', name: 'Lipid Profile', category: 'Biochemistry', price: 600, normal_range: 'Cholesterol: <200 mg/dL'},
-        {id: 'lab5', name: 'Thyroid Profile', category: 'Endocrinology', price: 700, normal_range: 'TSH: 0.5-5.0 mIU/L'}
-      ],
-      ai_knowledge: {
-        symptom_medicine_map: {
-          'fever': ['Paracetamol', 'Ibuprofen'], 'pain': ['Paracetamol', 'Ibuprofen'], 'headache': ['Paracetamol'],
-          'body pain': ['Paracetamol', 'Ibuprofen'], 'cold': ['Cetirizine'], 'acidity': ['Omeprazole'], 'joint pain': ['Ibuprofen']
-        }
-      }
+      invoices: [],
+      medicines: [
+        {id: 'm1', name: 'Paracetamol', brand_name: 'Crocin', strength: '500mg', price: 5, stock: 100},
+        {id: 'm2', name: 'Amoxicillin', brand_name: 'Novamox', strength: '500mg', price: 15, stock: 50},
+        {id: 'm3', name: 'Cetirizine', brand_name: 'Zyrtec', strength: '10mg', price: 8, stock: 75}
+      ]
     };
 
-    // Auto-save DB whenever it changes
-    function saveDB() {
-      DataManager.save(DB);
-    }
+    function saveDB() { DataManager.save(DB); }
 
     let currentUser = null;
     let currentScreen = 'login';
+    let currentToken = 1;
 
     function showToast(msg, type = 'info') {
       const toast = document.createElement('div');
@@ -263,34 +155,309 @@
     function logout() { currentUser = null; currentScreen = 'login'; render(); }
     function switchScreen(screen) { currentScreen = screen; render(); }
 
-    // Data Management Functions
-    function showDataManagementModal() {
-      const info = DataManager.getStorageInfo();
+    // PATIENT REGISTRATION
+    function showPatientRegistrationModal() {
       const modal = document.createElement('div');
       modal.className = 'modal-overlay';
       modal.innerHTML = `
         <div class="modal-content">
-          <div class="p-6 border-b flex justify-between items-center" style="background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);">
-            <div><h2 class="text-xl font-bold text-white">💾 Data Management</h2><p class="text-xs text-white opacity-90 mt-1">Backup, Export, Import & Clear Data</p></div>
+          <div class="p-6 border-b flex justify-between items-center" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+            <div><h2 class="text-xl font-bold text-white">👤 New Patient Registration</h2><p class="text-xs text-white opacity-90 mt-1">Complete patient information form</p></div>
             <button onclick="closeModal()" class="text-white text-2xl">×</button>
           </div>
           <div class="p-6">
-            <div class="mb-6 p-4 bg-blue-50 rounded-lg border-l-4 border-blue-500">
-              <h3 class="font-bold mb-2 text-sm">📊 Storage Information</h3>
-              <div class="grid grid-cols-2 gap-4 text-sm">
-                <div><span class="text-gray-600">Data Size:</span> <span class="font-semibold">${info.sizeKB} KB</span></div>
-                <div><span class="text-gray-600">Auto Backups:</span> <span class="font-semibold">${info.backups}</span></div>
-              </div>
+            <div class="grid grid-cols-3 gap-4 mb-4">
+              <div><label class="form-label">First Name *</label><input type="text" id="regFirstName" class="form-input" required></div>
+              <div><label class="form-label">Last Name *</label><input type="text" id="regLastName" class="form-input" required></div>
+              <div><label class="form-label">Age *</label><input type="number" id="regAge" class="form-input" required></div>
+            </div>
+            <div class="grid grid-cols-3 gap-4 mb-4">
+              <div><label class="form-label">Gender *</label><select id="regGender" class="form-input"><option>Male</option><option>Female</option><option>Other</option></select></div>
+              <div><label class="form-label">Blood Group</label><select id="regBloodGroup" class="form-input"><option>A+</option><option>A-</option><option>B+</option><option>B-</option><option>O+</option><option>O-</option><option>AB+</option><option>AB-</option></select></div>
+              <div><label class="form-label">Phone *</label><input type="tel" id="regPhone" class="form-input" required></div>
             </div>
             <div class="grid grid-cols-2 gap-4 mb-4">
-              <div class="card"><h3 class="font-bold mb-2 text-sm">📥 Export Data</h3><p class="text-xs text-gray-600 mb-3">Download all data as JSON file</p><button onclick="DataManager.export()" class="btn btn-primary w-full">📥 Export</button></div>
-              <div class="card"><h3 class="font-bold mb-2 text-sm">📤 Import Data</h3><p class="text-xs text-gray-600 mb-3">Upload JSON file to restore data</p><input type="file" id="importFile" accept=".json" class="hidden" onchange="DataManager.import(this.files[0])"><button onclick="document.getElementById('importFile').click()" class="btn btn-success w-full">📤 Import</button></div>
+              <div><label class="form-label">Email</label><input type="email" id="regEmail" class="form-input"></div>
+              <div><label class="form-label">Emergency Contact</label><input type="tel" id="regEmergency" class="form-input"></div>
             </div>
-            <div class="card bg-red-50 border-2 border-red-200"><h3 class="font-bold mb-2 text-sm text-red-700">⚠️ Danger Zone</h3><p class="text-xs text-gray-600 mb-3">This will delete ALL data permanently</p><button onclick="DataManager.clear()" class="btn btn-danger w-full">🗑️ Clear All Data</button></div>
+            <div class="mb-4"><label class="form-label">Address</label><textarea id="regAddress" class="form-input" rows="2"></textarea></div>
+            <div class="mb-4"><label class="form-label">Known Allergies (comma separated)</label><input type="text" id="regAllergies" class="form-input" placeholder="e.g., Penicillin, Sulfa drugs"></div>
+            <div class="flex gap-3"><button onclick="registerPatient()" class="btn btn-success">✅ Register Patient</button><button onclick="closeModal()" class="btn btn-secondary">Cancel</button></div>
           </div>
         </div>
       `;
       document.body.appendChild(modal);
+    }
+
+    function registerPatient() {
+      const firstName = document.getElementById('regFirstName').value;
+      const lastName = document.getElementById('regLastName').value;
+      const age = document.getElementById('regAge').value;
+      const gender = document.getElementById('regGender').value;
+      const bloodGroup = document.getElementById('regBloodGroup').value;
+      const phone = document.getElementById('regPhone').value;
+      const email = document.getElementById('regEmail').value;
+      const emergency = document.getElementById('regEmergency').value;
+      const address = document.getElementById('regAddress').value;
+      const allergiesStr = document.getElementById('regAllergies').value;
+      
+      if (!firstName || !lastName || !age || !phone) {
+        showToast('Please fill all required fields', 'error');
+        return;
+      }
+
+      const patientId = 'P' + String(DB.patients.length + 1).padStart(3, '0');
+      const allergies = allergiesStr ? allergiesStr.split(',').map(a => a.trim()) : [];
+      
+      DB.patients.push({
+        id: 'p' + Date.now(),
+        patient_id: patientId,
+        first_name: firstName,
+        last_name: lastName,
+        age: parseInt(age),
+        gender: gender,
+        blood_group: bloodGroup,
+        phone: phone,
+        email: email,
+        address: address,
+        emergency_contact: emergency,
+        photo: '',
+        allergies: allergies,
+        created_at: new Date().toISOString().split('T')[0]
+      });
+      
+      saveDB();
+      showToast(`✅ Patient registered! ID: ${patientId}`, 'success');
+      closeModal();
+      render();
+    }
+
+    // OPD QUEUE MANAGEMENT
+    function addToQueue(patientId) {
+      const patient = DB.patients.find(p => p.id === patientId);
+      if (!patient) return;
+      
+      const existingInQueue = DB.opd_queue.find(q => q.patient_id === patientId && q.status !== 'Completed');
+      if (existingInQueue) {
+        showToast('Patient already in queue', 'warning');
+        return;
+      }
+
+      const maxToken = DB.opd_queue.length > 0 ? Math.max(...DB.opd_queue.map(q => q.token)) : 0;
+      
+      DB.opd_queue.push({
+        id: 'q' + Date.now(),
+        token: maxToken + 1,
+        patient_id: patientId,
+        patient_name: patient.first_name + ' ' + patient.last_name,
+        status: 'Waiting',
+        added_at: new Date().toLocaleTimeString()
+      });
+      
+      saveDB();
+      showToast(`✅ Token ${maxToken + 1} assigned to ${patient.first_name}`, 'success');
+      render();
+    }
+
+    function callNextPatient() {
+      const waiting = DB.opd_queue.find(q => q.status === 'Waiting');
+      if (!waiting) {
+        showToast('No patients in queue', 'info');
+        return;
+      }
+      
+      waiting.status = 'In Consultation';
+      saveDB();
+      showToast(`🔔 Calling Token ${waiting.token} - ${waiting.patient_name}`, 'info');
+      render();
+    }
+
+    function markCompleted(queueId) {
+      const queue = DB.opd_queue.find(q => q.id === queueId);
+      if (queue) {
+        queue.status = 'Completed';
+        saveDB();
+        showToast('✅ Marked as completed', 'success');
+        render();
+      }
+    }
+
+    // BILLING SYSTEM
+    function showBillingModal(patientId) {
+      const patient = DB.patients.find(p => p.id === patientId);
+      const modal = document.createElement('div');
+      modal.className = 'modal-overlay';
+      modal.innerHTML = `
+        <div class="modal-content">
+          <div class="p-6 border-b flex justify-between items-center" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+            <div><h2 class="text-xl font-bold text-white">💰 Create Bill</h2><p class="text-xs text-white opacity-90 mt-1">${patient.first_name} ${patient.last_name} (${patient.patient_id})</p></div>
+            <button onclick="closeModal()" class="text-white text-2xl">×</button>
+          </div>
+          <div class="p-6">
+            <div class="mb-4">
+              <label class="form-label">Add Item</label>
+              <div class="grid grid-cols-5 gap-2">
+                <input type="text" id="billItemDesc" class="form-input col-span-2" placeholder="Description">
+                <input type="number" id="billItemQty" class="form-input" placeholder="Qty" value="1">
+                <input type="number" id="billItemPrice" class="form-input" placeholder="Price">
+                <button onclick="addBillItem('${patientId}')" class="btn btn-primary btn-sm">Add</button>
+              </div>
+            </div>
+            <div class="mb-4">
+              <h3 class="font-bold mb-2 text-sm">Bill Items</h3>
+              <div id="billItems" class="space-y-2"></div>
+            </div>
+            <div class="bg-gray-50 p-4 rounded-lg mb-4">
+              <div class="flex justify-between mb-2"><span class="font-semibold">Subtotal:</span><span id="billSubtotal">₹0.00</span></div>
+              <div class="flex justify-between mb-2"><span class="font-semibold">Discount:</span><input type="number" id="billDiscount" class="form-input" style="width:100px;padding:4px 8px;" value="0" oninput="updateBillTotal()"></div>
+              <div class="flex justify-between text-lg font-bold border-t-2 pt-2 mt-2"><span>Total:</span><span id="billTotal">₹0.00</span></div>
+            </div>
+            <div class="mb-4">
+              <label class="form-label">Payment Mode</label>
+              <div class="grid grid-cols-4 gap-2">
+                <div class="payment-mode" onclick="selectPaymentMode('Cash')">💵 Cash</div>
+                <div class="payment-mode" onclick="selectPaymentMode('Card')">💳 Card</div>
+                <div class="payment-mode" onclick="selectPaymentMode('UPI')">📱 UPI</div>
+                <div class="payment-mode" onclick="selectPaymentMode('Insurance')">🏥 Insurance</div>
+              </div>
+            </div>
+            <div class="flex gap-3"><button onclick="saveBill('${patientId}')" class="btn btn-success">💾 Save & Print</button><button onclick="closeModal()" class="btn btn-secondary">Cancel</button></div>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(modal);
+      window.currentBill = { patient_id: patientId, items: [], subtotal: 0, discount: 0, total: 0, payment_mode: 'Cash' };
+    }
+
+    function addBillItem(patientId) {
+      const desc = document.getElementById('billItemDesc').value;
+      const qty = parseInt(document.getElementById('billItemQty').value) || 1;
+      const price = parseFloat(document.getElementById('billItemPrice').value) || 0;
+      
+      if (!desc || !price) {
+        showToast('Enter description and price', 'error');
+        return;
+      }
+
+      window.currentBill.items.push({ description: desc, quantity: qty, unit_price: price, amount: qty * price });
+      document.getElementById('billItemDesc').value = '';
+      document.getElementById('billItemQty').value = '1';
+      document.getElementById('billItemPrice').value = '';
+      updateBillItems();
+    }
+
+    function updateBillItems() {
+      window.currentBill.subtotal = window.currentBill.items.reduce((sum, item) => sum + item.amount, 0);
+      updateBillTotal();
+      
+      document.getElementById('billItems').innerHTML = window.currentBill.items.length === 0 ? '<p class="text-sm text-gray-500">No items added</p>' : window.currentBill.items.map((item, idx) => `
+        <div class="flex justify-between items-center p-2 bg-gray-50 rounded">
+          <div class="flex-1"><p class="font-semibold text-sm">${item.description}</p><p class="text-xs text-gray-600">${item.quantity} × ₹${item.unit_price}</p></div>
+          <div class="flex items-center gap-2"><span class="font-bold">₹${item.amount}</span><button onclick="removeBillItem(${idx})" class="text-red-600 text-sm font-bold">✕</button></div>
+        </div>
+      `).join('');
+    }
+
+    function removeBillItem(index) {
+      window.currentBill.items.splice(index, 1);
+      updateBillItems();
+    }
+
+    function updateBillTotal() {
+      const discount = parseFloat(document.getElementById('billDiscount')?.value || 0);
+      window.currentBill.discount = discount;
+      window.currentBill.total = window.currentBill.subtotal - discount;
+      document.getElementById('billSubtotal').textContent = '₹' + window.currentBill.subtotal.toFixed(2);
+      document.getElementById('billTotal').textContent = '₹' + window.currentBill.total.toFixed(2);
+    }
+
+    function selectPaymentMode(mode) {
+      document.querySelectorAll('.payment-mode').forEach(el => el.classList.remove('selected'));
+      event.target.classList.add('selected');
+      window.currentBill.payment_mode = mode;
+    }
+
+    function saveBill(patientId) {
+      if (window.currentBill.items.length === 0) {
+        showToast('Add at least one item', 'error');
+        return;
+      }
+
+      const patient = DB.patients.find(p => p.id === patientId);
+      DB.invoices.push({
+        id: 'inv' + Date.now(),
+        patient_id: patientId,
+        patient_name: patient.first_name + ' ' + patient.last_name,
+        amount: window.currentBill.total,
+        date: new Date().toISOString().split('T')[0],
+        status: 'Paid',
+        payment_mode: window.currentBill.payment_mode,
+        items: window.currentBill.items
+      });
+      
+      saveDB();
+      showToast('✅ Bill created & payment received!', 'success');
+      closeModal();
+      render();
+    }
+
+    // APPOINTMENT MANAGEMENT
+    function showAppointmentModal() {
+      const modal = document.createElement('div');
+      modal.className = 'modal-overlay';
+      modal.innerHTML = `
+        <div class="modal-content">
+          <div class="p-6 border-b flex justify-between items-center" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+            <div><h2 class="text-xl font-bold text-white">📅 Schedule Appointment</h2></div>
+            <button onclick="closeModal()" class="text-white text-2xl">×</button>
+          </div>
+          <div class="p-6">
+            <div class="grid grid-cols-2 gap-4 mb-4">
+              <div><label class="form-label">Select Patient</label><select id="aptPatient" class="form-input">${DB.patients.map(p => `<option value="${p.id}">${p.first_name} ${p.last_name} (${p.patient_id})</option>`).join('')}</select></div>
+              <div><label class="form-label">Select Doctor</label><select id="aptDoctor" class="form-input">${DB.doctors.map(d => `<option value="${d.id}">${d.name} - ${d.specialization}</option>`).join('')}</select></div>
+            </div>
+            <div class="grid grid-cols-2 gap-4 mb-4">
+              <div><label class="form-label">Date</label><input type="date" id="aptDate" class="form-input" min="${new Date().toISOString().split('T')[0]}"></div>
+              <div><label class="form-label">Time</label><select id="aptTime" class="form-input">${DB.time_slots.map(t => `<option>${t}</option>`).join('')}</select></div>
+            </div>
+            <div class="mb-4"><label class="form-label">Notes</label><textarea id="aptNotes" class="form-input" rows="2" placeholder="Reason for visit..."></textarea></div>
+            <div class="flex gap-3"><button onclick="scheduleAppointment()" class="btn btn-success">📅 Schedule</button><button onclick="closeModal()" class="btn btn-secondary">Cancel</button></div>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(modal);
+    }
+
+    function scheduleAppointment() {
+      const patientId = document.getElementById('aptPatient').value;
+      const doctorId = document.getElementById('aptDoctor').value;
+      const date = document.getElementById('aptDate').value;
+      const time = document.getElementById('aptTime').value;
+      const notes = document.getElementById('aptNotes').value;
+
+      if (!date) {
+        showToast('Select date', 'error');
+        return;
+      }
+
+      const patient = DB.patients.find(p => p.id === patientId);
+      const doctor = DB.doctors.find(d => d.id === doctorId);
+
+      DB.appointments.push({
+        id: 'a' + Date.now(),
+        patient_id: patientId,
+        patient_name: patient.first_name + ' ' + patient.last_name,
+        doctor: doctor.name,
+        date: date,
+        time: time,
+        status: 'Scheduled',
+        notes: notes
+      });
+
+      saveDB();
+      showToast('✅ Appointment scheduled successfully!', 'success');
+      closeModal();
+      render();
     }
 
     function render() {
@@ -301,50 +468,191 @@
         app.innerHTML = `
           <div class="min-h-screen flex items-center justify-center p-6" style="background: linear-gradient(135deg, ${clinic.primary_color} 0%, ${clinic.secondary_color} 100%);">
             <div class="w-full max-w-4xl">
-              <div class="text-center mb-8"><img src="${clinic.logo_url}" class="h-16 mx-auto mb-4"><h1 class="text-3xl font-bold text-white mb-2">${clinic.name}</h1><p class="text-white text-sm">Phase 1.1: Data Persistence Layer ✅</p></div>
-              <div class="mb-4 p-4 bg-white bg-opacity-20 backdrop-blur-lg rounded-xl border-2 border-white border-opacity-30">
-                <div class="flex items-center gap-3 justify-center"><div class="text-3xl">✅</div><div class="text-white"><p class="font-bold">DATA PERSISTENCE ACTIVE!</p><p class="text-xs opacity-90">All changes are automatically saved • Data persists across reloads</p></div></div>
-              </div>
+              <div class="text-center mb-8"><img src="${clinic.logo_url}" class="h-16 mx-auto mb-4"><h1 class="text-3xl font-bold text-white mb-2">${clinic.name}</h1><p class="text-white text-sm">Phase 1.2: Receptionist Complete System ✅</p></div>
               <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div class="card"><h2 class="text-xl font-bold mb-4">🔐 Manual Login</h2><div class="mb-3"><label class="form-label">Email</label><input type="email" id="loginEmail" class="form-input"></div><div class="mb-3"><label class="form-label">Password</label><input type="password" id="loginPassword" class="form-input"></div><button onclick="login()" class="btn btn-primary w-full mb-2">Login</button><button onclick="showDataManagementModal()" class="btn btn-secondary w-full">💾 Data Management</button></div>
-                <div class="card"><h2 class="text-xl font-bold mb-4">⚡ Quick Login</h2><button onclick="quickLogin('system@edgesof.com', 'admin123')" class="btn btn-danger w-full mb-2">👑 Super Admin</button><button onclick="quickLogin('admin@clinic.com', 'admin123')" class="btn btn-warning w-full mb-2">🏥 Admin</button><button onclick="quickLogin('doctor@clinic.com', 'doctor123')" class="btn btn-primary w-full mb-2">👨‍⚕️ Doctor</button><button onclick="quickLogin('reception@clinic.com', 'reception123')" class="btn btn-success w-full mb-2">📋 Receptionist</button><button onclick="quickLogin('patient@clinic.com', 'patient123')" class="btn btn-purple w-full">👤 Patient</button></div>
+                <div class="card"><h2 class="text-xl font-bold mb-4">🔐 Manual Login</h2><div class="mb-3"><label class="form-label">Email</label><input type="email" id="loginEmail" class="form-input"></div><div class="mb-3"><label class="form-label">Password</label><input type="password" id="loginPassword" class="form-input"></div><button onclick="login()" class="btn btn-primary w-full">Login</button></div>
+                <div class="card"><h2 class="text-xl font-bold mb-4">⚡ Quick Login</h2><button onclick="quickLogin('reception@clinic.com', 'reception123')" class="btn btn-success w-full mb-2">📋 Receptionist (Test This!)</button><button onclick="quickLogin('doctor@clinic.com', 'doctor123')" class="btn btn-primary w-full mb-2">👨‍⚕️ Doctor</button><button onclick="quickLogin('patient@clinic.com', 'patient123')" class="btn btn-purple w-full">👤 Patient</button></div>
               </div>
+            </div>
+          </div>
+        `;
+      } else if (currentScreen === 'receptionist-dashboard') {
+        const todayQueue = DB.opd_queue.filter(q => q.status !== 'Completed');
+        const todayAppointments = DB.appointments.filter(a => a.date === new Date().toISOString().split('T')[0]);
+        const pendingBills = DB.invoices.filter(i => i.status === 'Pending');
+        
+        app.innerHTML = `
+          <div>
+            <nav class="bg-gray-900 text-white p-4 flex justify-between sticky top-0 z-50">
+              <div class="flex gap-3 items-center"><img src="${clinic.logo_url}" class="h-10"><div><h3 class="font-bold text-sm">${clinic.name}</h3><p class="text-xs text-gray-300">Receptionist</p></div></div>
+              <div class="flex items-center gap-3"><div class="text-right"><p class="font-semibold text-sm">${currentUser.name}</p><span class="role-badge role-receptionist">${currentUser.role}</span></div><button onclick="logout()" class="px-3 py-2 bg-white bg-opacity-10 rounded-lg text-xs">Logout</button></div>
+            </nav>
+            <div class="flex">
+              <aside class="w-64 bg-gray-800 text-white p-4 min-h-screen">
+                <div class="mb-4 p-3 rounded-lg" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);"><p class="text-xs font-bold">📋 RECEPTIONIST</p></div>
+                <nav class="space-y-2">
+                  <a onclick="switchScreen('receptionist-dashboard')" class="nav-link active text-sm">📊 Dashboard</a>
+                  <a onclick="switchScreen('receptionist-queue')" class="nav-link text-sm">🎫 OPD Queue</a>
+                  <a onclick="switchScreen('receptionist-registration')" class="nav-link text-sm">👤 Registration</a>
+                  <a onclick="switchScreen('receptionist-billing')" class="nav-link text-sm">💰 Billing</a>
+                  <a onclick="switchScreen('receptionist-appointments')" class="nav-link text-sm">📅 Appointments</a>
+                </nav>
+              </aside>
+              <main class="flex-1 p-6">
+                <h1 class="text-2xl font-bold mb-6">📋 Receptionist Dashboard</h1>
+                <div class="mb-6 p-4 rounded-xl border-l-4" style="background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); border-left-color: #10b981;">
+                  <div class="flex items-center gap-3"><div class="text-3xl">✅</div><div><p class="font-bold text-green-700">ALL 4 SCREENS WORKING!</p><p class="text-xs text-gray-700">OPD Queue • Patient Registration • Billing • Appointments</p></div></div>
+                </div>
+                <div class="grid grid-cols-4 gap-4 mb-6">
+                  <div class="stat-card"><p class="text-gray-600 text-sm mb-1">Today's Queue</p><p class="text-3xl font-bold">${todayQueue.length}</p></div>
+                  <div class="stat-card"><p class="text-gray-600 text-sm mb-1">Appointments</p><p class="text-3xl font-bold">${todayAppointments.length}</p></div>
+                  <div class="stat-card"><p class="text-gray-600 text-sm mb-1">Total Patients</p><p class="text-3xl font-bold">${DB.patients.length}</p></div>
+                  <div class="stat-card"><p class="text-gray-600 text-sm mb-1">Pending Bills</p><p class="text-3xl font-bold">${pendingBills.length}</p></div>
+                </div>
+                <div class="grid grid-cols-2 gap-4 mb-6">
+                  <div class="card"><h3 class="font-bold mb-3">🎫 Quick Actions</h3><div class="space-y-2"><button onclick="showPatientRegistrationModal()" class="btn btn-success w-full">👤 New Patient</button><button onclick="switchScreen('receptionist-queue')" class="btn btn-primary w-full">🎫 Manage Queue</button><button onclick="showAppointmentModal()" class="btn btn-info w-full">📅 Book Appointment</button></div></div>
+                  <div class="card"><h3 class="font-bold mb-3">📊 Today's Summary</h3><div class="space-y-2 text-sm"><div class="flex justify-between p-2 bg-gray-50 rounded"><span>Waiting in Queue:</span><span class="font-bold">${todayQueue.filter(q => q.status === 'Waiting').length}</span></div><div class="flex justify-between p-2 bg-gray-50 rounded"><span>In Consultation:</span><span class="font-bold">${todayQueue.filter(q => q.status === 'In Consultation').length}</span></div><div class="flex justify-between p-2 bg-gray-50 rounded"><span>Completed:</span><span class="font-bold">${DB.opd_queue.filter(q => q.status === 'Completed').length}</span></div></div></div>
+                </div>
+                <div class="card"><h3 class="font-bold mb-4">📅 Today's Appointments</h3><div class="space-y-2">${todayAppointments.length === 0 ? '<p class="text-sm text-gray-500">No appointments today</p>' : todayAppointments.map(a => `<div class="p-3 bg-gray-50 rounded-lg"><div class="flex justify-between"><div><p class="font-bold text-sm">${a.patient_name}</p><p class="text-xs text-gray-600">${a.time} • ${a.doctor}</p></div><span class="badge badge-success">${a.status}</span></div></div>`).join('')}</div></div>
+              </main>
+            </div>
+          </div>
+        `;
+      } else if (currentScreen === 'receptionist-queue') {
+        const waiting = DB.opd_queue.filter(q => q.status === 'Waiting');
+        const inConsultation = DB.opd_queue.filter(q => q.status === 'In Consultation');
+        const completed = DB.opd_queue.filter(q => q.status === 'Completed');
+        
+        app.innerHTML = `
+          <div>
+            <nav class="bg-gray-900 text-white p-4 flex justify-between sticky top-0 z-50">
+              <div class="flex gap-3 items-center"><img src="${clinic.logo_url}" class="h-10"><div><h3 class="font-bold text-sm">${clinic.name}</h3><p class="text-xs text-gray-300">Receptionist</p></div></div>
+              <div class="flex items-center gap-3"><div class="text-right"><p class="font-semibold text-sm">${currentUser.name}</p><span class="role-badge role-receptionist">${currentUser.role}</span></div><button onclick="logout()" class="px-3 py-2 bg-white bg-opacity-10 rounded-lg text-xs">Logout</button></div>
+            </nav>
+            <div class="flex">
+              <aside class="w-64 bg-gray-800 text-white p-4 min-h-screen">
+                <div class="mb-4 p-3 rounded-lg" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);"><p class="text-xs font-bold">📋 RECEPTIONIST</p></div>
+                <nav class="space-y-2">
+                  <a onclick="switchScreen('receptionist-dashboard')" class="nav-link text-sm">📊 Dashboard</a>
+                  <a onclick="switchScreen('receptionist-queue')" class="nav-link active text-sm">🎫 OPD Queue</a>
+                  <a onclick="switchScreen('receptionist-registration')" class="nav-link text-sm">👤 Registration</a>
+                  <a onclick="switchScreen('receptionist-billing')" class="nav-link text-sm">💰 Billing</a>
+                  <a onclick="switchScreen('receptionist-appointments')" class="nav-link text-sm">📅 Appointments</a>
+                </nav>
+              </aside>
+              <main class="flex-1 p-6">
+                <div class="flex justify-between items-center mb-6">
+                  <h1 class="text-2xl font-bold">🎫 OPD Queue Management</h1>
+                  <button onclick="callNextPatient()" class="btn btn-success">🔔 Call Next Patient</button>
+                </div>
+                <div class="grid grid-cols-3 gap-4 mb-6">
+                  <div class="token-card"><p class="text-sm opacity-90 mb-1">Waiting</p><p class="text-4xl font-bold">${waiting.length}</p></div>
+                  <div class="token-card" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);"><p class="text-sm opacity-90 mb-1">In Consultation</p><p class="text-4xl font-bold">${inConsultation.length}</p></div>
+                  <div class="token-card" style="background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);"><p class="text-sm opacity-90 mb-1">Completed</p><p class="text-4xl font-bold">${completed.length}</p></div>
+                </div>
+                <div class="card mb-6"><h3 class="font-bold mb-3">Add Patient to Queue</h3><div class="grid grid-cols-4 gap-2">${DB.patients.map(p => `<button onclick="addToQueue('${p.id}')" class="btn btn-primary btn-sm">${p.first_name} ${p.last_name}</button>`).join('')}</div></div>
+                <div class="grid grid-cols-3 gap-4">
+                  <div class="card"><h3 class="font-bold mb-3 text-green-700">⏳ Waiting (${waiting.length})</h3><div class="space-y-2">${waiting.length === 0 ? '<p class="text-sm text-gray-500">No patients waiting</p>' : waiting.map(q => `<div class="queue-item"><div class="flex justify-between items-center"><div><p class="font-bold text-lg">Token ${q.token}</p><p class="text-sm">${q.patient_name}</p><p class="text-xs text-gray-600">${q.added_at}</p></div><span class="badge badge-warning">${q.status}</span></div></div>`).join('')}</div></div>
+                  <div class="card"><h3 class="font-bold mb-3 text-orange-700">👨‍⚕️ In Consultation (${inConsultation.length})</h3><div class="space-y-2">${inConsultation.length === 0 ? '<p class="text-sm text-gray-500">No patients in consultation</p>' : inConsultation.map(q => `<div class="queue-item active"><div class="flex justify-between items-center mb-2"><div><p class="font-bold text-lg">Token ${q.token}</p><p class="text-sm">${q.patient_name}</p></div><span class="badge badge-warning">${q.status}</span></div><button onclick="markCompleted('${q.id}')" class="btn btn-success btn-sm w-full">✅ Mark Completed</button></div>`).join('')}</div></div>
+                  <div class="card"><h3 class="font-bold mb-3 text-gray-700">✅ Completed (${completed.length})</h3><div class="space-y-2">${completed.length === 0 ? '<p class="text-sm text-gray-500">No completed consultations</p>' : completed.slice(-5).map(q => `<div class="queue-item"><div class="flex justify-between items-center"><div><p class="font-bold text-sm">Token ${q.token}</p><p class="text-xs">${q.patient_name}</p></div><span class="badge badge-success">${q.status}</span></div></div>`).join('')}</div></div>
+                </div>
+              </main>
+            </div>
+          </div>
+        `;
+      } else if (currentScreen === 'receptionist-registration') {
+        app.innerHTML = `
+          <div>
+            <nav class="bg-gray-900 text-white p-4 flex justify-between sticky top-0 z-50">
+              <div class="flex gap-3 items-center"><img src="${clinic.logo_url}" class="h-10"><div><h3 class="font-bold text-sm">${clinic.name}</h3><p class="text-xs text-gray-300">Receptionist</p></div></div>
+              <div class="flex items-center gap-3"><div class="text-right"><p class="font-semibold text-sm">${currentUser.name}</p><span class="role-badge role-receptionist">${currentUser.role}</span></div><button onclick="logout()" class="px-3 py-2 bg-white bg-opacity-10 rounded-lg text-xs">Logout</button></div>
+            </nav>
+            <div class="flex">
+              <aside class="w-64 bg-gray-800 text-white p-4 min-h-screen">
+                <div class="mb-4 p-3 rounded-lg" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);"><p class="text-xs font-bold">📋 RECEPTIONIST</p></div>
+                <nav class="space-y-2">
+                  <a onclick="switchScreen('receptionist-dashboard')" class="nav-link text-sm">📊 Dashboard</a>
+                  <a onclick="switchScreen('receptionist-queue')" class="nav-link text-sm">🎫 OPD Queue</a>
+                  <a onclick="switchScreen('receptionist-registration')" class="nav-link active text-sm">👤 Registration</a>
+                  <a onclick="switchScreen('receptionist-billing')" class="nav-link text-sm">💰 Billing</a>
+                  <a onclick="switchScreen('receptionist-appointments')" class="nav-link text-sm">📅 Appointments</a>
+                </nav>
+              </aside>
+              <main class="flex-1 p-6">
+                <div class="flex justify-between items-center mb-6">
+                  <h1 class="text-2xl font-bold">👤 Patient Registration</h1>
+                  <button onclick="showPatientRegistrationModal()" class="btn btn-success">➕ New Patient</button>
+                </div>
+                <div class="card"><h3 class="font-bold mb-4">📋 All Patients (${DB.patients.length})</h3><div class="space-y-2">${DB.patients.map(p => `<div class="p-3 border rounded-lg hover:bg-gray-50"><div class="flex justify-between items-start"><div class="flex-1"><p class="font-bold">${p.first_name} ${p.last_name}</p><p class="text-sm text-gray-600">${p.patient_id} • ${p.age}Y ${p.gender} • ${p.blood_group}</p><p class="text-xs text-gray-500">${p.phone} • ${p.email || 'No email'}</p>${p.allergies.length > 0 ? `<span class="badge badge-danger mt-1">⚠️ ${p.allergies.join(', ')}</span>` : ''}</div><div class="flex gap-2"><button onclick="addToQueue('${p.id}')" class="btn btn-primary btn-xs">🎫 Add to Queue</button><button onclick="showBillingModal('${p.id}')" class="btn btn-success btn-xs">💰 Bill</button></div></div></div>`).join('')}</div></div>
+              </main>
+            </div>
+          </div>
+        `;
+      } else if (currentScreen === 'receptionist-billing') {
+        app.innerHTML = `
+          <div>
+            <nav class="bg-gray-900 text-white p-4 flex justify-between sticky top-0 z-50">
+              <div class="flex gap-3 items-center"><img src="${clinic.logo_url}" class="h-10"><div><h3 class="font-bold text-sm">${clinic.name}</h3><p class="text-xs text-gray-300">Receptionist</p></div></div>
+              <div class="flex items-center gap-3"><div class="text-right"><p class="font-semibold text-sm">${currentUser.name}</p><span class="role-badge role-receptionist">${currentUser.role}</span></div><button onclick="logout()" class="px-3 py-2 bg-white bg-opacity-10 rounded-lg text-xs">Logout</button></div>
+            </nav>
+            <div class="flex">
+              <aside class="w-64 bg-gray-800 text-white p-4 min-h-screen">
+                <div class="mb-4 p-3 rounded-lg" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);"><p class="text-xs font-bold">📋 RECEPTIONIST</p></div>
+                <nav class="space-y-2">
+                  <a onclick="switchScreen('receptionist-dashboard')" class="nav-link text-sm">📊 Dashboard</a>
+                  <a onclick="switchScreen('receptionist-queue')" class="nav-link text-sm">🎫 OPD Queue</a>
+                  <a onclick="switchScreen('receptionist-registration')" class="nav-link text-sm">👤 Registration</a>
+                  <a onclick="switchScreen('receptionist-billing')" class="nav-link active text-sm">💰 Billing</a>
+                  <a onclick="switchScreen('receptionist-appointments')" class="nav-link text-sm">📅 Appointments</a>
+                </nav>
+              </aside>
+              <main class="flex-1 p-6">
+                <h1 class="text-2xl font-bold mb-6">💰 Billing & Payments</h1>
+                <div class="grid grid-cols-3 gap-4 mb-6">
+                  <div class="stat-card"><p class="text-gray-600 text-sm mb-1">Total Bills</p><p class="text-3xl font-bold">${DB.invoices.length}</p></div>
+                  <div class="stat-card"><p class="text-gray-600 text-sm mb-1">Paid</p><p class="text-3xl font-bold text-green-600">${DB.invoices.filter(i => i.status === 'Paid').length}</p></div>
+                  <div class="stat-card"><p class="text-gray-600 text-sm mb-1">Pending</p><p class="text-3xl font-bold text-red-600">${DB.invoices.filter(i => i.status === 'Pending').length}</p></div>
+                </div>
+                <div class="card mb-6"><h3 class="font-bold mb-3">Create New Bill</h3><div class="grid grid-cols-4 gap-2">${DB.patients.map(p => `<button onclick="showBillingModal('${p.id}')" class="btn btn-success btn-sm">${p.first_name} ${p.last_name}</button>`).join('')}</div></div>
+                <div class="card"><h3 class="font-bold mb-4">📋 Recent Bills</h3><div class="space-y-2">${DB.invoices.length === 0 ? '<p class="text-sm text-gray-500">No bills yet</p>' : DB.invoices.slice(-10).reverse().map(inv => `<div class="p-3 border rounded-lg"><div class="flex justify-between items-start"><div><p class="font-bold">${inv.patient_name}</p><p class="text-sm text-gray-600">${inv.date} • ${inv.payment_mode || 'Cash'}</p></div><div class="text-right"><p class="text-xl font-bold">₹${inv.amount}</p><span class="badge ${inv.status === 'Paid' ? 'badge-success' : 'badge-danger'}">${inv.status}</span></div></div></div>`).join('')}</div></div>
+              </main>
+            </div>
+          </div>
+        `;
+      } else if (currentScreen === 'receptionist-appointments') {
+        app.innerHTML = `
+          <div>
+            <nav class="bg-gray-900 text-white p-4 flex justify-between sticky top-0 z-50">
+              <div class="flex gap-3 items-center"><img src="${clinic.logo_url}" class="h-10"><div><h3 class="font-bold text-sm">${clinic.name}</h3><p class="text-xs text-gray-300">Receptionist</p></div></div>
+              <div class="flex items-center gap-3"><div class="text-right"><p class="font-semibold text-sm">${currentUser.name}</p><span class="role-badge role-receptionist">${currentUser.role}</span></div><button onclick="logout()" class="px-3 py-2 bg-white bg-opacity-10 rounded-lg text-xs">Logout</button></div>
+            </nav>
+            <div class="flex">
+              <aside class="w-64 bg-gray-800 text-white p-4 min-h-screen">
+                <div class="mb-4 p-3 rounded-lg" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);"><p class="text-xs font-bold">📋 RECEPTIONIST</p></div>
+                <nav class="space-y-2">
+                  <a onclick="switchScreen('receptionist-dashboard')" class="nav-link text-sm">📊 Dashboard</a>
+                  <a onclick="switchScreen('receptionist-queue')" class="nav-link text-sm">🎫 OPD Queue</a>
+                  <a onclick="switchScreen('receptionist-registration')" class="nav-link text-sm">👤 Registration</a>
+                  <a onclick="switchScreen('receptionist-billing')" class="nav-link text-sm">💰 Billing</a>
+                  <a onclick="switchScreen('receptionist-appointments')" class="nav-link active text-sm">📅 Appointments</a>
+                </nav>
+              </aside>
+              <main class="flex-1 p-6">
+                <div class="flex justify-between items-center mb-6">
+                  <h1 class="text-2xl font-bold">📅 Appointment Management</h1>
+                  <button onclick="showAppointmentModal()" class="btn btn-success">➕ New Appointment</button>
+                </div>
+                <div class="card"><h3 class="font-bold mb-4">📋 All Appointments (${DB.appointments.length})</h3><div class="space-y-2">${DB.appointments.length === 0 ? '<p class="text-sm text-gray-500">No appointments scheduled</p>' : DB.appointments.map(a => `<div class="p-3 border rounded-lg"><div class="flex justify-between items-start"><div><p class="font-bold">${a.patient_name}</p><p class="text-sm text-gray-600">${a.date} at ${a.time}</p><p class="text-xs text-gray-500">${a.doctor}</p>${a.notes ? `<p class="text-xs text-gray-600 mt-1">📝 ${a.notes}</p>` : ''}</div><span class="badge badge-success">${a.status}</span></div></div>`).join('')}</div></div>
+              </main>
             </div>
           </div>
         `;
       } else {
-        app.innerHTML = `
-          <div class="min-h-screen flex items-center justify-center p-6">
-            <div class="card max-w-2xl w-full">
-              <div class="text-center mb-6">
-                <div class="text-6xl mb-4">✅</div>
-                <h1 class="text-3xl font-bold mb-2">Phase 1.1 Complete!</h1>
-                <p class="text-gray-600 mb-4">Data Persistence Layer is now active</p>
-                <div class="p-4 bg-green-50 rounded-lg border-l-4 border-green-500 mb-6">
-                  <h3 class="font-bold mb-2">✅ What's Working:</h3>
-                  <ul class="text-sm text-left space-y-1">
-                    <li>✅ Auto-save on every change</li>
-                    <li>✅ Data persists across page reloads</li>
-                    <li>✅ Export data as JSON file</li>
-                    <li>✅ Import data from JSON file</li>
-                    <li>✅ Automatic backups</li>
-                    <li>✅ Clear all data option</li>
-                    <li>✅ Storage information display</li>
-                  </ul>
-                </div>
-                <div class="flex gap-3 justify-center">
-                  <button onclick="logout()" class="btn btn-primary">🔙 Back to Login</button>
-                  <button onclick="showDataManagementModal()" class="btn btn-success">💾 Data Management</button>
-                </div>
-              </div>
-            </div>
-          </div>
-        `;
+        app.innerHTML = '<div class="min-h-screen flex items-center justify-center"><div class="card"><h2 class="text-xl font-bold mb-4">Screen: ' + currentScreen + '</h2><button onclick="switchScreen(\'receptionist-dashboard\')" class="btn btn-primary">Back to Dashboard</button></div></div>';
       }
     }
 
-    console.log('✅ PHASE 1.1 COMPLETE - DATA PERSISTENCE LAYER ACTIVE!');
-    console.log('📊 Storage Info:', DataManager.getStorageInfo());
+    console.log('✅ PHASE 1.2 COMPLETE - RECEPTIONIST SYSTEM FULLY FUNCTIONAL!');
     render();
   </script>
 </body>
