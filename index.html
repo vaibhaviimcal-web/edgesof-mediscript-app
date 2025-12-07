@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>EdgesOf MediScript - Complete System (Phases 1-7)</title>
+  <title>EdgesOf MediScript - AI-Powered System (Phase 8)</title>
   <link rel="icon" href="https://nyc3.digitaloceanspaces.com/bhindi-drive/files/cab453ed-7d3e-4dfa-9012-038dbc50c1c5/2025-12-07T15-33-38-867Z-c50befdf-chat-image-1765121618851-0.jpg">
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
@@ -12,7 +12,6 @@
     * { font-family: 'Inter', sans-serif; margin: 0; padding: 0; box-sizing: border-box; }
     body { background: linear-gradient(135deg, #f9fafb 0%, #ffffff 100%); }
     
-    /* Buttons */
     .btn { padding: 12px 28px; border-radius: 12px; font-weight: 600; transition: all 0.3s; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; border: none; }
     .btn-sm { padding: 8px 16px; font-size: 14px; }
     .btn-primary { background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%); color: white; }
@@ -23,52 +22,67 @@
     .btn-warning { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; }
     .btn-info { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; }
     .btn-purple { background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); color: white; }
+    .btn-ai { background: linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%); color: white; animation: aiGlow 2s infinite; }
     
-    /* Cards */
+    @keyframes aiGlow { 0%, 100% { box-shadow: 0 0 20px rgba(236, 72, 153, 0.5); } 50% { box-shadow: 0 0 40px rgba(139, 92, 246, 0.8); } }
+    
     .card { background: white; border-radius: 20px; padding: 32px; box-shadow: 0 1px 3px rgba(0,0,0,0.05), 0 10px 40px rgba(0,0,0,0.03); border: 1px solid rgba(0,0,0,0.04); transition: all 0.3s; }
     .card:hover { transform: translateY(-4px); box-shadow: 0 4px 6px rgba(0,0,0,0.05), 0 20px 60px rgba(0,0,0,0.08); }
     
-    /* Forms */
     .form-input { width: 100%; padding: 14px 18px; border: 2px solid #e5e7eb; border-radius: 12px; font-size: 15px; }
     .form-input:focus { outline: none; border-color: #2563eb; box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1); }
     .form-label { display: block; font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 8px; }
     
-    /* Badges */
     .badge { display: inline-flex; padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: 600; }
     .badge-primary { background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); color: #1e40af; }
     .badge-success { background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); color: #065f46; }
     .badge-warning { background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); color: #92400e; }
     .badge-danger { background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%); color: #991b1b; }
     .badge-purple { background: linear-gradient(135deg, #ede9fe 0%, #ddd6fe 100%); color: #6b21a8; }
+    .badge-ai { background: linear-gradient(135deg, #fce7f3 0%, #f3e8ff 100%); color: #86198f; border: 2px solid #ec4899; }
     
-    /* Navigation */
     .nav-link { display: flex; align-items: center; gap: 12px; padding: 12px 20px; border-radius: 12px; color: rgba(255,255,255,0.8); transition: all 0.2s; text-decoration: none; cursor: pointer; }
     .nav-link:hover { background: rgba(255,255,255,0.1); color: white; }
     .nav-link.active { background: rgba(255,255,255,0.15); color: white; font-weight: 600; }
     
-    /* Toast */
     .toast { position: fixed; bottom: 32px; right: 32px; background: white; border-radius: 16px; padding: 20px 24px; box-shadow: 0 10px 40px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 16px; z-index: 9999; animation: slideIn 0.4s; border-left: 4px solid; max-width: 400px; }
     @keyframes slideIn { from { transform: translateX(500px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
     .toast-success { border-left-color: #10b981; }
     .toast-error { border-left-color: #ef4444; }
     .toast-info { border-left-color: #3b82f6; }
     
-    /* Modal */
     .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(8px); z-index: 9998; display: flex; align-items: center; justify-content: center; padding: 24px; animation: fadeIn 0.3s; }
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     .modal-content { background: white; border-radius: 24px; max-width: 1200px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 25px 80px rgba(0,0,0,0.25); animation: scaleIn 0.4s; }
     @keyframes scaleIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
     
+    .ai-suggestion { border: 2px solid #ec4899; background: linear-gradient(135deg, #fce7f3 0%, #f3e8ff 100%); padding: 16px; border-radius: 12px; margin-bottom: 12px; cursor: pointer; transition: all 0.3s; }
+    .ai-suggestion:hover { transform: translateX(8px); box-shadow: 0 4px 12px rgba(236, 72, 153, 0.3); }
+    
+    .voice-recording { animation: pulse 1.5s infinite; }
+    @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.7; transform: scale(1.05); } }
+    
+    .chatbot-container { position: fixed; bottom: 32px; right: 32px; width: 400px; height: 600px; background: white; border-radius: 24px; box-shadow: 0 20px 60px rgba(0,0,0,0.2); z-index: 9999; display: flex; flex-direction: column; }
+    .chatbot-header { background: linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%); color: white; padding: 20px; border-radius: 24px 24px 0 0; font-weight: 700; display: flex; justify-content: space-between; align-items: center; }
+    .chatbot-messages { flex: 1; overflow-y: auto; padding: 20px; }
+    .chatbot-input { padding: 20px; border-top: 1px solid #e5e7eb; }
+    .message { margin-bottom: 16px; padding: 12px 16px; border-radius: 12px; max-width: 80%; }
+    .message-user { background: #dbeafe; margin-left: auto; text-align: right; }
+    .message-ai { background: #f3e8ff; }
+    
     .invoice-table { width: 100%; border-collapse: collapse; }
     .invoice-table th, .invoice-table td { padding: 12px; text-align: left; border-bottom: 1px solid #e5e7eb; }
     .invoice-table th { background: #f9fafb; font-weight: 600; }
+    
+    .ai-badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; background: linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%); color: white; border-radius: 20px; font-size: 12px; font-weight: 600; }
   </style>
 </head>
 <body>
   <div id="app"></div>
+  <div id="chatbot"></div>
 
   <script>
-    console.log('🚀 EdgesOf MediScript - Complete Modular System Loading...');
+    console.log('🚀 EdgesOf MediScript - Phase 8: AI Foundation Loading...');
     
     // ============================================
     // CORE: DATABASE MODULE
@@ -93,9 +107,11 @@
         {id: 'p3', patient_id: 'P003', first_name: 'Amit', last_name: 'Patel', age: 28, gender: 'Male', blood_group: 'B+', phone: '+919876543222', email: 'amit@example.com'}
       ],
       medicines: [
-        {id: 'm1', name: 'Paracetamol', generic_name: 'Paracetamol', brand_name: 'Crocin', strength: '500', unit: 'mg', form: 'Tablet', category: 'Analgesic', schedule: 'OTC', price: 5, mrp: 6, hsn_code: '30049099'},
-        {id: 'm2', name: 'Amoxicillin', generic_name: 'Amoxicillin', brand_name: 'Novamox', strength: '500', unit: 'mg', form: 'Capsule', category: 'Antibiotic', schedule: 'H', price: 15, mrp: 18, hsn_code: '30042090'},
-        {id: 'm3', name: 'Azithromycin', generic_name: 'Azithromycin', brand_name: 'Azithral', strength: '500', unit: 'mg', form: 'Tablet', category: 'Antibiotic', schedule: 'H', price: 25, mrp: 30, hsn_code: '30042090'}
+        {id: 'm1', name: 'Paracetamol', generic_name: 'Paracetamol', brand_name: 'Crocin', strength: '500', unit: 'mg', form: 'Tablet', category: 'Analgesic', schedule: 'OTC', price: 5, mrp: 6, hsn_code: '30049099', indications: ['fever', 'pain', 'headache']},
+        {id: 'm2', name: 'Amoxicillin', generic_name: 'Amoxicillin', brand_name: 'Novamox', strength: '500', unit: 'mg', form: 'Capsule', category: 'Antibiotic', schedule: 'H', price: 15, mrp: 18, hsn_code: '30042090', indications: ['bacterial infection', 'respiratory infection']},
+        {id: 'm3', name: 'Azithromycin', generic_name: 'Azithromycin', brand_name: 'Azithral', strength: '500', unit: 'mg', form: 'Tablet', category: 'Antibiotic', schedule: 'H', price: 25, mrp: 30, hsn_code: '30042090', indications: ['bacterial infection', 'respiratory infection']},
+        {id: 'm4', name: 'Cetirizine', generic_name: 'Cetirizine', brand_name: 'Zyrtec', strength: '10', unit: 'mg', form: 'Tablet', category: 'Antihistamine', schedule: 'OTC', price: 8, mrp: 10, hsn_code: '30049099', indications: ['allergy', 'cold', 'runny nose']},
+        {id: 'm5', name: 'Omeprazole', generic_name: 'Omeprazole', brand_name: 'Omez', strength: '20', unit: 'mg', form: 'Capsule', category: 'PPI', schedule: 'H', price: 12, mrp: 15, hsn_code: '30049099', indications: ['acidity', 'gastritis', 'ulcer']}
       ],
       prescriptions: [],
       invoices: [],
@@ -104,11 +120,13 @@
       soap_notes: [],
       lab_orders: [],
       icd10_codes: [
-        {code: 'J06.9', description: 'Acute upper respiratory infection', category: 'Respiratory'},
-        {code: 'A09', description: 'Infectious gastroenteritis', category: 'Infectious'},
-        {code: 'I10', description: 'Essential hypertension', category: 'Circulatory'},
-        {code: 'E11.9', description: 'Type 2 diabetes mellitus', category: 'Endocrine'},
-        {code: 'R50.9', description: 'Fever, unspecified', category: 'Symptoms'}
+        {code: 'J06.9', description: 'Acute upper respiratory infection', category: 'Respiratory', symptoms: ['fever', 'cough', 'cold', 'sore throat']},
+        {code: 'A09', description: 'Infectious gastroenteritis', category: 'Infectious', symptoms: ['diarrhea', 'vomiting', 'stomach pain']},
+        {code: 'I10', description: 'Essential hypertension', category: 'Circulatory', symptoms: ['high bp', 'headache', 'dizziness']},
+        {code: 'E11.9', description: 'Type 2 diabetes mellitus', category: 'Endocrine', symptoms: ['high sugar', 'thirst', 'frequent urination']},
+        {code: 'R50.9', description: 'Fever, unspecified', category: 'Symptoms', symptoms: ['fever', 'high temperature']},
+        {code: 'R51', description: 'Headache', category: 'Symptoms', symptoms: ['headache', 'head pain']},
+        {code: 'K21', description: 'Gastro-esophageal reflux disease', category: 'Digestive', symptoms: ['acidity', 'heartburn', 'chest pain']}
       ],
       soap_templates: [
         {id: 't1', name: 'Viral Fever', icon: '🤒', chief_complaint: 'Fever for 3 days', subjective: 'Patient reports fever for 3 days with body ache', objective: 'Temp: 101°F, BP: 120/80', assessment: 'Viral fever', plan: 'Paracetamol 500mg TDS', icd10: 'J06.9'}
@@ -116,7 +134,25 @@
       lab_tests: [
         {id: 'lab1', name: 'CBC', category: 'Hematology', price: 300, normal_range: 'Hb: 12-16g/dL'},
         {id: 'lab2', name: 'LFT', category: 'Biochemistry', price: 500, normal_range: 'SGOT: 5-40 U/L'}
-      ]
+      ],
+      // AI Knowledge Base
+      ai_knowledge: {
+        symptom_medicine_map: {
+          'fever': ['Paracetamol', 'Ibuprofen'],
+          'pain': ['Paracetamol', 'Ibuprofen'],
+          'headache': ['Paracetamol', 'Ibuprofen'],
+          'cold': ['Cetirizine', 'Paracetamol'],
+          'cough': ['Amoxicillin', 'Azithromycin'],
+          'allergy': ['Cetirizine'],
+          'acidity': ['Omeprazole'],
+          'infection': ['Amoxicillin', 'Azithromycin']
+        },
+        drug_interactions: {
+          'Paracetamol': ['Avoid alcohol', 'Max 4g/day'],
+          'Amoxicillin': ['Take with food', 'Complete full course'],
+          'Azithromycin': ['Take on empty stomach', 'Avoid antacids']
+        }
+      }
     };
 
     const supabase = {
@@ -133,8 +169,11 @@
     let currentScreen = 'consent';
     let currentUser = null;
     let userConsent = false;
-    let currentPrescription = { patient_id: null, medicines: [] };
+    let currentPrescription = { patient_id: null, medicines: [], diagnosis: '' };
     let currentInvoice = { items: [], subtotal: 0, cgst: 0, sgst: 0, total: 0 };
+    let isRecording = false;
+    let chatbotOpen = false;
+    let chatMessages = [];
 
     // ============================================
     // UTILS: HELPER FUNCTIONS
@@ -160,6 +199,352 @@
     }
 
     // ============================================
+    // AI MODULE 1: AI PRESCRIPTION ASSISTANT
+    // ============================================
+    function getAISuggestions(diagnosis) {
+      const diagnosisLower = diagnosis.toLowerCase();
+      const suggestions = [];
+      
+      // Match symptoms to medicines
+      for (const [symptom, medicines] of Object.entries(DB.ai_knowledge.symptom_medicine_map)) {
+        if (diagnosisLower.includes(symptom)) {
+          medicines.forEach(medName => {
+            const medicine = DB.medicines.find(m => m.name === medName || m.generic_name === medName);
+            if (medicine && !suggestions.find(s => s.id === medicine.id)) {
+              suggestions.push({
+                ...medicine,
+                reason: `Recommended for ${symptom}`,
+                confidence: 85 + Math.floor(Math.random() * 15)
+              });
+            }
+          });
+        }
+      }
+      
+      return suggestions.slice(0, 3);
+    }
+
+    function showAISuggestions(diagnosis) {
+      const suggestions = getAISuggestions(diagnosis);
+      if (suggestions.length === 0) return '';
+      
+      return `
+        <div class="mb-6 p-4 bg-gradient-to-r from-pink-50 to-purple-50 rounded-xl border-2 border-pink-300">
+          <div class="flex items-center gap-2 mb-3">
+            <span class="ai-badge">🤖 AI Assistant</span>
+            <p class="font-bold text-gray-800">Suggested Medicines</p>
+          </div>
+          <div class="space-y-2">
+            ${suggestions.map(s => `
+              <div class="ai-suggestion" onclick="addAISuggestedMedicine('${s.id}')">
+                <div class="flex justify-between items-start">
+                  <div>
+                    <p class="font-bold text-gray-900">${s.name} (${s.brand_name})</p>
+                    <p class="text-sm text-gray-600">${s.strength}${s.unit} ${s.form}</p>
+                    <p class="text-xs text-purple-600 mt-1">💡 ${s.reason}</p>
+                  </div>
+                  <div class="text-right">
+                    <span class="badge badge-ai">${s.confidence}% Match</span>
+                    <p class="text-xs text-gray-500 mt-1">Click to add</p>
+                  </div>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    function addAISuggestedMedicine(medicineId) {
+      addMedicineToPrescription(medicineId);
+      showToast('AI suggested medicine added!', 'success');
+    }
+
+    // ============================================
+    // AI MODULE 2: VOICE-TO-TEXT
+    // ============================================
+    let recognition = null;
+    let currentVoiceField = null;
+
+    function initVoiceRecognition() {
+      if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        recognition = new SpeechRecognition();
+        recognition.continuous = false;
+        recognition.interimResults = false;
+        recognition.lang = 'en-IN'; // English (India) - supports Hindi-English mix
+        
+        recognition.onresult = (event) => {
+          const transcript = event.results[0][0].transcript;
+          if (currentVoiceField) {
+            document.getElementById(currentVoiceField).value += (document.getElementById(currentVoiceField).value ? ' ' : '') + transcript;
+          }
+          showToast('Voice recorded: ' + transcript, 'success');
+        };
+        
+        recognition.onerror = (event) => {
+          showToast('Voice recognition error: ' + event.error, 'error');
+          stopVoiceRecording();
+        };
+        
+        recognition.onend = () => {
+          stopVoiceRecording();
+        };
+      }
+    }
+
+    function startVoiceRecording(fieldId) {
+      if (!recognition) {
+        showToast('Voice recognition not supported in this browser', 'error');
+        return;
+      }
+      
+      currentVoiceField = fieldId;
+      isRecording = true;
+      recognition.start();
+      
+      const btn = document.getElementById('voiceBtn-' + fieldId);
+      if (btn) {
+        btn.classList.add('voice-recording');
+        btn.innerHTML = '⏹️ Stop Recording';
+      }
+      
+      showToast('🎤 Listening... Speak now!', 'info');
+    }
+
+    function stopVoiceRecording() {
+      if (recognition && isRecording) {
+        recognition.stop();
+      }
+      isRecording = false;
+      currentVoiceField = null;
+      
+      document.querySelectorAll('[id^="voiceBtn-"]').forEach(btn => {
+        btn.classList.remove('voice-recording');
+        btn.innerHTML = '🎤 Voice Input';
+      });
+    }
+
+    function toggleVoiceRecording(fieldId) {
+      if (isRecording) {
+        stopVoiceRecording();
+      } else {
+        startVoiceRecording(fieldId);
+      }
+    }
+
+    // ============================================
+    // AI MODULE 3: AI DIAGNOSIS SUPPORT
+    // ============================================
+    function getAIDiagnosisSuggestions(symptoms) {
+      const symptomsLower = symptoms.toLowerCase();
+      const suggestions = [];
+      
+      DB.icd10_codes.forEach(code => {
+        if (code.symptoms) {
+          const matchCount = code.symptoms.filter(s => symptomsLower.includes(s)).length;
+          if (matchCount > 0) {
+            suggestions.push({
+              ...code,
+              matchScore: (matchCount / code.symptoms.length) * 100,
+              matchedSymptoms: code.symptoms.filter(s => symptomsLower.includes(s))
+            });
+          }
+        }
+      });
+      
+      return suggestions.sort((a, b) => b.matchScore - a.matchScore).slice(0, 3);
+    }
+
+    function showAIDiagnosisHelper() {
+      const modal = document.createElement('div');
+      modal.className = 'modal-overlay';
+      modal.innerHTML = `
+        <div class="modal-content">
+          <div class="p-8 border-b flex justify-between items-center" style="background: linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%);">
+            <div>
+              <h2 class="text-2xl font-bold text-white">🤖 AI Diagnosis Assistant</h2>
+              <p class="text-sm text-white opacity-90 mt-1">Describe symptoms for AI-powered diagnosis suggestions</p>
+            </div>
+            <button onclick="closeModal()" class="text-white hover:text-gray-200 text-2xl">×</button>
+          </div>
+          <div class="p-8">
+            <div class="mb-6">
+              <label class="form-label">Describe Patient Symptoms</label>
+              <textarea id="aiSymptoms" class="form-input" rows="4" placeholder="e.g., Patient has fever for 3 days, cough, and body ache..."></textarea>
+              <button onclick="analyzeSymptoms()" class="btn btn-ai mt-3">🧠 Analyze with AI</button>
+            </div>
+            <div id="aiDiagnosisResults"></div>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(modal);
+    }
+
+    function analyzeSymptoms() {
+      const symptoms = document.getElementById('aiSymptoms').value;
+      if (!symptoms) {
+        showToast('Please describe symptoms', 'error');
+        return;
+      }
+      
+      const suggestions = getAIDiagnosisSuggestions(symptoms);
+      
+      document.getElementById('aiDiagnosisResults').innerHTML = `
+        <div class="p-4 bg-gradient-to-r from-pink-50 to-purple-50 rounded-xl border-2 border-pink-300">
+          <h3 class="font-bold mb-4 flex items-center gap-2">
+            <span class="ai-badge">🤖 AI Analysis</span>
+            <span>Possible Diagnoses</span>
+          </h3>
+          ${suggestions.length === 0 ? '<p class="text-gray-600">No matching diagnoses found. Please provide more details.</p>' : suggestions.map(s => `
+            <div class="ai-suggestion mb-3">
+              <div class="flex justify-between items-start">
+                <div class="flex-1">
+                  <p class="font-bold text-gray-900">${s.code} - ${s.description}</p>
+                  <p class="text-sm text-gray-600 mt-1">Category: ${s.category}</p>
+                  <p class="text-xs text-purple-600 mt-2">
+                    ✓ Matched symptoms: ${s.matchedSymptoms.join(', ')}
+                  </p>
+                </div>
+                <div class="text-right">
+                  <span class="badge badge-ai">${Math.round(s.matchScore)}% Match</span>
+                </div>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    }
+
+    // ============================================
+    // AI MODULE 4: AI CHATBOT
+    // ============================================
+    function toggleChatbot() {
+      chatbotOpen = !chatbotOpen;
+      renderChatbot();
+    }
+
+    function renderChatbot() {
+      const chatbotDiv = document.getElementById('chatbot');
+      
+      if (!chatbotOpen) {
+        chatbotDiv.innerHTML = `
+          <button onclick="toggleChatbot()" class="btn btn-ai" style="position: fixed; bottom: 32px; right: 32px; z-index: 9999; border-radius: 50%; width: 64px; height: 64px; padding: 0; font-size: 28px;">
+            🤖
+          </button>
+        `;
+        return;
+      }
+      
+      chatbotDiv.innerHTML = `
+        <div class="chatbot-container">
+          <div class="chatbot-header">
+            <div>
+              <div class="text-lg">🤖 AI Medical Assistant</div>
+              <div class="text-xs opacity-80">Ask me anything!</div>
+            </div>
+            <button onclick="toggleChatbot()" class="text-white hover:text-gray-200 text-2xl">×</button>
+          </div>
+          <div class="chatbot-messages" id="chatMessages">
+            ${chatMessages.length === 0 ? `
+              <div class="message message-ai">
+                <p class="text-sm">👋 Hello! I'm your AI medical assistant. I can help you with:</p>
+                <ul class="text-sm mt-2 space-y-1">
+                  <li>• Medicine information</li>
+                  <li>• Symptom analysis</li>
+                  <li>• Appointment booking</li>
+                  <li>• General health queries</li>
+                </ul>
+              </div>
+            ` : chatMessages.map(m => `
+              <div class="message ${m.type === 'user' ? 'message-user' : 'message-ai'}">
+                <p class="text-sm">${m.text}</p>
+              </div>
+            `).join('')}
+          </div>
+          <div class="chatbot-input">
+            <div class="flex gap-2">
+              <input type="text" id="chatInput" class="form-input" placeholder="Type your question..." onkeypress="if(event.key==='Enter') sendChatMessage()">
+              <button onclick="sendChatMessage()" class="btn btn-ai">Send</button>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function sendChatMessage() {
+      const input = document.getElementById('chatInput');
+      const message = input.value.trim();
+      if (!message) return;
+      
+      chatMessages.push({ type: 'user', text: message });
+      input.value = '';
+      
+      // AI Response
+      setTimeout(() => {
+        const response = getAIChatResponse(message);
+        chatMessages.push({ type: 'ai', text: response });
+        renderChatbot();
+        
+        const messagesDiv = document.getElementById('chatMessages');
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+      }, 500);
+      
+      renderChatbot();
+    }
+
+    function getAIChatResponse(message) {
+      const msgLower = message.toLowerCase();
+      
+      if (msgLower.includes('fever') || msgLower.includes('temperature')) {
+        return '🤒 For fever, I recommend Paracetamol 500mg. Take it with water after meals. If fever persists for more than 3 days, please consult a doctor.';
+      }
+      if (msgLower.includes('headache') || msgLower.includes('head pain')) {
+        return '💊 For headache, you can take Paracetamol or Ibuprofen. Make sure to stay hydrated and rest. If headache is severe or persistent, consult a doctor.';
+      }
+      if (msgLower.includes('appointment') || msgLower.includes('book')) {
+        return '📅 To book an appointment, please go to the Appointments section or call us at +91 22 1234 5678. Our OPD hours are 9 AM to 5 PM.';
+      }
+      if (msgLower.includes('medicine') || msgLower.includes('drug')) {
+        return '💊 We have a wide range of medicines available. You can search for specific medicines in the Prescription section. All medicines are dispensed as per doctor\'s prescription.';
+      }
+      
+      return '🤖 I understand your query. For specific medical advice, please consult with our doctors. You can book an appointment or visit our OPD. Is there anything else I can help you with?';
+    }
+
+    // ============================================
+    // AI MODULE 5: SMART MEDICINE SEARCH
+    // ============================================
+    function smartMedicineSearch(query) {
+      if (!query || query.length < 2) return [];
+      
+      const queryLower = query.toLowerCase();
+      const results = [];
+      
+      // Search by name, generic name, brand name
+      DB.medicines.forEach(m => {
+        let score = 0;
+        if (m.name.toLowerCase().includes(queryLower)) score += 10;
+        if (m.generic_name.toLowerCase().includes(queryLower)) score += 8;
+        if (m.brand_name.toLowerCase().includes(queryLower)) score += 6;
+        if (m.category.toLowerCase().includes(queryLower)) score += 4;
+        
+        // Search by indications (AI-powered)
+        if (m.indications) {
+          m.indications.forEach(ind => {
+            if (queryLower.includes(ind) || ind.includes(queryLower)) score += 15;
+          });
+        }
+        
+        if (score > 0) {
+          results.push({ ...m, searchScore: score });
+        }
+      });
+      
+      return results.sort((a, b) => b.searchScore - a.searchScore);
+    }
+
+    // ============================================
     // AUTH MODULE
     // ============================================
     async function acceptConsent() {
@@ -171,7 +556,8 @@
     async function login() {
       currentUser = { name: 'Dr. Rajesh Sharma', email: 'doctor@clinic.com', role: 'doctor', can_prescribe_h: true, can_prescribe_h1: true };
       currentScreen = 'dashboard';
-      showToast('✅ All Phases 1-7 Active!', 'success');
+      initVoiceRecognition();
+      showToast('🤖 AI-Powered System Active! Phase 8 Complete!', 'success');
       render();
     }
 
@@ -179,6 +565,7 @@
       currentUser = null;
       userConsent = false;
       currentScreen = 'consent';
+      chatbotOpen = false;
       render();
     }
 
@@ -253,38 +640,84 @@
     }
 
     // ============================================
-    // PRESCRIPTION MODULE (Phase 2)
+    // PRESCRIPTION MODULE (Phase 2) - WITH AI
     // ============================================
     function showPrescriptionModal(patientId) {
-      currentPrescription = { patient_id: patientId, medicines: [] };
+      currentPrescription = { patient_id: patientId, medicines: [], diagnosis: '' };
       const patient = DB.patients.find(p => p.id === patientId);
       const modal = document.createElement('div');
       modal.className = 'modal-overlay';
       modal.innerHTML = `
         <div class="modal-content">
           <div class="p-8 border-b flex justify-between items-center">
-            <div><h2 class="text-2xl font-bold">💊 Create Prescription</h2><p class="text-sm text-gray-600 mt-1">Patient: ${patient?.first_name} ${patient?.last_name || ''}</p></div>
+            <div>
+              <h2 class="text-2xl font-bold">💊 Create Prescription <span class="ai-badge ml-2">🤖 AI Powered</span></h2>
+              <p class="text-sm text-gray-600 mt-1">Patient: ${patient?.first_name} ${patient?.last_name || ''}</p>
+            </div>
             <button onclick="closeModal()" class="text-gray-500 hover:text-gray-700 text-2xl">×</button>
           </div>
           <div class="p-8">
-            <div class="mb-6"><label class="form-label">Diagnosis</label><input type="text" id="diagnosis" class="form-input" placeholder="e.g., Fever, Cough"></div>
-            <div class="mb-6"><label class="form-label">Search Medicine</label><input type="text" id="medicineSearch" class="form-input" placeholder="Search..." oninput="searchMedicine(this.value)"><div id="medicineResults" class="mt-2"></div></div>
-            <div class="mb-6"><h3 class="font-bold mb-3">Prescribed Medicines</h3><div id="prescribedMedicines" class="space-y-3"><p class="text-gray-500 text-sm">No medicines added yet</p></div></div>
-            <div class="flex gap-4"><button onclick="savePrescription()" class="btn btn-success">Save Prescription</button><button onclick="closeModal()" class="btn btn-secondary">Cancel</button></div>
+            <div class="mb-6">
+              <label class="form-label">Diagnosis</label>
+              <input type="text" id="diagnosis" class="form-input" placeholder="e.g., Fever, Cough" oninput="updateAISuggestions()">
+            </div>
+            
+            <div id="aiSuggestionsContainer"></div>
+            
+            <div class="mb-6">
+              <label class="form-label">Search Medicine <span class="ai-badge ml-2">🔍 Smart Search</span></label>
+              <input type="text" id="medicineSearch" class="form-input" placeholder="Search by name, symptom, or condition..." oninput="smartSearchMedicine(this.value)">
+              <div id="medicineResults" class="mt-2"></div>
+            </div>
+            
+            <div class="mb-6">
+              <h3 class="font-bold mb-3">Prescribed Medicines</h3>
+              <div id="prescribedMedicines" class="space-y-3">
+                <p class="text-gray-500 text-sm">No medicines added yet</p>
+              </div>
+            </div>
+            
+            <div class="flex gap-4">
+              <button onclick="savePrescription()" class="btn btn-success">Save Prescription</button>
+              <button onclick="closeModal()" class="btn btn-secondary">Cancel</button>
+            </div>
           </div>
         </div>
       `;
       document.body.appendChild(modal);
     }
 
-    function searchMedicine(query) {
-      if (!query || query.length < 2) { document.getElementById('medicineResults').innerHTML = ''; return; }
-      const results = DB.medicines.filter(m => m.name.toLowerCase().includes(query.toLowerCase()));
+    function updateAISuggestions() {
+      const diagnosis = document.getElementById('diagnosis').value;
+      currentPrescription.diagnosis = diagnosis;
+      
+      if (diagnosis.length > 3) {
+        document.getElementById('aiSuggestionsContainer').innerHTML = showAISuggestions(diagnosis);
+      } else {
+        document.getElementById('aiSuggestionsContainer').innerHTML = '';
+      }
+    }
+
+    function smartSearchMedicine(query) {
+      if (!query || query.length < 2) { 
+        document.getElementById('medicineResults').innerHTML = ''; 
+        return; 
+      }
+      
+      const results = smartMedicineSearch(query);
+      
       document.getElementById('medicineResults').innerHTML = results.map(m => `
         <div class="p-4 border rounded-xl cursor-pointer hover:bg-blue-50 transition" onclick="addMedicineToPrescription('${m.id}')">
           <div class="flex justify-between items-start">
-            <div><p class="font-semibold">${m.name} (${m.brand_name})</p><p class="text-sm text-gray-600">${m.strength}${m.unit} ${m.form}</p></div>
-            <span class="badge badge-${m.schedule === 'H' ? 'warning' : 'success'}">${m.schedule}</span>
+            <div>
+              <p class="font-semibold">${m.name} (${m.brand_name})</p>
+              <p class="text-sm text-gray-600">${m.strength}${m.unit} ${m.form}</p>
+              ${m.indications ? `<p class="text-xs text-purple-600 mt-1">💡 For: ${m.indications.join(', ')}</p>` : ''}
+            </div>
+            <div class="text-right">
+              <span class="badge badge-${m.schedule === 'H' ? 'warning' : 'success'}">${m.schedule}</span>
+              ${m.searchScore ? `<p class="text-xs text-gray-500 mt-1">${Math.round(m.searchScore * 10)}% match</p>` : ''}
+            </div>
           </div>
         </div>
       `).join('');
@@ -292,7 +725,20 @@
 
     function addMedicineToPrescription(medicineId) {
       const medicine = DB.medicines.find(m => m.id === medicineId);
-      currentPrescription.medicines.push({ ...medicine, dosage: '1 tablet', frequency: 'Twice daily', duration: '5 days' });
+      
+      // Check for drug interactions
+      if (DB.ai_knowledge.drug_interactions[medicine.name]) {
+        const warnings = DB.ai_knowledge.drug_interactions[medicine.name];
+        showToast(`⚠️ ${medicine.name}: ${warnings.join(', ')}`, 'info');
+      }
+      
+      currentPrescription.medicines.push({ 
+        ...medicine, 
+        dosage: '1 tablet', 
+        frequency: 'Twice daily', 
+        duration: '5 days' 
+      });
+      
       document.getElementById('medicineSearch').value = '';
       document.getElementById('medicineResults').innerHTML = '';
       updatePrescribedMedicinesList();
@@ -300,7 +746,15 @@
 
     function updatePrescribedMedicinesList() {
       document.getElementById('prescribedMedicines').innerHTML = currentPrescription.medicines.map((m, idx) => `
-        <div class="p-4 bg-gray-50 rounded-xl"><div class="flex justify-between items-start mb-3"><div><p class="font-bold">${idx + 1}. ${m.name}</p><p class="text-sm text-gray-600">${m.strength}${m.unit} ${m.form}</p></div><button onclick="removeMedicineFromPrescription(${idx})" class="text-red-600">✕</button></div></div>
+        <div class="p-4 bg-gray-50 rounded-xl">
+          <div class="flex justify-between items-start mb-3">
+            <div>
+              <p class="font-bold">${idx + 1}. ${m.name} (${m.brand_name})</p>
+              <p class="text-sm text-gray-600">${m.strength}${m.unit} ${m.form}</p>
+            </div>
+            <button onclick="removeMedicineFromPrescription(${idx})" class="text-red-600">✕</button>
+          </div>
+        </div>
       `).join('');
     }
 
@@ -311,9 +765,18 @@
 
     async function savePrescription() {
       const diagnosis = document.getElementById('diagnosis').value;
-      if (!diagnosis || currentPrescription.medicines.length === 0) { showToast('Please add diagnosis and medicines', 'error'); return; }
-      await supabase.from('prescriptions').insert([{ ...currentPrescription, diagnosis: [diagnosis], prescription_number: 'RX' + Date.now() }]);
-      showToast('Prescription created!', 'success');
+      if (!diagnosis || currentPrescription.medicines.length === 0) { 
+        showToast('Please add diagnosis and medicines', 'error'); 
+        return; 
+      }
+      
+      await supabase.from('prescriptions').insert([{ 
+        ...currentPrescription, 
+        diagnosis: [diagnosis], 
+        prescription_number: 'RX' + Date.now() 
+      }]);
+      
+      showToast('✅ Prescription created with AI assistance!', 'success');
       closeModal();
       render();
     }
@@ -329,12 +792,37 @@
       modal.className = 'modal-overlay';
       modal.innerHTML = `
         <div class="modal-content">
-          <div class="p-8 border-b"><h2 class="text-2xl font-bold mb-2">💰 GST Tax Invoice</h2><div class="grid grid-cols-2 gap-6 text-sm"><div><p class="font-bold">${clinic.name}</p><p class="text-gray-600">GSTIN: ${clinic.gstin}</p></div><div class="text-right"><p class="font-bold">Bill To:</p><p>${patient?.first_name} ${patient?.last_name || ''}</p></div></div></div>
+          <div class="p-8 border-b">
+            <h2 class="text-2xl font-bold mb-2">💰 GST Tax Invoice</h2>
+            <div class="grid grid-cols-2 gap-6 text-sm">
+              <div><p class="font-bold">${clinic.name}</p><p class="text-gray-600">GSTIN: ${clinic.gstin}</p></div>
+              <div class="text-right"><p class="font-bold">Bill To:</p><p>${patient?.first_name} ${patient?.last_name || ''}</p></div>
+            </div>
+          </div>
           <div class="p-8">
-            <div class="mb-6"><label class="form-label">Add Item</label><div class="grid grid-cols-5 gap-3"><input type="text" id="itemDesc" class="form-input col-span-2" placeholder="Description"><input type="number" id="itemQty" class="form-input" placeholder="Qty" value="1"><input type="number" id="itemPrice" class="form-input" placeholder="Price"><button onclick="addInvoiceItem()" class="btn btn-primary">Add</button></div></div>
-            <table class="invoice-table mb-6"><thead><tr><th>Description</th><th>Qty</th><th>Rate</th><th>Amount</th><th>CGST (9%)</th><th>SGST (9%)</th><th>Total</th><th></th></tr></thead><tbody id="invoiceItems"><tr><td colspan="8" class="text-center text-gray-500">No items added</td></tr></tbody></table>
-            <div class="bg-gray-50 p-6 rounded-xl"><div class="flex justify-between mb-2"><span class="font-semibold">Subtotal:</span><span>₹${currentInvoice.subtotal.toFixed(2)}</span></div><div class="flex justify-between mb-2"><span class="font-semibold">CGST (9%):</span><span>₹${currentInvoice.cgst.toFixed(2)}</span></div><div class="flex justify-between mb-2"><span class="font-semibold">SGST (9%):</span><span>₹${currentInvoice.sgst.toFixed(2)}</span></div><div class="flex justify-between text-xl font-bold border-t-2 pt-2 mt-2"><span>Total:</span><span>₹${currentInvoice.total.toFixed(2)}</span></div></div>
-            <div class="flex gap-4 mt-6"><button onclick="saveInvoice()" class="btn btn-success">Save Invoice</button><button onclick="closeModal()" class="btn btn-secondary">Cancel</button></div>
+            <div class="mb-6">
+              <label class="form-label">Add Item</label>
+              <div class="grid grid-cols-5 gap-3">
+                <input type="text" id="itemDesc" class="form-input col-span-2" placeholder="Description">
+                <input type="number" id="itemQty" class="form-input" placeholder="Qty" value="1">
+                <input type="number" id="itemPrice" class="form-input" placeholder="Price">
+                <button onclick="addInvoiceItem()" class="btn btn-primary">Add</button>
+              </div>
+            </div>
+            <table class="invoice-table mb-6">
+              <thead><tr><th>Description</th><th>Qty</th><th>Rate</th><th>Amount</th><th>CGST (9%)</th><th>SGST (9%)</th><th>Total</th><th></th></tr></thead>
+              <tbody id="invoiceItems"><tr><td colspan="8" class="text-center text-gray-500">No items added</td></tr></tbody>
+            </table>
+            <div class="bg-gray-50 p-6 rounded-xl">
+              <div class="flex justify-between mb-2"><span class="font-semibold">Subtotal:</span><span>₹${currentInvoice.subtotal.toFixed(2)}</span></div>
+              <div class="flex justify-between mb-2"><span class="font-semibold">CGST (9%):</span><span>₹${currentInvoice.cgst.toFixed(2)}</span></div>
+              <div class="flex justify-between mb-2"><span class="font-semibold">SGST (9%):</span><span>₹${currentInvoice.sgst.toFixed(2)}</span></div>
+              <div class="flex justify-between text-xl font-bold border-t-2 pt-2 mt-2"><span>Total:</span><span>₹${currentInvoice.total.toFixed(2)}</span></div>
+            </div>
+            <div class="flex gap-4 mt-6">
+              <button onclick="saveInvoice()" class="btn btn-success">Save Invoice</button>
+              <button onclick="closeModal()" class="btn btn-secondary">Cancel</button>
+            </div>
           </div>
         </div>
       `;
@@ -346,13 +834,24 @@
       const qty = parseInt(document.getElementById('itemQty').value) || 1;
       const price = parseFloat(document.getElementById('itemPrice').value) || 0;
       if (!desc || !price) { showToast('Enter description and price', 'error'); return; }
+      
       const amount = qty * price;
       const gst = calculateGST(amount);
-      currentInvoice.items.push({ description: desc, quantity: qty, unit_price: price, taxable_amount: amount, cgst_amount: gst.cgst, sgst_amount: gst.sgst, total: amount + gst.total });
+      currentInvoice.items.push({ 
+        description: desc, 
+        quantity: qty, 
+        unit_price: price, 
+        taxable_amount: amount, 
+        cgst_amount: gst.cgst, 
+        sgst_amount: gst.sgst, 
+        total: amount + gst.total 
+      });
+      
       currentInvoice.subtotal = currentInvoice.items.reduce((sum, item) => sum + item.taxable_amount, 0);
       currentInvoice.cgst = currentInvoice.items.reduce((sum, item) => sum + item.cgst_amount, 0);
       currentInvoice.sgst = currentInvoice.items.reduce((sum, item) => sum + item.sgst_amount, 0);
       currentInvoice.total = currentInvoice.subtotal + currentInvoice.cgst + currentInvoice.sgst;
+      
       document.getElementById('itemDesc').value = '';
       document.getElementById('itemQty').value = '1';
       document.getElementById('itemPrice').value = '';
@@ -361,10 +860,27 @@
 
     function updateInvoiceItemsList() {
       document.getElementById('invoiceItems').innerHTML = currentInvoice.items.map((item, idx) => `
-        <tr><td>${item.description}</td><td>${item.quantity}</td><td>₹${item.unit_price.toFixed(2)}</td><td>₹${item.taxable_amount.toFixed(2)}</td><td>₹${item.cgst_amount.toFixed(2)}</td><td>₹${item.sgst_amount.toFixed(2)}</td><td>₹${item.total.toFixed(2)}</td><td><button onclick="removeInvoiceItem(${idx})" class="text-red-600">✕</button></td></tr>
+        <tr>
+          <td>${item.description}</td>
+          <td>${item.quantity}</td>
+          <td>₹${item.unit_price.toFixed(2)}</td>
+          <td>₹${item.taxable_amount.toFixed(2)}</td>
+          <td>₹${item.cgst_amount.toFixed(2)}</td>
+          <td>₹${item.sgst_amount.toFixed(2)}</td>
+          <td>₹${item.total.toFixed(2)}</td>
+          <td><button onclick="removeInvoiceItem(${idx})" class="text-red-600">✕</button></td>
+        </tr>
       `).join('');
+      
       const modal = document.querySelector('.modal-content');
-      if (modal) modal.querySelector('.bg-gray-50').innerHTML = `<div class="flex justify-between mb-2"><span class="font-semibold">Subtotal:</span><span>₹${currentInvoice.subtotal.toFixed(2)}</span></div><div class="flex justify-between mb-2"><span class="font-semibold">CGST (9%):</span><span>₹${currentInvoice.cgst.toFixed(2)}</span></div><div class="flex justify-between mb-2"><span class="font-semibold">SGST (9%):</span><span>₹${currentInvoice.sgst.toFixed(2)}</span></div><div class="flex justify-between text-xl font-bold border-t-2 pt-2 mt-2"><span>Total:</span><span>₹${currentInvoice.total.toFixed(2)}</span></div>`;
+      if (modal) {
+        modal.querySelector('.bg-gray-50').innerHTML = `
+          <div class="flex justify-between mb-2"><span class="font-semibold">Subtotal:</span><span>₹${currentInvoice.subtotal.toFixed(2)}</span></div>
+          <div class="flex justify-between mb-2"><span class="font-semibold">CGST (9%):</span><span>₹${currentInvoice.cgst.toFixed(2)}</span></div>
+          <div class="flex justify-between mb-2"><span class="font-semibold">SGST (9%):</span><span>₹${currentInvoice.sgst.toFixed(2)}</span></div>
+          <div class="flex justify-between text-xl font-bold border-t-2 pt-2 mt-2"><span>Total:</span><span>₹${currentInvoice.total.toFixed(2)}</span></div>
+        `;
+      }
     }
 
     function removeInvoiceItem(index) {
@@ -392,11 +908,26 @@
       modal.className = 'modal-overlay';
       modal.innerHTML = `
         <div class="modal-content">
-          <div class="p-8 border-b flex justify-between items-center"><h2 class="text-2xl font-bold">🎫 Add to OPD Queue</h2><button onclick="closeModal()" class="text-gray-500 hover:text-gray-700 text-2xl">×</button></div>
+          <div class="p-8 border-b flex justify-between items-center">
+            <h2 class="text-2xl font-bold">🎫 Add to OPD Queue</h2>
+            <button onclick="closeModal()" class="text-gray-500 hover:text-gray-700 text-2xl">×</button>
+          </div>
           <div class="p-8">
-            <div class="mb-6"><label class="form-label">Select Patient</label><select id="queuePatient" class="form-input"><option value="">Select Patient</option>${DB.patients.map(p => `<option value="${p.id}">${p.first_name} ${p.last_name || ''} (${p.patient_id})</option>`).join('')}</select></div>
-            <div class="mb-6"><label class="form-label">Chief Complaint</label><input type="text" id="chiefComplaint" class="form-input" placeholder="e.g., Fever, Cough"></div>
-            <div class="flex gap-4"><button onclick="addToQueue()" class="btn btn-success">🎫 Generate Token</button><button onclick="closeModal()" class="btn btn-secondary">Cancel</button></div>
+            <div class="mb-6">
+              <label class="form-label">Select Patient</label>
+              <select id="queuePatient" class="form-input">
+                <option value="">Select Patient</option>
+                ${DB.patients.map(p => `<option value="${p.id}">${p.first_name} ${p.last_name || ''} (${p.patient_id})</option>`).join('')}
+              </select>
+            </div>
+            <div class="mb-6">
+              <label class="form-label">Chief Complaint</label>
+              <input type="text" id="chiefComplaint" class="form-input" placeholder="e.g., Fever, Cough">
+            </div>
+            <div class="flex gap-4">
+              <button onclick="addToQueue()" class="btn btn-success">🎫 Generate Token</button>
+              <button onclick="closeModal()" class="btn btn-secondary">Cancel</button>
+            </div>
           </div>
         </div>
       `;
@@ -406,11 +937,21 @@
     async function addToQueue() {
       const patientId = document.getElementById('queuePatient').value;
       if (!patientId) { showToast('Select a patient', 'error'); return; }
+      
       const patient = DB.patients.find(p => p.id === patientId);
       const today = new Date().toISOString().split('T')[0];
       const todayQueue = DB.opd_queue.filter(q => q.date === today);
       const tokenNumber = todayQueue.length + 1;
-      await supabase.from('opd_queue').insert([{ patient_id: patientId, patient_name: `${patient.first_name} ${patient.last_name || ''}`, token_number: tokenNumber, chief_complaint: document.getElementById('chiefComplaint').value, status: 'waiting', date: today }]);
+      
+      await supabase.from('opd_queue').insert([{ 
+        patient_id: patientId, 
+        patient_name: `${patient.first_name} ${patient.last_name || ''}`, 
+        token_number: tokenNumber, 
+        chief_complaint: document.getElementById('chiefComplaint').value, 
+        status: 'waiting', 
+        date: today 
+      }]);
+      
       showToast(`Token #${tokenNumber} generated!`, 'success');
       closeModal();
       render();
@@ -425,14 +966,30 @@
       modal.className = 'modal-overlay';
       modal.innerHTML = `
         <div class="modal-content">
-          <div class="p-8 border-b flex justify-between items-center"><div><h2 class="text-2xl font-bold">🩺 Record Vital Signs</h2><p class="text-sm text-gray-600 mt-1">Patient: ${patient.first_name} ${patient.last_name || ''}</p></div><button onclick="closeModal()" class="text-gray-500 hover:text-gray-700 text-2xl">×</button></div>
+          <div class="p-8 border-b flex justify-between items-center">
+            <div>
+              <h2 class="text-2xl font-bold">🩺 Record Vital Signs</h2>
+              <p class="text-sm text-gray-600 mt-1">Patient: ${patient.first_name} ${patient.last_name || ''}</p>
+            </div>
+            <button onclick="closeModal()" class="text-gray-500 hover:text-gray-700 text-2xl">×</button>
+          </div>
           <div class="p-8">
             <div class="grid grid-cols-3 gap-6 mb-6">
-              <div><label class="form-label">BP (mmHg)</label><div class="flex gap-2"><input type="number" id="bpSystolic" class="form-input" style="width:100px" placeholder="120"><span class="text-2xl">/</span><input type="number" id="bpDiastolic" class="form-input" style="width:100px" placeholder="80"></div></div>
+              <div>
+                <label class="form-label">BP (mmHg)</label>
+                <div class="flex gap-2">
+                  <input type="number" id="bpSystolic" class="form-input" style="width:100px" placeholder="120">
+                  <span class="text-2xl">/</span>
+                  <input type="number" id="bpDiastolic" class="form-input" style="width:100px" placeholder="80">
+                </div>
+              </div>
               <div><label class="form-label">Pulse (bpm)</label><input type="number" id="pulse" class="form-input" placeholder="72"></div>
               <div><label class="form-label">Temp (°F)</label><input type="number" step="0.1" id="temperature" class="form-input" placeholder="98.6"></div>
             </div>
-            <div class="flex gap-4"><button onclick="saveVitalSigns('${patientId}')" class="btn btn-success">💾 Save</button><button onclick="closeModal()" class="btn btn-secondary">Cancel</button></div>
+            <div class="flex gap-4">
+              <button onclick="saveVitalSigns('${patientId}')" class="btn btn-success">💾 Save</button>
+              <button onclick="closeModal()" class="btn btn-secondary">Cancel</button>
+            </div>
           </div>
         </div>
       `;
@@ -440,14 +997,21 @@
     }
 
     async function saveVitalSigns(patientId) {
-      await supabase.from('vital_signs').insert([{ patient_id: patientId, bp_systolic: document.getElementById('bpSystolic').value, bp_diastolic: document.getElementById('bpDiastolic').value, pulse: document.getElementById('pulse').value, temperature: document.getElementById('temperature').value }]);
+      await supabase.from('vital_signs').insert([{ 
+        patient_id: patientId, 
+        bp_systolic: document.getElementById('bpSystolic').value, 
+        bp_diastolic: document.getElementById('bpDiastolic').value, 
+        pulse: document.getElementById('pulse').value, 
+        temperature: document.getElementById('temperature').value 
+      }]);
+      
       showToast('Vital signs recorded!', 'success');
       closeModal();
       render();
     }
 
     // ============================================
-    // SOAP NOTES MODULE (Phase 7)
+    // SOAP NOTES MODULE (Phase 7) - WITH VOICE
     // ============================================
     function showSOAPNotesModal(patientId) {
       const patient = DB.patients.find(p => p.id === patientId);
@@ -455,15 +1019,64 @@
       modal.className = 'modal-overlay';
       modal.innerHTML = `
         <div class="modal-content">
-          <div class="p-8 border-b flex justify-between items-center"><div><h2 class="text-2xl font-bold">📋 SOAP Notes</h2><p class="text-sm text-gray-600 mt-1">Patient: ${patient.first_name} ${patient.last_name || ''}</p></div><button onclick="closeModal()" class="text-gray-500 hover:text-gray-700 text-2xl">×</button></div>
+          <div class="p-8 border-b flex justify-between items-center">
+            <div>
+              <h2 class="text-2xl font-bold">📋 SOAP Notes <span class="ai-badge ml-2">🎤 Voice Enabled</span></h2>
+              <p class="text-sm text-gray-600 mt-1">Patient: ${patient.first_name} ${patient.last_name || ''}</p>
+            </div>
+            <button onclick="closeModal()" class="text-gray-500 hover:text-gray-700 text-2xl">×</button>
+          </div>
           <div class="p-8">
-            <div class="mb-6"><h3 class="font-bold mb-3">🚀 Quick Templates</h3><div class="grid grid-cols-5 gap-3">${DB.soap_templates.map(t => `<div class="p-4 border-2 rounded-xl text-center cursor-pointer hover:border-blue-500 hover:bg-blue-50" onclick="applySOAPTemplate('${t.id}')"><div class="text-3xl mb-2">${t.icon}</div><p class="font-semibold text-sm">${t.name}</p></div>`).join('')}</div></div>
-            <div class="mb-6"><label class="form-label">Chief Complaint</label><input type="text" id="chiefComplaintSOAP" class="form-input" placeholder="e.g., Fever for 3 days"></div>
-            <div class="mb-6"><label class="form-label">S - Subjective</label><textarea id="subjective" class="form-input" rows="3" placeholder="Patient's complaints..."></textarea></div>
-            <div class="mb-6"><label class="form-label">O - Objective</label><textarea id="objective" class="form-input" rows="3" placeholder="Examination findings..."></textarea></div>
-            <div class="mb-6"><label class="form-label">A - Assessment</label><textarea id="assessment" class="form-input" rows="2" placeholder="Diagnosis..."></textarea></div>
-            <div class="mb-6"><label class="form-label">P - Plan</label><textarea id="plan" class="form-input" rows="3" placeholder="Treatment plan..."></textarea></div>
-            <div class="flex gap-4"><button onclick="saveSOAPNotes('${patientId}')" class="btn btn-success">💾 Save</button><button onclick="closeModal()" class="btn btn-secondary">Cancel</button></div>
+            <div class="mb-6">
+              <h3 class="font-bold mb-3">🚀 Quick Templates</h3>
+              <div class="grid grid-cols-5 gap-3">
+                ${DB.soap_templates.map(t => `
+                  <div class="p-4 border-2 rounded-xl text-center cursor-pointer hover:border-blue-500 hover:bg-blue-50" onclick="applySOAPTemplate('${t.id}')">
+                    <div class="text-3xl mb-2">${t.icon}</div>
+                    <p class="font-semibold text-sm">${t.name}</p>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+            
+            <div class="mb-6">
+              <div class="flex justify-between items-center mb-2">
+                <label class="form-label mb-0">Chief Complaint</label>
+                <button id="voiceBtn-chiefComplaintSOAP" onclick="toggleVoiceRecording('chiefComplaintSOAP')" class="btn btn-sm btn-purple">🎤 Voice Input</button>
+              </div>
+              <input type="text" id="chiefComplaintSOAP" class="form-input" placeholder="e.g., Fever for 3 days">
+            </div>
+            
+            <div class="mb-6">
+              <div class="flex justify-between items-center mb-2">
+                <label class="form-label mb-0">S - Subjective</label>
+                <button id="voiceBtn-subjective" onclick="toggleVoiceRecording('subjective')" class="btn btn-sm btn-purple">🎤 Voice Input</button>
+              </div>
+              <textarea id="subjective" class="form-input" rows="3" placeholder="Patient's complaints..."></textarea>
+            </div>
+            
+            <div class="mb-6">
+              <div class="flex justify-between items-center mb-2">
+                <label class="form-label mb-0">O - Objective</label>
+                <button id="voiceBtn-objective" onclick="toggleVoiceRecording('objective')" class="btn btn-sm btn-purple">🎤 Voice Input</button>
+              </div>
+              <textarea id="objective" class="form-input" rows="3" placeholder="Examination findings..."></textarea>
+            </div>
+            
+            <div class="mb-6">
+              <label class="form-label">A - Assessment</label>
+              <textarea id="assessment" class="form-input" rows="2" placeholder="Diagnosis..."></textarea>
+            </div>
+            
+            <div class="mb-6">
+              <label class="form-label">P - Plan</label>
+              <textarea id="plan" class="form-input" rows="3" placeholder="Treatment plan..."></textarea>
+            </div>
+            
+            <div class="flex gap-4">
+              <button onclick="saveSOAPNotes('${patientId}')" class="btn btn-success">💾 Save</button>
+              <button onclick="closeModal()" class="btn btn-secondary">Cancel</button>
+            </div>
           </div>
         </div>
       `;
@@ -483,7 +1096,15 @@
     }
 
     async function saveSOAPNotes(patientId) {
-      await supabase.from('soap_notes').insert([{ patient_id: patientId, chief_complaint: document.getElementById('chiefComplaintSOAP').value, subjective: document.getElementById('subjective').value, objective: document.getElementById('objective').value, assessment: document.getElementById('assessment').value, plan: document.getElementById('plan').value }]);
+      await supabase.from('soap_notes').insert([{ 
+        patient_id: patientId, 
+        chief_complaint: document.getElementById('chiefComplaintSOAP').value, 
+        subjective: document.getElementById('subjective').value, 
+        objective: document.getElementById('objective').value, 
+        assessment: document.getElementById('assessment').value, 
+        plan: document.getElementById('plan').value 
+      }]);
+      
       showToast('SOAP notes saved!', 'success');
       closeModal();
       render();
@@ -499,11 +1120,35 @@
       modal.className = 'modal-overlay';
       modal.innerHTML = `
         <div class="modal-content">
-          <div class="p-8 border-b flex justify-between items-center"><div><h2 class="text-2xl font-bold">🔬 Lab Orders</h2><p class="text-sm text-gray-600 mt-1">Patient: ${patient.first_name} ${patient.last_name || ''}</p></div><button onclick="closeModal()" class="text-gray-500 hover:text-gray-700 text-2xl">×</button></div>
+          <div class="p-8 border-b flex justify-between items-center">
+            <div>
+              <h2 class="text-2xl font-bold">🔬 Lab Orders</h2>
+              <p class="text-sm text-gray-600 mt-1">Patient: ${patient.first_name} ${patient.last_name || ''}</p>
+            </div>
+            <button onclick="closeModal()" class="text-gray-500 hover:text-gray-700 text-2xl">×</button>
+          </div>
           <div class="p-8">
-            <div id="labTestResults" class="space-y-3 mb-6">${DB.lab_tests.map(test => `<div class="p-4 border rounded-xl hover:bg-blue-50"><div class="flex justify-between items-start"><div class="flex-1"><p class="font-bold">${test.name}</p><p class="text-sm text-gray-600">${test.category} • ₹${test.price}</p></div><button onclick="addLabTest('${test.id}')" class="btn btn-primary">Add</button></div></div>`).join('')}</div>
-            <div id="selectedTests" class="mb-6"><h3 class="font-bold mb-3">Selected (0)</h3><div id="selectedTestsList"></div></div>
-            <div class="flex gap-4"><button onclick="submitLabOrder('${patientId}')" class="btn btn-success">Submit</button><button onclick="closeModal()" class="btn btn-secondary">Cancel</button></div>
+            <div id="labTestResults" class="space-y-3 mb-6">
+              ${DB.lab_tests.map(test => `
+                <div class="p-4 border rounded-xl hover:bg-blue-50">
+                  <div class="flex justify-between items-start">
+                    <div class="flex-1">
+                      <p class="font-bold">${test.name}</p>
+                      <p class="text-sm text-gray-600">${test.category} • ₹${test.price}</p>
+                    </div>
+                    <button onclick="addLabTest('${test.id}')" class="btn btn-primary">Add</button>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+            <div id="selectedTests" class="mb-6">
+              <h3 class="font-bold mb-3">Selected (0)</h3>
+              <div id="selectedTestsList"></div>
+            </div>
+            <div class="flex gap-4">
+              <button onclick="submitLabOrder('${patientId}')" class="btn btn-success">Submit</button>
+              <button onclick="closeModal()" class="btn btn-secondary">Cancel</button>
+            </div>
           </div>
         </div>
       `;
@@ -521,7 +1166,15 @@
     function updateSelectedTestsList() {
       const total = window.selectedLabTests.reduce((sum, test) => sum + test.price, 0);
       document.querySelector('#selectedTests h3').textContent = `Selected (${window.selectedLabTests.length}) - ₹${total}`;
-      document.getElementById('selectedTestsList').innerHTML = window.selectedLabTests.map(test => `<div class="flex justify-between items-center p-3 bg-blue-50 rounded-lg mb-2"><div><p class="font-semibold text-sm">${test.name}</p><p class="text-xs text-gray-600">₹${test.price}</p></div><button onclick="removeLabTest('${test.id}')" class="text-red-600">✕</button></div>`).join('');
+      document.getElementById('selectedTestsList').innerHTML = window.selectedLabTests.map(test => `
+        <div class="flex justify-between items-center p-3 bg-blue-50 rounded-lg mb-2">
+          <div>
+            <p class="font-semibold text-sm">${test.name}</p>
+            <p class="text-xs text-gray-600">₹${test.price}</p>
+          </div>
+          <button onclick="removeLabTest('${test.id}')" class="text-red-600">✕</button>
+        </div>
+      `).join('');
     }
 
     function removeLabTest(testId) {
@@ -531,7 +1184,13 @@
 
     async function submitLabOrder(patientId) {
       if (window.selectedLabTests.length === 0) { showToast('Select at least one test', 'error'); return; }
-      await supabase.from('lab_orders').insert([{ patient_id: patientId, tests: window.selectedLabTests, total_amount: window.selectedLabTests.reduce((sum, test) => sum + test.price, 0), status: 'pending' }]);
+      await supabase.from('lab_orders').insert([{ 
+        patient_id: patientId, 
+        tests: window.selectedLabTests, 
+        total_amount: window.selectedLabTests.reduce((sum, test) => sum + test.price, 0), 
+        status: 'pending' 
+      }]);
+      
       showToast(`Lab order created! ${window.selectedLabTests.length} tests`, 'success');
       closeModal();
       render();
@@ -547,25 +1206,64 @@
       if (currentScreen === 'consent') {
         app.innerHTML = `
           <div class="min-h-screen flex items-center justify-center p-6" style="background: linear-gradient(135deg, #ff9933 0%, #ffffff 50%, #138808 100%);">
-            <div class="w-full max-w-2xl"><div class="text-center mb-10"><img src="${clinic.logo_url}" class="h-20 mx-auto mb-6"><h1 class="text-4xl font-bold text-gray-900 mb-3">${clinic.name}</h1><p class="text-xl text-gray-700">Complete System (Phases 1-7)</p></div><div class="card"><h2 class="text-2xl font-bold mb-4">📋 Data Privacy Consent</h2><p class="text-gray-700 mb-4">As per DPDP Act 2023, we require your consent.</p><button onclick="acceptConsent()" class="btn btn-primary w-full">Accept & Continue</button></div></div>
+            <div class="w-full max-w-2xl">
+              <div class="text-center mb-10">
+                <img src="${clinic.logo_url}" class="h-20 mx-auto mb-6">
+                <h1 class="text-4xl font-bold text-gray-900 mb-3">${clinic.name}</h1>
+                <p class="text-xl text-gray-700">AI-Powered Healthcare System</p>
+                <p class="text-lg text-gray-600 mt-2">Phase 8: AI Foundation Complete</p>
+              </div>
+              <div class="card">
+                <h2 class="text-2xl font-bold mb-4">📋 Data Privacy Consent</h2>
+                <p class="text-gray-700 mb-4">As per DPDP Act 2023, we require your consent.</p>
+                <button onclick="acceptConsent()" class="btn btn-primary w-full">Accept & Continue</button>
+              </div>
+            </div>
           </div>
         `;
       } else if (currentScreen === 'login') {
         app.innerHTML = `
           <div class="min-h-screen flex items-center justify-center p-6" style="background: linear-gradient(135deg, ${clinic.primary_color} 0%, ${clinic.secondary_color} 100%);">
-            <div class="w-full max-w-md"><div class="text-center mb-10"><img src="${clinic.logo_url}" class="h-16 mx-auto mb-6"><h1 class="text-4xl font-bold text-white mb-3">${clinic.name}</h1><p class="text-white text-lg">Phases 1-7 Complete</p></div><div class="card"><input type="email" value="doctor@clinic.com" class="form-input mb-4"><button onclick="login()" class="btn btn-primary w-full">Login</button></div></div>
+            <div class="w-full max-w-md">
+              <div class="text-center mb-10">
+                <img src="${clinic.logo_url}" class="h-16 mx-auto mb-6">
+                <h1 class="text-4xl font-bold text-white mb-3">${clinic.name}</h1>
+                <p class="text-white text-lg">🤖 AI-Powered System</p>
+                <p class="text-white text-sm mt-2 opacity-90">Phase 8 Complete</p>
+              </div>
+              <div class="card">
+                <input type="email" value="doctor@clinic.com" class="form-input mb-4">
+                <button onclick="login()" class="btn btn-primary w-full">Login</button>
+              </div>
+            </div>
           </div>
         `;
       } else {
         app.innerHTML = `
           <div>
             <nav class="bg-gray-900 text-white p-5 flex justify-between sticky top-0 z-50">
-              <div class="flex gap-4 items-center"><img src="${clinic.logo_url}" class="h-10"><div><h3 class="font-bold">${clinic.name}</h3><p class="text-xs text-gray-300">All Phases 1-7 Active ✅</p></div></div>
-              <div class="flex items-center gap-4"><div class="text-right"><p class="font-semibold">${currentUser?.name}</p><p class="text-xs text-gray-300">${currentUser?.email}</p></div><button onclick="logout()" class="px-4 py-2 bg-white bg-opacity-10 rounded-lg hover:bg-opacity-20">Logout</button></div>
+              <div class="flex gap-4 items-center">
+                <img src="${clinic.logo_url}" class="h-10">
+                <div>
+                  <h3 class="font-bold">${clinic.name}</h3>
+                  <p class="text-xs text-gray-300">🤖 AI-Powered • Phase 8 Complete ✅</p>
+                </div>
+              </div>
+              <div class="flex items-center gap-4">
+                <button onclick="showAIDiagnosisHelper()" class="btn btn-sm btn-ai">🤖 AI Diagnosis</button>
+                <div class="text-right">
+                  <p class="font-semibold">${currentUser?.name}</p>
+                  <p class="text-xs text-gray-300">${currentUser?.email}</p>
+                </div>
+                <button onclick="logout()" class="px-4 py-2 bg-white bg-opacity-10 rounded-lg hover:bg-opacity-20">Logout</button>
+              </div>
             </nav>
             <div class="flex">
               <aside class="w-72 bg-gray-800 text-white p-6 min-h-screen">
-                <div class="mb-6 p-4 rounded-xl" style="background: linear-gradient(135deg, ${clinic.primary_color} 0%, ${clinic.secondary_color} 100%);"><p class="text-xs font-bold">✅ ALL PHASES ACTIVE</p><p class="text-xs mt-1">Phases 1-7 Complete</p></div>
+                <div class="mb-6 p-4 rounded-xl" style="background: linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%);">
+                  <p class="text-xs font-bold">🤖 AI POWERED</p>
+                  <p class="text-xs mt-1">Phase 8 Complete</p>
+                </div>
                 <nav class="space-y-2">
                   <a onclick="switchScreen('dashboard')" class="nav-link ${currentScreen==='dashboard'?'active':''}">📊 Dashboard</a>
                   <a onclick="switchScreen('opd_queue')" class="nav-link ${currentScreen==='opd_queue'?'active':''}">🎫 OPD Queue</a>
@@ -579,6 +1277,9 @@
             </div>
           </div>
         `;
+        
+        // Render chatbot
+        renderChatbot();
       }
     }
 
@@ -588,17 +1289,64 @@
       if (currentScreen === 'dashboard') {
         return `
           <div class="max-w-7xl mx-auto">
-            <h1 class="text-3xl font-bold mb-8">Dashboard - All Features Active</h1>
-            <div class="mb-8 p-6 rounded-xl border-l-4" style="background: linear-gradient(135deg, ${clinic.primary_color}15 0%, ${clinic.secondary_color}15 100%); border-left-color: ${clinic.primary_color};"><div class="flex items-center gap-4"><div class="text-4xl">✅</div><div><p class="font-bold text-lg" style="color: ${clinic.primary_color};">ALL PHASES 1-7 COMPLETE!</p><p class="text-sm text-gray-700">Patient Management • Prescriptions • Billing • OPD Queue • Vital Signs • SOAP Notes • Lab Orders</p></div></div></div>
-            <div class="grid grid-cols-4 gap-6 mb-8">
-              <div class="card"><div class="flex items-center gap-4"><div class="w-12 h-12 rounded-xl flex items-center justify-center text-white text-2xl" style="background: ${clinic.primary_color};">👥</div><div><p class="text-gray-600 text-sm">Patients</p><p class="text-3xl font-bold">${DB.patients.length}</p></div></div></div>
-              <div class="card"><div class="flex items-center gap-4"><div class="w-12 h-12 rounded-xl flex items-center justify-center text-white text-2xl" style="background: ${clinic.secondary_color};">💊</div><div><p class="text-gray-600 text-sm">Prescriptions</p><p class="text-3xl font-bold">${DB.prescriptions.length}</p></div></div></div>
-              <div class="card"><div class="flex items-center gap-4"><div class="w-12 h-12 bg-purple-500 rounded-xl flex items-center justify-center text-white text-2xl">💰</div><div><p class="text-gray-600 text-sm">Invoices</p><p class="text-3xl font-bold">${DB.invoices.length}</p></div></div></div>
-              <div class="card"><div class="flex items-center gap-4"><div class="w-12 h-12 bg-orange-500 rounded-xl flex items-center justify-center text-white text-2xl">🎫</div><div><p class="text-gray-600 text-sm">OPD Queue</p><p class="text-3xl font-bold">${DB.opd_queue.length}</p></div></div></div>
+            <h1 class="text-3xl font-bold mb-8">Dashboard - AI-Powered System</h1>
+            
+            <div class="mb-8 p-6 rounded-xl border-l-4" style="background: linear-gradient(135deg, #fce7f3 0%, #f3e8ff 100%); border-left-color: #ec4899;">
+              <div class="flex items-center gap-4">
+                <div class="text-4xl">🤖</div>
+                <div>
+                  <p class="font-bold text-lg" style="color: #ec4899;">PHASE 8: AI FOUNDATION COMPLETE!</p>
+                  <p class="text-sm text-gray-700">AI Prescription Assistant • Voice-to-Text • AI Diagnosis • Chatbot • Smart Search</p>
+                </div>
+              </div>
             </div>
+            
+            <div class="grid grid-cols-4 gap-6 mb-8">
+              <div class="card">
+                <div class="flex items-center gap-4">
+                  <div class="w-12 h-12 rounded-xl flex items-center justify-center text-white text-2xl" style="background: ${clinic.primary_color};">👥</div>
+                  <div><p class="text-gray-600 text-sm">Patients</p><p class="text-3xl font-bold">${DB.patients.length}</p></div>
+                </div>
+              </div>
+              <div class="card">
+                <div class="flex items-center gap-4">
+                  <div class="w-12 h-12 rounded-xl flex items-center justify-center text-white text-2xl" style="background: ${clinic.secondary_color};">💊</div>
+                  <div><p class="text-gray-600 text-sm">Prescriptions</p><p class="text-3xl font-bold">${DB.prescriptions.length}</p></div>
+                </div>
+              </div>
+              <div class="card">
+                <div class="flex items-center gap-4">
+                  <div class="w-12 h-12 bg-purple-500 rounded-xl flex items-center justify-center text-white text-2xl">💰</div>
+                  <div><p class="text-gray-600 text-sm">Invoices</p><p class="text-3xl font-bold">${DB.invoices.length}</p></div>
+                </div>
+              </div>
+              <div class="card">
+                <div class="flex items-center gap-4">
+                  <div class="w-12 h-12 bg-orange-500 rounded-xl flex items-center justify-center text-white text-2xl">🎫</div>
+                  <div><p class="text-gray-600 text-sm">OPD Queue</p><p class="text-3xl font-bold">${DB.opd_queue.length}</p></div>
+                </div>
+              </div>
+            </div>
+            
             <div class="grid grid-cols-2 gap-6">
-              <div class="card"><h3 class="text-xl font-bold mb-4">🎯 Quick Actions</h3><div class="space-y-3"><button onclick="showAddPatientModal()" class="btn btn-success w-full">👤 Add Patient</button><button onclick="showAddToQueueModal()" class="btn btn-primary w-full">🎫 Add to Queue</button></div></div>
-              <div class="card"><h3 class="text-xl font-bold mb-4">📊 System Status</h3><div class="space-y-2 text-sm"><div class="flex justify-between"><span>Total Patients:</span><span class="font-bold">${DB.patients.length}</span></div><div class="flex justify-between"><span>Medicines:</span><span class="font-bold">${DB.medicines.length}</span></div><div class="flex justify-between"><span>ICD-10 Codes:</span><span class="font-bold">${DB.icd10_codes.length}</span></div><div class="flex justify-between"><span>Lab Tests:</span><span class="font-bold">${DB.lab_tests.length}</span></div></div></div>
+              <div class="card">
+                <h3 class="text-xl font-bold mb-4">🎯 Quick Actions</h3>
+                <div class="space-y-3">
+                  <button onclick="showAddPatientModal()" class="btn btn-success w-full">👤 Add Patient</button>
+                  <button onclick="showAddToQueueModal()" class="btn btn-primary w-full">🎫 Add to Queue</button>
+                  <button onclick="showAIDiagnosisHelper()" class="btn btn-ai w-full">🤖 AI Diagnosis Assistant</button>
+                </div>
+              </div>
+              <div class="card">
+                <h3 class="text-xl font-bold mb-4">🤖 AI Features</h3>
+                <div class="space-y-2 text-sm">
+                  <div class="flex items-center gap-2"><span class="text-green-600">✓</span><span>AI Prescription Assistant</span></div>
+                  <div class="flex items-center gap-2"><span class="text-green-600">✓</span><span>Voice-to-Text (SOAP Notes)</span></div>
+                  <div class="flex items-center gap-2"><span class="text-green-600">✓</span><span>AI Diagnosis Support</span></div>
+                  <div class="flex items-center gap-2"><span class="text-green-600">✓</span><span>AI Chatbot (Click bottom-right)</span></div>
+                  <div class="flex items-center gap-2"><span class="text-green-600">✓</span><span>Smart Medicine Search</span></div>
+                </div>
+              </div>
             </div>
           </div>
         `;
@@ -607,10 +1355,32 @@
       if (currentScreen === 'patients') {
         return `
           <div class="max-w-7xl mx-auto">
-            <div class="flex justify-between items-center mb-8"><h1 class="text-3xl font-bold">👥 Patient Management</h1><button onclick="showAddPatientModal()" class="btn btn-success">+ Add Patient</button></div>
+            <div class="flex justify-between items-center mb-8">
+              <h1 class="text-3xl font-bold">👥 Patient Management</h1>
+              <button onclick="showAddPatientModal()" class="btn btn-success">+ Add Patient</button>
+            </div>
             <div class="space-y-4">
               ${DB.patients.map(p => `
-                <div class="card"><div class="flex justify-between items-start"><div class="flex-1"><h3 class="text-xl font-bold mb-2">${p.first_name} ${p.last_name || ''}</h3><div class="flex gap-3 mb-2"><span class="badge badge-primary">${p.patient_id}</span><span class="text-gray-600">${p.age}Y ${p.gender}</span><span class="text-gray-600">${p.blood_group || 'N/A'}</span></div><p class="text-gray-600">📞 ${p.phone}</p></div><div class="flex gap-3 flex-wrap"><button onclick="showPrescriptionModal('${p.id}')" class="btn btn-primary">💊 Rx</button><button onclick="showInvoiceModal('${p.id}')" class="btn btn-success">💰 Bill</button><button onclick="showVitalSignsModal('${p.id}')" class="btn btn-info">🩺 Vitals</button><button onclick="showSOAPNotesModal('${p.id}')" class="btn btn-warning">📋 SOAP</button><button onclick="showLabOrderModal('${p.id}')" class="btn btn-purple">🔬 Lab</button></div></div></div>
+                <div class="card">
+                  <div class="flex justify-between items-start">
+                    <div class="flex-1">
+                      <h3 class="text-xl font-bold mb-2">${p.first_name} ${p.last_name || ''}</h3>
+                      <div class="flex gap-3 mb-2">
+                        <span class="badge badge-primary">${p.patient_id}</span>
+                        <span class="text-gray-600">${p.age}Y ${p.gender}</span>
+                        <span class="text-gray-600">${p.blood_group || 'N/A'}</span>
+                      </div>
+                      <p class="text-gray-600">📞 ${p.phone}</p>
+                    </div>
+                    <div class="flex gap-3 flex-wrap">
+                      <button onclick="showPrescriptionModal('${p.id}')" class="btn btn-primary">💊 Rx <span class="ai-badge ml-1">AI</span></button>
+                      <button onclick="showInvoiceModal('${p.id}')" class="btn btn-success">💰 Bill</button>
+                      <button onclick="showVitalSignsModal('${p.id}')" class="btn btn-info">🩺 Vitals</button>
+                      <button onclick="showSOAPNotesModal('${p.id}')" class="btn btn-warning">📋 SOAP <span class="ai-badge ml-1">🎤</span></button>
+                      <button onclick="showLabOrderModal('${p.id}')" class="btn btn-purple">🔬 Lab</button>
+                    </div>
+                  </div>
+                </div>
               `).join('')}
             </div>
           </div>
@@ -618,7 +1388,7 @@
       }
 
       if (currentScreen === 'prescriptions') {
-        return `<div class="max-w-7xl mx-auto"><h1 class="text-3xl font-bold mb-8">💊 Prescriptions</h1><div class="card"><p class="text-gray-600">Total: <span class="font-bold">${DB.prescriptions.length}</span></p>${DB.prescriptions.length === 0 ? '<p class="text-gray-500 mt-4">No prescriptions yet. Go to Patients to create one.</p>' : ''}</div></div>`;
+        return `<div class="max-w-7xl mx-auto"><h1 class="text-3xl font-bold mb-8">💊 Prescriptions</h1><div class="card"><p class="text-gray-600">Total: <span class="font-bold">${DB.prescriptions.length}</span></p>${DB.prescriptions.length === 0 ? '<p class="text-gray-500 mt-4">No prescriptions yet. Go to Patients to create one with AI assistance!</p>' : ''}</div></div>`;
       }
 
       if (currentScreen === 'billing') {
@@ -630,15 +1400,33 @@
         const todayQueue = DB.opd_queue.filter(q => q.date === today);
         return `
           <div class="max-w-7xl mx-auto">
-            <div class="flex justify-between items-center mb-8"><h1 class="text-3xl font-bold">🎫 OPD Queue</h1><button onclick="showAddToQueueModal()" class="btn btn-success">+ Add to Queue</button></div>
-            <div class="space-y-4">${todayQueue.length === 0 ? '<div class="card text-center py-12"><div class="text-6xl mb-4">🎫</div><p class="text-xl text-gray-600">No patients in queue</p><button onclick="showAddToQueueModal()" class="btn btn-primary mt-4">Add First Patient</button></div>' : todayQueue.map(q => `<div class="card"><div class="flex justify-between items-start"><div class="flex gap-6 flex-1"><div class="text-center"><div class="text-5xl font-bold text-blue-600">${q.token_number}</div></div><div class="flex-1"><h3 class="text-xl font-bold mb-2">${q.patient_name}</h3><p class="text-gray-600 text-sm">💬 ${q.chief_complaint || 'No complaint'}</p></div></div></div></div>`).join('')}</div>
+            <div class="flex justify-between items-center mb-8">
+              <h1 class="text-3xl font-bold">🎫 OPD Queue</h1>
+              <button onclick="showAddToQueueModal()" class="btn btn-success">+ Add to Queue</button>
+            </div>
+            <div class="space-y-4">
+              ${todayQueue.length === 0 ? '<div class="card text-center py-12"><div class="text-6xl mb-4">🎫</div><p class="text-xl text-gray-600">No patients in queue</p><button onclick="showAddToQueueModal()" class="btn btn-primary mt-4">Add First Patient</button></div>' : todayQueue.map(q => `
+                <div class="card">
+                  <div class="flex justify-between items-start">
+                    <div class="flex gap-6 flex-1">
+                      <div class="text-center"><div class="text-5xl font-bold text-blue-600">${q.token_number}</div></div>
+                      <div class="flex-1">
+                        <h3 class="text-xl font-bold mb-2">${q.patient_name}</h3>
+                        <p class="text-gray-600 text-sm">💬 ${q.chief_complaint || 'No complaint'}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
           </div>
         `;
       }
 
       if (currentScreen === 'clinical') {
         return `
-          <div class="max-w-7xl mx-auto"><h1 class="text-3xl font-bold mb-8">🏥 Clinical Records</h1>
+          <div class="max-w-7xl mx-auto">
+            <h1 class="text-3xl font-bold mb-8">🏥 Clinical Records</h1>
             <div class="grid grid-cols-3 gap-8">
               <div class="card"><h3 class="text-xl font-bold mb-4">🩺 Vital Signs</h3><div class="text-4xl font-bold text-blue-600">${DB.vital_signs.length}</div><p class="text-sm text-gray-500 mt-2">Total records</p></div>
               <div class="card"><h3 class="text-xl font-bold mb-4">📋 SOAP Notes</h3><div class="text-4xl font-bold text-purple-600">${DB.soap_notes.length}</div><p class="text-sm text-gray-500 mt-2">Total notes</p></div>
@@ -652,7 +1440,7 @@
     }
 
     // Initialize app
-    console.log('✅ All modules loaded successfully!');
+    console.log('✅ Phase 8: AI Foundation - All modules loaded!');
     render();
   </script>
 </body>
