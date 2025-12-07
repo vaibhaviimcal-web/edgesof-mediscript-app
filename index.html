@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>EdgesOf MediScript - Phase 1.2: Receptionist System</title>
+  <title>EdgesOf MediScript - Phase 1.3: Admin System</title>
   <link rel="icon" href="https://nyc3.digitaloceanspaces.com/bhindi-drive/files/cab453ed-7d3e-4dfa-9012-038dbc50c1c5/2025-12-07T15-33-38-867Z-c50befdf-chat-image-1765121618851-0.jpg">
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
@@ -33,7 +33,7 @@
     .badge-danger { background: #fee2e2; color: #991b1b; }
     .badge-info { background: #dbeafe; color: #1e40af; }
     .role-badge { padding: 4px 10px; border-radius: 16px; font-size: 10px; font-weight: 700; text-transform: uppercase; }
-    .role-receptionist { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; }
+    .role-admin { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; }
     .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(8px); z-index: 9998; display: flex; align-items: center; justify-content: center; padding: 20px; animation: fadeIn 0.3s; }
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     .modal-content { background: white; border-radius: 20px; max-width: 1200px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 25px 80px rgba(0,0,0,0.25); animation: scaleIn 0.4s; }
@@ -49,22 +49,20 @@
     .save-indicator { position: fixed; top: 20px; right: 20px; padding: 8px 16px; background: white; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); font-size: 12px; font-weight: 600; z-index: 9999; display: none; }
     .save-indicator.saving { display: block; color: #f59e0b; }
     .save-indicator.saved { display: block; color: #10b981; }
-    .token-card { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; border-radius: 16px; padding: 24px; text-align: center; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); }
-    .queue-item { background: white; border: 2px solid #e5e7eb; border-radius: 12px; padding: 16px; margin-bottom: 12px; transition: all 0.3s; }
-    .queue-item:hover { border-color: #10b981; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.1); }
-    .queue-item.active { border-color: #10b981; background: #f0fdf4; }
-    .payment-mode { padding: 12px; border: 2px solid #e5e7eb; border-radius: 10px; cursor: pointer; text-align: center; transition: all 0.2s; }
-    .payment-mode:hover { border-color: #10b981; background: #f0fdf4; }
-    .payment-mode.selected { border-color: #10b981; background: #10b981; color: white; }
+    .stock-low { background: #fee2e2; border-left: 4px solid #ef4444; }
+    .stock-medium { background: #fef3c7; border-left: 4px solid #f59e0b; }
+    .stock-high { background: #d1fae5; border-left: 4px solid #10b981; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 12px; text-align: left; border-bottom: 1px solid #e5e7eb; font-size: 13px; }
+    th { background: #f9fafb; font-weight: 600; }
   </style>
 </head>
 <body>
   <div id="saveIndicator" class="save-indicator"></div>
   <div id="app"></div>
   <script>
-    console.log('🚀 EdgesOf MediScript - PHASE 1.2: RECEPTIONIST COMPLETE SYSTEM');
+    console.log('🚀 EdgesOf MediScript - PHASE 1.3: ADMIN COMPLETE SYSTEM');
     
-    // DATA PERSISTENCE MANAGER
     const DataManager = {
       STORAGE_KEY: 'edgesof_mediscript_db',
       save(data) {
@@ -89,15 +87,21 @@
           const jsonData = localStorage.getItem(this.STORAGE_KEY);
           return jsonData ? JSON.parse(jsonData) : null;
         } catch (error) {
-          console.error('Load error:', error);
           return null;
         }
       }
     };
 
-    // Initialize DB
     let DB = DataManager.load() || {
-      clinics: [{id: 'c1', name: 'City Health Clinic', logo_url: 'https://nyc3.digitaloceanspaces.com/bhindi-drive/files/cab453ed-7d3e-4dfa-9012-038dbc50c1c5/2025-12-07T15-33-38-867Z-c50befdf-chat-image-1765121618851-0.jpg', primary_color: '#2563eb', secondary_color: '#10b981', gstin: '27AABCU9603R1ZM'}],
+      clinics: [{
+        id: 'c1', name: 'City Health Clinic', 
+        logo_url: 'https://nyc3.digitaloceanspaces.com/bhindi-drive/files/cab453ed-7d3e-4dfa-9012-038dbc50c1c5/2025-12-07T15-33-38-867Z-c50befdf-chat-image-1765121618851-0.jpg', 
+        primary_color: '#2563eb', secondary_color: '#10b981', 
+        gstin: '27AABCU9603R1ZM', address: 'Mumbai, Maharashtra', 
+        phone: '+91-9876543210', email: 'info@cityhealthclinic.com',
+        working_hours: { monday: '09:00-18:00', tuesday: '09:00-18:00', wednesday: '09:00-18:00', thursday: '09:00-18:00', friday: '09:00-18:00', saturday: '09:00-14:00', sunday: 'Closed' },
+        holidays: []
+      }],
       users: [
         {id: 'u1', email: 'system@edgesof.com', password: 'admin123', role: 'superadmin', name: 'System Admin'},
         {id: 'u2', email: 'admin@clinic.com', password: 'admin123', role: 'admin', name: 'Clinic Admin'},
@@ -105,32 +109,30 @@
         {id: 'u4', email: 'reception@clinic.com', password: 'reception123', role: 'receptionist', name: 'Priya Patel'},
         {id: 'u5', email: 'patient@clinic.com', password: 'patient123', role: 'patient', name: 'Amit Kumar', patient_id: 'P001'}
       ],
-      patients: [
-        {id: 'p1', patient_id: 'P001', first_name: 'Rajesh', last_name: 'Kumar', age: 45, gender: 'Male', blood_group: 'O+', phone: '+919876543220', email: 'rajesh@example.com', address: 'Mumbai', emergency_contact: '+919876543221', photo: '', allergies: [], created_at: '2025-12-01'},
-        {id: 'p2', patient_id: 'P002', first_name: 'Priya', last_name: 'Sharma', age: 32, gender: 'Female', blood_group: 'A+', phone: '+919876543221', email: 'priya@example.com', address: 'Delhi', emergency_contact: '+919876543222', photo: '', allergies: ['Penicillin'], created_at: '2025-12-02'},
-        {id: 'p3', patient_id: 'P003', first_name: 'Amit', last_name: 'Patel', age: 28, gender: 'Male', blood_group: 'B+', phone: '+919876543222', email: 'amit@example.com', address: 'Bangalore', emergency_contact: '+919876543223', photo: '', allergies: [], created_at: '2025-12-03'}
+      staff: [
+        {id: 's1', name: 'Dr. Rajesh Sharma', role: 'Doctor', specialization: 'General Medicine', phone: '+919876543210', email: 'rajesh@clinic.com', salary: 80000, joining_date: '2023-01-15', status: 'Active'},
+        {id: 's2', name: 'Dr. Priya Verma', role: 'Doctor', specialization: 'Pediatrics', phone: '+919876543211', email: 'priya@clinic.com', salary: 75000, joining_date: '2023-03-20', status: 'Active'},
+        {id: 's3', name: 'Nurse Sunita', role: 'Nurse', department: 'OPD', phone: '+919876543212', email: 'sunita@clinic.com', salary: 35000, joining_date: '2023-02-10', status: 'Active'},
+        {id: 's4', name: 'Priya Patel', role: 'Receptionist', department: 'Front Desk', phone: '+919876543213', email: 'reception@clinic.com', salary: 25000, joining_date: '2023-04-01', status: 'Active'}
       ],
-      doctors: [
-        {id: 'd1', name: 'Dr. Rajesh Sharma', specialization: 'General Medicine', available_days: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'], consultation_fee: 500},
-        {id: 'd2', name: 'Dr. Priya Verma', specialization: 'Pediatrics', available_days: ['Monday', 'Wednesday', 'Friday'], consultation_fee: 600},
-        {id: 'd3', name: 'Dr. Amit Singh', specialization: 'Cardiology', available_days: ['Tuesday', 'Thursday', 'Saturday'], consultation_fee: 800}
-      ],
-      time_slots: ['09:00 AM', '09:30 AM', '10:00 AM', '10:30 AM', '11:00 AM', '11:30 AM', '12:00 PM', '02:00 PM', '02:30 PM', '03:00 PM', '03:30 PM', '04:00 PM', '04:30 PM', '05:00 PM'],
-      appointments: [],
-      opd_queue: [],
-      invoices: [],
       medicines: [
-        {id: 'm1', name: 'Paracetamol', brand_name: 'Crocin', strength: '500mg', price: 5, stock: 100},
-        {id: 'm2', name: 'Amoxicillin', brand_name: 'Novamox', strength: '500mg', price: 15, stock: 50},
-        {id: 'm3', name: 'Cetirizine', brand_name: 'Zyrtec', strength: '10mg', price: 8, stock: 75}
-      ]
+        {id: 'm1', name: 'Paracetamol', brand_name: 'Crocin', strength: '500mg', category: 'Analgesic', price: 5, mrp: 6, stock: 100, reorder_level: 20, supplier: 'MedSupply Co', hsn_code: '30049099'},
+        {id: 'm2', name: 'Amoxicillin', brand_name: 'Novamox', strength: '500mg', category: 'Antibiotic', price: 15, mrp: 18, stock: 15, reorder_level: 20, supplier: 'PharmaCorp', hsn_code: '30042090'},
+        {id: 'm3', name: 'Cetirizine', brand_name: 'Zyrtec', strength: '10mg', category: 'Antihistamine', price: 8, mrp: 10, stock: 75, reorder_level: 25, supplier: 'MedSupply Co', hsn_code: '30049099'},
+        {id: 'm4', name: 'Omeprazole', brand_name: 'Omez', strength: '20mg', category: 'PPI', price: 12, mrp: 15, stock: 5, reorder_level: 15, supplier: 'PharmaCorp', hsn_code: '30049099'},
+        {id: 'm5', name: 'Ibuprofen', brand_name: 'Brufen', strength: '400mg', category: 'NSAID', price: 10, mrp: 12, stock: 80, reorder_level: 30, supplier: 'MedSupply Co', hsn_code: '30049099'}
+      ],
+      patients: [],
+      appointments: [],
+      invoices: [],
+      opd_queue: [],
+      purchase_orders: []
     };
 
     function saveDB() { DataManager.save(DB); }
 
     let currentUser = null;
     let currentScreen = 'login';
-    let currentToken = 1;
 
     function showToast(msg, type = 'info') {
       const toast = document.createElement('div');
@@ -155,307 +157,221 @@
     function logout() { currentUser = null; currentScreen = 'login'; render(); }
     function switchScreen(screen) { currentScreen = screen; render(); }
 
-    // PATIENT REGISTRATION
-    function showPatientRegistrationModal() {
+    // STAFF MANAGEMENT
+    function showAddStaffModal() {
       const modal = document.createElement('div');
       modal.className = 'modal-overlay';
       modal.innerHTML = `
         <div class="modal-content">
-          <div class="p-6 border-b flex justify-between items-center" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
-            <div><h2 class="text-xl font-bold text-white">👤 New Patient Registration</h2><p class="text-xs text-white opacity-90 mt-1">Complete patient information form</p></div>
+          <div class="p-6 border-b flex justify-between items-center" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">
+            <div><h2 class="text-xl font-bold text-white">👥 Add New Staff</h2></div>
             <button onclick="closeModal()" class="text-white text-2xl">×</button>
           </div>
           <div class="p-6">
-            <div class="grid grid-cols-3 gap-4 mb-4">
-              <div><label class="form-label">First Name *</label><input type="text" id="regFirstName" class="form-input" required></div>
-              <div><label class="form-label">Last Name *</label><input type="text" id="regLastName" class="form-input" required></div>
-              <div><label class="form-label">Age *</label><input type="number" id="regAge" class="form-input" required></div>
-            </div>
-            <div class="grid grid-cols-3 gap-4 mb-4">
-              <div><label class="form-label">Gender *</label><select id="regGender" class="form-input"><option>Male</option><option>Female</option><option>Other</option></select></div>
-              <div><label class="form-label">Blood Group</label><select id="regBloodGroup" class="form-input"><option>A+</option><option>A-</option><option>B+</option><option>B-</option><option>O+</option><option>O-</option><option>AB+</option><option>AB-</option></select></div>
-              <div><label class="form-label">Phone *</label><input type="tel" id="regPhone" class="form-input" required></div>
+            <div class="grid grid-cols-2 gap-4 mb-4">
+              <div><label class="form-label">Full Name *</label><input type="text" id="staffName" class="form-input" required></div>
+              <div><label class="form-label">Role *</label><select id="staffRole" class="form-input"><option>Doctor</option><option>Nurse</option><option>Receptionist</option><option>Pharmacist</option><option>Lab Technician</option><option>Admin</option></select></div>
             </div>
             <div class="grid grid-cols-2 gap-4 mb-4">
-              <div><label class="form-label">Email</label><input type="email" id="regEmail" class="form-input"></div>
-              <div><label class="form-label">Emergency Contact</label><input type="tel" id="regEmergency" class="form-input"></div>
+              <div><label class="form-label">Specialization/Department</label><input type="text" id="staffSpec" class="form-input" placeholder="e.g., Cardiology, OPD"></div>
+              <div><label class="form-label">Phone *</label><input type="tel" id="staffPhone" class="form-input" required></div>
             </div>
-            <div class="mb-4"><label class="form-label">Address</label><textarea id="regAddress" class="form-input" rows="2"></textarea></div>
-            <div class="mb-4"><label class="form-label">Known Allergies (comma separated)</label><input type="text" id="regAllergies" class="form-input" placeholder="e.g., Penicillin, Sulfa drugs"></div>
-            <div class="flex gap-3"><button onclick="registerPatient()" class="btn btn-success">✅ Register Patient</button><button onclick="closeModal()" class="btn btn-secondary">Cancel</button></div>
+            <div class="grid grid-cols-2 gap-4 mb-4">
+              <div><label class="form-label">Email</label><input type="email" id="staffEmail" class="form-input"></div>
+              <div><label class="form-label">Salary (₹)</label><input type="number" id="staffSalary" class="form-input"></div>
+            </div>
+            <div class="mb-4"><label class="form-label">Joining Date</label><input type="date" id="staffJoining" class="form-input" value="${new Date().toISOString().split('T')[0]}"></div>
+            <div class="flex gap-3"><button onclick="addStaff()" class="btn btn-success">✅ Add Staff</button><button onclick="closeModal()" class="btn btn-secondary">Cancel</button></div>
           </div>
         </div>
       `;
       document.body.appendChild(modal);
     }
 
-    function registerPatient() {
-      const firstName = document.getElementById('regFirstName').value;
-      const lastName = document.getElementById('regLastName').value;
-      const age = document.getElementById('regAge').value;
-      const gender = document.getElementById('regGender').value;
-      const bloodGroup = document.getElementById('regBloodGroup').value;
-      const phone = document.getElementById('regPhone').value;
-      const email = document.getElementById('regEmail').value;
-      const emergency = document.getElementById('regEmergency').value;
-      const address = document.getElementById('regAddress').value;
-      const allergiesStr = document.getElementById('regAllergies').value;
-      
-      if (!firstName || !lastName || !age || !phone) {
-        showToast('Please fill all required fields', 'error');
+    function addStaff() {
+      const name = document.getElementById('staffName').value;
+      const role = document.getElementById('staffRole').value;
+      const spec = document.getElementById('staffSpec').value;
+      const phone = document.getElementById('staffPhone').value;
+      const email = document.getElementById('staffEmail').value;
+      const salary = document.getElementById('staffSalary').value;
+      const joining = document.getElementById('staffJoining').value;
+
+      if (!name || !phone) {
+        showToast('Please fill required fields', 'error');
         return;
       }
 
-      const patientId = 'P' + String(DB.patients.length + 1).padStart(3, '0');
-      const allergies = allergiesStr ? allergiesStr.split(',').map(a => a.trim()) : [];
-      
-      DB.patients.push({
-        id: 'p' + Date.now(),
-        patient_id: patientId,
-        first_name: firstName,
-        last_name: lastName,
-        age: parseInt(age),
-        gender: gender,
-        blood_group: bloodGroup,
+      DB.staff.push({
+        id: 's' + Date.now(),
+        name: name,
+        role: role,
+        specialization: spec || '',
+        department: spec || '',
         phone: phone,
         email: email,
-        address: address,
-        emergency_contact: emergency,
-        photo: '',
-        allergies: allergies,
-        created_at: new Date().toISOString().split('T')[0]
+        salary: parseFloat(salary) || 0,
+        joining_date: joining,
+        status: 'Active'
       });
-      
+
       saveDB();
-      showToast(`✅ Patient registered! ID: ${patientId}`, 'success');
+      showToast('✅ Staff member added successfully!', 'success');
       closeModal();
       render();
     }
 
-    // OPD QUEUE MANAGEMENT
-    function addToQueue(patientId) {
-      const patient = DB.patients.find(p => p.id === patientId);
-      if (!patient) return;
-      
-      const existingInQueue = DB.opd_queue.find(q => q.patient_id === patientId && q.status !== 'Completed');
-      if (existingInQueue) {
-        showToast('Patient already in queue', 'warning');
-        return;
-      }
-
-      const maxToken = DB.opd_queue.length > 0 ? Math.max(...DB.opd_queue.map(q => q.token)) : 0;
-      
-      DB.opd_queue.push({
-        id: 'q' + Date.now(),
-        token: maxToken + 1,
-        patient_id: patientId,
-        patient_name: patient.first_name + ' ' + patient.last_name,
-        status: 'Waiting',
-        added_at: new Date().toLocaleTimeString()
-      });
-      
-      saveDB();
-      showToast(`✅ Token ${maxToken + 1} assigned to ${patient.first_name}`, 'success');
-      render();
-    }
-
-    function callNextPatient() {
-      const waiting = DB.opd_queue.find(q => q.status === 'Waiting');
-      if (!waiting) {
-        showToast('No patients in queue', 'info');
-        return;
-      }
-      
-      waiting.status = 'In Consultation';
-      saveDB();
-      showToast(`🔔 Calling Token ${waiting.token} - ${waiting.patient_name}`, 'info');
-      render();
-    }
-
-    function markCompleted(queueId) {
-      const queue = DB.opd_queue.find(q => q.id === queueId);
-      if (queue) {
-        queue.status = 'Completed';
+    function deleteStaff(staffId) {
+      if (confirm('Are you sure you want to delete this staff member?')) {
+        DB.staff = DB.staff.filter(s => s.id !== staffId);
         saveDB();
-        showToast('✅ Marked as completed', 'success');
+        showToast('Staff member deleted', 'info');
         render();
       }
     }
 
-    // BILLING SYSTEM
-    function showBillingModal(patientId) {
-      const patient = DB.patients.find(p => p.id === patientId);
+    // INVENTORY MANAGEMENT
+    function showAddMedicineModal() {
       const modal = document.createElement('div');
       modal.className = 'modal-overlay';
       modal.innerHTML = `
         <div class="modal-content">
-          <div class="p-6 border-b flex justify-between items-center" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
-            <div><h2 class="text-xl font-bold text-white">💰 Create Bill</h2><p class="text-xs text-white opacity-90 mt-1">${patient.first_name} ${patient.last_name} (${patient.patient_id})</p></div>
+          <div class="p-6 border-b flex justify-between items-center" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">
+            <div><h2 class="text-xl font-bold text-white">💊 Add New Medicine</h2></div>
             <button onclick="closeModal()" class="text-white text-2xl">×</button>
           </div>
           <div class="p-6">
-            <div class="mb-4">
-              <label class="form-label">Add Item</label>
-              <div class="grid grid-cols-5 gap-2">
-                <input type="text" id="billItemDesc" class="form-input col-span-2" placeholder="Description">
-                <input type="number" id="billItemQty" class="form-input" placeholder="Qty" value="1">
-                <input type="number" id="billItemPrice" class="form-input" placeholder="Price">
-                <button onclick="addBillItem('${patientId}')" class="btn btn-primary btn-sm">Add</button>
-              </div>
+            <div class="grid grid-cols-3 gap-4 mb-4">
+              <div><label class="form-label">Generic Name *</label><input type="text" id="medName" class="form-input" required></div>
+              <div><label class="form-label">Brand Name *</label><input type="text" id="medBrand" class="form-input" required></div>
+              <div><label class="form-label">Strength</label><input type="text" id="medStrength" class="form-input" placeholder="e.g., 500mg"></div>
             </div>
-            <div class="mb-4">
-              <h3 class="font-bold mb-2 text-sm">Bill Items</h3>
-              <div id="billItems" class="space-y-2"></div>
+            <div class="grid grid-cols-3 gap-4 mb-4">
+              <div><label class="form-label">Category</label><input type="text" id="medCategory" class="form-input" placeholder="e.g., Antibiotic"></div>
+              <div><label class="form-label">Purchase Price (₹)</label><input type="number" id="medPrice" class="form-input" required></div>
+              <div><label class="form-label">MRP (₹)</label><input type="number" id="medMRP" class="form-input" required></div>
             </div>
-            <div class="bg-gray-50 p-4 rounded-lg mb-4">
-              <div class="flex justify-between mb-2"><span class="font-semibold">Subtotal:</span><span id="billSubtotal">₹0.00</span></div>
-              <div class="flex justify-between mb-2"><span class="font-semibold">Discount:</span><input type="number" id="billDiscount" class="form-input" style="width:100px;padding:4px 8px;" value="0" oninput="updateBillTotal()"></div>
-              <div class="flex justify-between text-lg font-bold border-t-2 pt-2 mt-2"><span>Total:</span><span id="billTotal">₹0.00</span></div>
+            <div class="grid grid-cols-3 gap-4 mb-4">
+              <div><label class="form-label">Initial Stock</label><input type="number" id="medStock" class="form-input" value="0"></div>
+              <div><label class="form-label">Reorder Level</label><input type="number" id="medReorder" class="form-input" value="20"></div>
+              <div><label class="form-label">Supplier</label><input type="text" id="medSupplier" class="form-input"></div>
             </div>
-            <div class="mb-4">
-              <label class="form-label">Payment Mode</label>
-              <div class="grid grid-cols-4 gap-2">
-                <div class="payment-mode" onclick="selectPaymentMode('Cash')">💵 Cash</div>
-                <div class="payment-mode" onclick="selectPaymentMode('Card')">💳 Card</div>
-                <div class="payment-mode" onclick="selectPaymentMode('UPI')">📱 UPI</div>
-                <div class="payment-mode" onclick="selectPaymentMode('Insurance')">🏥 Insurance</div>
-              </div>
-            </div>
-            <div class="flex gap-3"><button onclick="saveBill('${patientId}')" class="btn btn-success">💾 Save & Print</button><button onclick="closeModal()" class="btn btn-secondary">Cancel</button></div>
+            <div class="mb-4"><label class="form-label">HSN Code</label><input type="text" id="medHSN" class="form-input" placeholder="e.g., 30049099"></div>
+            <div class="flex gap-3"><button onclick="addMedicine()" class="btn btn-success">✅ Add Medicine</button><button onclick="closeModal()" class="btn btn-secondary">Cancel</button></div>
           </div>
         </div>
       `;
       document.body.appendChild(modal);
-      window.currentBill = { patient_id: patientId, items: [], subtotal: 0, discount: 0, total: 0, payment_mode: 'Cash' };
     }
 
-    function addBillItem(patientId) {
-      const desc = document.getElementById('billItemDesc').value;
-      const qty = parseInt(document.getElementById('billItemQty').value) || 1;
-      const price = parseFloat(document.getElementById('billItemPrice').value) || 0;
-      
-      if (!desc || !price) {
-        showToast('Enter description and price', 'error');
+    function addMedicine() {
+      const name = document.getElementById('medName').value;
+      const brand = document.getElementById('medBrand').value;
+      const strength = document.getElementById('medStrength').value;
+      const category = document.getElementById('medCategory').value;
+      const price = document.getElementById('medPrice').value;
+      const mrp = document.getElementById('medMRP').value;
+      const stock = document.getElementById('medStock').value;
+      const reorder = document.getElementById('medReorder').value;
+      const supplier = document.getElementById('medSupplier').value;
+      const hsn = document.getElementById('medHSN').value;
+
+      if (!name || !brand || !price || !mrp) {
+        showToast('Please fill required fields', 'error');
         return;
       }
 
-      window.currentBill.items.push({ description: desc, quantity: qty, unit_price: price, amount: qty * price });
-      document.getElementById('billItemDesc').value = '';
-      document.getElementById('billItemQty').value = '1';
-      document.getElementById('billItemPrice').value = '';
-      updateBillItems();
-    }
-
-    function updateBillItems() {
-      window.currentBill.subtotal = window.currentBill.items.reduce((sum, item) => sum + item.amount, 0);
-      updateBillTotal();
-      
-      document.getElementById('billItems').innerHTML = window.currentBill.items.length === 0 ? '<p class="text-sm text-gray-500">No items added</p>' : window.currentBill.items.map((item, idx) => `
-        <div class="flex justify-between items-center p-2 bg-gray-50 rounded">
-          <div class="flex-1"><p class="font-semibold text-sm">${item.description}</p><p class="text-xs text-gray-600">${item.quantity} × ₹${item.unit_price}</p></div>
-          <div class="flex items-center gap-2"><span class="font-bold">₹${item.amount}</span><button onclick="removeBillItem(${idx})" class="text-red-600 text-sm font-bold">✕</button></div>
-        </div>
-      `).join('');
-    }
-
-    function removeBillItem(index) {
-      window.currentBill.items.splice(index, 1);
-      updateBillItems();
-    }
-
-    function updateBillTotal() {
-      const discount = parseFloat(document.getElementById('billDiscount')?.value || 0);
-      window.currentBill.discount = discount;
-      window.currentBill.total = window.currentBill.subtotal - discount;
-      document.getElementById('billSubtotal').textContent = '₹' + window.currentBill.subtotal.toFixed(2);
-      document.getElementById('billTotal').textContent = '₹' + window.currentBill.total.toFixed(2);
-    }
-
-    function selectPaymentMode(mode) {
-      document.querySelectorAll('.payment-mode').forEach(el => el.classList.remove('selected'));
-      event.target.classList.add('selected');
-      window.currentBill.payment_mode = mode;
-    }
-
-    function saveBill(patientId) {
-      if (window.currentBill.items.length === 0) {
-        showToast('Add at least one item', 'error');
-        return;
-      }
-
-      const patient = DB.patients.find(p => p.id === patientId);
-      DB.invoices.push({
-        id: 'inv' + Date.now(),
-        patient_id: patientId,
-        patient_name: patient.first_name + ' ' + patient.last_name,
-        amount: window.currentBill.total,
-        date: new Date().toISOString().split('T')[0],
-        status: 'Paid',
-        payment_mode: window.currentBill.payment_mode,
-        items: window.currentBill.items
+      DB.medicines.push({
+        id: 'm' + Date.now(),
+        name: name,
+        brand_name: brand,
+        strength: strength,
+        category: category,
+        price: parseFloat(price),
+        mrp: parseFloat(mrp),
+        stock: parseInt(stock) || 0,
+        reorder_level: parseInt(reorder) || 20,
+        supplier: supplier,
+        hsn_code: hsn
       });
-      
+
       saveDB();
-      showToast('✅ Bill created & payment received!', 'success');
+      showToast('✅ Medicine added successfully!', 'success');
       closeModal();
       render();
     }
 
-    // APPOINTMENT MANAGEMENT
-    function showAppointmentModal() {
+    function updateStock(medicineId) {
+      const medicine = DB.medicines.find(m => m.id === medicineId);
+      const newStock = prompt(`Update stock for ${medicine.name}\nCurrent: ${medicine.stock}`, medicine.stock);
+      if (newStock !== null) {
+        medicine.stock = parseInt(newStock);
+        saveDB();
+        showToast('✅ Stock updated!', 'success');
+        render();
+      }
+    }
+
+    function deleteMedicine(medicineId) {
+      if (confirm('Are you sure you want to delete this medicine?')) {
+        DB.medicines = DB.medicines.filter(m => m.id !== medicineId);
+        saveDB();
+        showToast('Medicine deleted', 'info');
+        render();
+      }
+    }
+
+    // CLINIC SETTINGS
+    function showClinicSettingsModal() {
+      const clinic = DB.clinics[0];
       const modal = document.createElement('div');
       modal.className = 'modal-overlay';
       modal.innerHTML = `
         <div class="modal-content">
-          <div class="p-6 border-b flex justify-between items-center" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
-            <div><h2 class="text-xl font-bold text-white">📅 Schedule Appointment</h2></div>
+          <div class="p-6 border-b flex justify-between items-center" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">
+            <div><h2 class="text-xl font-bold text-white">⚙️ Clinic Settings</h2></div>
             <button onclick="closeModal()" class="text-white text-2xl">×</button>
           </div>
           <div class="p-6">
+            <div class="mb-4"><label class="form-label">Clinic Name</label><input type="text" id="clinicName" class="form-input" value="${clinic.name}"></div>
             <div class="grid grid-cols-2 gap-4 mb-4">
-              <div><label class="form-label">Select Patient</label><select id="aptPatient" class="form-input">${DB.patients.map(p => `<option value="${p.id}">${p.first_name} ${p.last_name} (${p.patient_id})</option>`).join('')}</select></div>
-              <div><label class="form-label">Select Doctor</label><select id="aptDoctor" class="form-input">${DB.doctors.map(d => `<option value="${d.id}">${d.name} - ${d.specialization}</option>`).join('')}</select></div>
+              <div><label class="form-label">Phone</label><input type="tel" id="clinicPhone" class="form-input" value="${clinic.phone}"></div>
+              <div><label class="form-label">Email</label><input type="email" id="clinicEmail" class="form-input" value="${clinic.email || ''}"></div>
             </div>
-            <div class="grid grid-cols-2 gap-4 mb-4">
-              <div><label class="form-label">Date</label><input type="date" id="aptDate" class="form-input" min="${new Date().toISOString().split('T')[0]}"></div>
-              <div><label class="form-label">Time</label><select id="aptTime" class="form-input">${DB.time_slots.map(t => `<option>${t}</option>`).join('')}</select></div>
+            <div class="mb-4"><label class="form-label">Address</label><textarea id="clinicAddress" class="form-input" rows="2">${clinic.address}</textarea></div>
+            <div class="mb-4"><label class="form-label">GSTIN</label><input type="text" id="clinicGSTIN" class="form-input" value="${clinic.gstin}"></div>
+            <div class="mb-4">
+              <h3 class="font-bold mb-2">Working Hours</h3>
+              <div class="grid grid-cols-2 gap-2">
+                ${['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map(day => `
+                  <div class="flex items-center gap-2">
+                    <label class="text-sm w-24">${day}:</label>
+                    <input type="text" id="hours${day}" class="form-input" value="${clinic.working_hours[day.toLowerCase()] || '09:00-18:00'}" placeholder="09:00-18:00">
+                  </div>
+                `).join('')}
+              </div>
             </div>
-            <div class="mb-4"><label class="form-label">Notes</label><textarea id="aptNotes" class="form-input" rows="2" placeholder="Reason for visit..."></textarea></div>
-            <div class="flex gap-3"><button onclick="scheduleAppointment()" class="btn btn-success">📅 Schedule</button><button onclick="closeModal()" class="btn btn-secondary">Cancel</button></div>
+            <div class="flex gap-3"><button onclick="saveClinicSettings()" class="btn btn-success">💾 Save Settings</button><button onclick="closeModal()" class="btn btn-secondary">Cancel</button></div>
           </div>
         </div>
       `;
       document.body.appendChild(modal);
     }
 
-    function scheduleAppointment() {
-      const patientId = document.getElementById('aptPatient').value;
-      const doctorId = document.getElementById('aptDoctor').value;
-      const date = document.getElementById('aptDate').value;
-      const time = document.getElementById('aptTime').value;
-      const notes = document.getElementById('aptNotes').value;
-
-      if (!date) {
-        showToast('Select date', 'error');
-        return;
-      }
-
-      const patient = DB.patients.find(p => p.id === patientId);
-      const doctor = DB.doctors.find(d => d.id === doctorId);
-
-      DB.appointments.push({
-        id: 'a' + Date.now(),
-        patient_id: patientId,
-        patient_name: patient.first_name + ' ' + patient.last_name,
-        doctor: doctor.name,
-        date: date,
-        time: time,
-        status: 'Scheduled',
-        notes: notes
+    function saveClinicSettings() {
+      const clinic = DB.clinics[0];
+      clinic.name = document.getElementById('clinicName').value;
+      clinic.phone = document.getElementById('clinicPhone').value;
+      clinic.email = document.getElementById('clinicEmail').value;
+      clinic.address = document.getElementById('clinicAddress').value;
+      clinic.gstin = document.getElementById('clinicGSTIN').value;
+      
+      ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].forEach(day => {
+        clinic.working_hours[day.toLowerCase()] = document.getElementById('hours' + day).value;
       });
 
       saveDB();
-      showToast('✅ Appointment scheduled successfully!', 'success');
+      showToast('✅ Settings saved successfully!', 'success');
       closeModal();
       render();
     }
@@ -468,191 +384,249 @@
         app.innerHTML = `
           <div class="min-h-screen flex items-center justify-center p-6" style="background: linear-gradient(135deg, ${clinic.primary_color} 0%, ${clinic.secondary_color} 100%);">
             <div class="w-full max-w-4xl">
-              <div class="text-center mb-8"><img src="${clinic.logo_url}" class="h-16 mx-auto mb-4"><h1 class="text-3xl font-bold text-white mb-2">${clinic.name}</h1><p class="text-white text-sm">Phase 1.2: Receptionist Complete System ✅</p></div>
+              <div class="text-center mb-8"><img src="${clinic.logo_url}" class="h-16 mx-auto mb-4"><h1 class="text-3xl font-bold text-white mb-2">${clinic.name}</h1><p class="text-white text-sm">Phase 1.3: Admin Complete System ✅</p></div>
               <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <div class="card"><h2 class="text-xl font-bold mb-4">🔐 Manual Login</h2><div class="mb-3"><label class="form-label">Email</label><input type="email" id="loginEmail" class="form-input"></div><div class="mb-3"><label class="form-label">Password</label><input type="password" id="loginPassword" class="form-input"></div><button onclick="login()" class="btn btn-primary w-full">Login</button></div>
-                <div class="card"><h2 class="text-xl font-bold mb-4">⚡ Quick Login</h2><button onclick="quickLogin('reception@clinic.com', 'reception123')" class="btn btn-success w-full mb-2">📋 Receptionist (Test This!)</button><button onclick="quickLogin('doctor@clinic.com', 'doctor123')" class="btn btn-primary w-full mb-2">👨‍⚕️ Doctor</button><button onclick="quickLogin('patient@clinic.com', 'patient123')" class="btn btn-purple w-full">👤 Patient</button></div>
+                <div class="card"><h2 class="text-xl font-bold mb-4">⚡ Quick Login</h2><button onclick="quickLogin('admin@clinic.com', 'admin123')" class="btn btn-warning w-full mb-2">🏥 Admin (Test This!)</button><button onclick="quickLogin('reception@clinic.com', 'reception123')" class="btn btn-success w-full mb-2">📋 Receptionist</button><button onclick="quickLogin('doctor@clinic.com', 'doctor123')" class="btn btn-primary w-full">👨‍⚕️ Doctor</button></div>
               </div>
             </div>
           </div>
         `;
-      } else if (currentScreen === 'receptionist-dashboard') {
-        const todayQueue = DB.opd_queue.filter(q => q.status !== 'Completed');
-        const todayAppointments = DB.appointments.filter(a => a.date === new Date().toISOString().split('T')[0]);
-        const pendingBills = DB.invoices.filter(i => i.status === 'Pending');
+      } else if (currentScreen === 'admin-dashboard') {
+        const lowStockMeds = DB.medicines.filter(m => m.stock <= m.reorder_level);
+        const totalRevenue = DB.invoices.reduce((sum, inv) => sum + inv.amount, 0);
         
         app.innerHTML = `
           <div>
             <nav class="bg-gray-900 text-white p-4 flex justify-between sticky top-0 z-50">
-              <div class="flex gap-3 items-center"><img src="${clinic.logo_url}" class="h-10"><div><h3 class="font-bold text-sm">${clinic.name}</h3><p class="text-xs text-gray-300">Receptionist</p></div></div>
-              <div class="flex items-center gap-3"><div class="text-right"><p class="font-semibold text-sm">${currentUser.name}</p><span class="role-badge role-receptionist">${currentUser.role}</span></div><button onclick="logout()" class="px-3 py-2 bg-white bg-opacity-10 rounded-lg text-xs">Logout</button></div>
+              <div class="flex gap-3 items-center"><img src="${clinic.logo_url}" class="h-10"><div><h3 class="font-bold text-sm">${clinic.name}</h3><p class="text-xs text-gray-300">Admin</p></div></div>
+              <div class="flex items-center gap-3"><div class="text-right"><p class="font-semibold text-sm">${currentUser.name}</p><span class="role-badge role-admin">${currentUser.role}</span></div><button onclick="logout()" class="px-3 py-2 bg-white bg-opacity-10 rounded-lg text-xs">Logout</button></div>
             </nav>
             <div class="flex">
               <aside class="w-64 bg-gray-800 text-white p-4 min-h-screen">
-                <div class="mb-4 p-3 rounded-lg" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);"><p class="text-xs font-bold">📋 RECEPTIONIST</p></div>
+                <div class="mb-4 p-3 rounded-lg" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);"><p class="text-xs font-bold">🏥 ADMIN</p></div>
                 <nav class="space-y-2">
-                  <a onclick="switchScreen('receptionist-dashboard')" class="nav-link active text-sm">📊 Dashboard</a>
-                  <a onclick="switchScreen('receptionist-queue')" class="nav-link text-sm">🎫 OPD Queue</a>
-                  <a onclick="switchScreen('receptionist-registration')" class="nav-link text-sm">👤 Registration</a>
-                  <a onclick="switchScreen('receptionist-billing')" class="nav-link text-sm">💰 Billing</a>
-                  <a onclick="switchScreen('receptionist-appointments')" class="nav-link text-sm">📅 Appointments</a>
+                  <a onclick="switchScreen('admin-dashboard')" class="nav-link active text-sm">📊 Dashboard</a>
+                  <a onclick="switchScreen('admin-staff')" class="nav-link text-sm">👥 Staff</a>
+                  <a onclick="switchScreen('admin-inventory')" class="nav-link text-sm">💊 Inventory</a>
+                  <a onclick="switchScreen('admin-reports')" class="nav-link text-sm">📈 Reports</a>
+                  <a onclick="switchScreen('admin-settings')" class="nav-link text-sm">⚙️ Settings</a>
                 </nav>
               </aside>
               <main class="flex-1 p-6">
-                <h1 class="text-2xl font-bold mb-6">📋 Receptionist Dashboard</h1>
-                <div class="mb-6 p-4 rounded-xl border-l-4" style="background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); border-left-color: #10b981;">
-                  <div class="flex items-center gap-3"><div class="text-3xl">✅</div><div><p class="font-bold text-green-700">ALL 4 SCREENS WORKING!</p><p class="text-xs text-gray-700">OPD Queue • Patient Registration • Billing • Appointments</p></div></div>
+                <h1 class="text-2xl font-bold mb-6">🏥 Admin Dashboard</h1>
+                <div class="mb-6 p-4 rounded-xl border-l-4" style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-left-color: #f59e0b;">
+                  <div class="flex items-center gap-3"><div class="text-3xl">✅</div><div><p class="font-bold text-orange-700">ALL 4 SCREENS WORKING!</p><p class="text-xs text-gray-700">Staff Management • Inventory • Reports • Settings</p></div></div>
                 </div>
                 <div class="grid grid-cols-4 gap-4 mb-6">
-                  <div class="stat-card"><p class="text-gray-600 text-sm mb-1">Today's Queue</p><p class="text-3xl font-bold">${todayQueue.length}</p></div>
-                  <div class="stat-card"><p class="text-gray-600 text-sm mb-1">Appointments</p><p class="text-3xl font-bold">${todayAppointments.length}</p></div>
-                  <div class="stat-card"><p class="text-gray-600 text-sm mb-1">Total Patients</p><p class="text-3xl font-bold">${DB.patients.length}</p></div>
-                  <div class="stat-card"><p class="text-gray-600 text-sm mb-1">Pending Bills</p><p class="text-3xl font-bold">${pendingBills.length}</p></div>
+                  <div class="stat-card"><p class="text-gray-600 text-sm mb-1">Total Staff</p><p class="text-3xl font-bold">${DB.staff.length}</p></div>
+                  <div class="stat-card"><p class="text-gray-600 text-sm mb-1">Medicines</p><p class="text-3xl font-bold">${DB.medicines.length}</p></div>
+                  <div class="stat-card"><p class="text-gray-600 text-sm mb-1">Low Stock Alerts</p><p class="text-3xl font-bold text-red-600">${lowStockMeds.length}</p></div>
+                  <div class="stat-card"><p class="text-gray-600 text-sm mb-1">Total Revenue</p><p class="text-3xl font-bold text-green-600">₹${totalRevenue.toLocaleString()}</p></div>
                 </div>
-                <div class="grid grid-cols-2 gap-4 mb-6">
-                  <div class="card"><h3 class="font-bold mb-3">🎫 Quick Actions</h3><div class="space-y-2"><button onclick="showPatientRegistrationModal()" class="btn btn-success w-full">👤 New Patient</button><button onclick="switchScreen('receptionist-queue')" class="btn btn-primary w-full">🎫 Manage Queue</button><button onclick="showAppointmentModal()" class="btn btn-info w-full">📅 Book Appointment</button></div></div>
-                  <div class="card"><h3 class="font-bold mb-3">📊 Today's Summary</h3><div class="space-y-2 text-sm"><div class="flex justify-between p-2 bg-gray-50 rounded"><span>Waiting in Queue:</span><span class="font-bold">${todayQueue.filter(q => q.status === 'Waiting').length}</span></div><div class="flex justify-between p-2 bg-gray-50 rounded"><span>In Consultation:</span><span class="font-bold">${todayQueue.filter(q => q.status === 'In Consultation').length}</span></div><div class="flex justify-between p-2 bg-gray-50 rounded"><span>Completed:</span><span class="font-bold">${DB.opd_queue.filter(q => q.status === 'Completed').length}</span></div></div></div>
+                ${lowStockMeds.length > 0 ? `
+                  <div class="card mb-6 bg-red-50 border-2 border-red-200">
+                    <h3 class="font-bold mb-3 text-red-700">⚠️ Low Stock Alerts (${lowStockMeds.length})</h3>
+                    <div class="space-y-2">
+                      ${lowStockMeds.map(m => `
+                        <div class="p-2 bg-white rounded flex justify-between items-center">
+                          <div><p class="font-semibold text-sm">${m.name} (${m.brand_name})</p><p class="text-xs text-gray-600">Current: ${m.stock} • Reorder: ${m.reorder_level}</p></div>
+                          <button onclick="updateStock('${m.id}')" class="btn btn-warning btn-xs">📦 Update Stock</button>
+                        </div>
+                      `).join('')}
+                    </div>
+                  </div>
+                ` : ''}
+                <div class="grid grid-cols-2 gap-4">
+                  <div class="card"><h3 class="font-bold mb-3">👥 Staff Overview</h3><div class="space-y-2">${DB.staff.slice(0, 5).map(s => `<div class="p-2 bg-gray-50 rounded"><p class="font-semibold text-sm">${s.name}</p><p class="text-xs text-gray-600">${s.role} • ${s.specialization || s.department}</p></div>`).join('')}</div></div>
+                  <div class="card"><h3 class="font-bold mb-3">💰 Recent Transactions</h3><div class="space-y-2">${DB.invoices.slice(-5).reverse().map(inv => `<div class="p-2 bg-gray-50 rounded flex justify-between"><div><p class="font-semibold text-sm">${inv.patient_name}</p><p class="text-xs text-gray-600">${inv.date}</p></div><p class="font-bold">₹${inv.amount}</p></div>`).join('')}</div></div>
                 </div>
-                <div class="card"><h3 class="font-bold mb-4">📅 Today's Appointments</h3><div class="space-y-2">${todayAppointments.length === 0 ? '<p class="text-sm text-gray-500">No appointments today</p>' : todayAppointments.map(a => `<div class="p-3 bg-gray-50 rounded-lg"><div class="flex justify-between"><div><p class="font-bold text-sm">${a.patient_name}</p><p class="text-xs text-gray-600">${a.time} • ${a.doctor}</p></div><span class="badge badge-success">${a.status}</span></div></div>`).join('')}</div></div>
               </main>
             </div>
           </div>
         `;
-      } else if (currentScreen === 'receptionist-queue') {
-        const waiting = DB.opd_queue.filter(q => q.status === 'Waiting');
-        const inConsultation = DB.opd_queue.filter(q => q.status === 'In Consultation');
-        const completed = DB.opd_queue.filter(q => q.status === 'Completed');
+      } else if (currentScreen === 'admin-staff') {
+        app.innerHTML = `
+          <div>
+            <nav class="bg-gray-900 text-white p-4 flex justify-between sticky top-0 z-50">
+              <div class="flex gap-3 items-center"><img src="${clinic.logo_url}" class="h-10"><div><h3 class="font-bold text-sm">${clinic.name}</h3><p class="text-xs text-gray-300">Admin</p></div></div>
+              <div class="flex items-center gap-3"><div class="text-right"><p class="font-semibold text-sm">${currentUser.name}</p><span class="role-badge role-admin">${currentUser.role}</span></div><button onclick="logout()" class="px-3 py-2 bg-white bg-opacity-10 rounded-lg text-xs">Logout</button></div>
+            </nav>
+            <div class="flex">
+              <aside class="w-64 bg-gray-800 text-white p-4 min-h-screen">
+                <div class="mb-4 p-3 rounded-lg" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);"><p class="text-xs font-bold">🏥 ADMIN</p></div>
+                <nav class="space-y-2">
+                  <a onclick="switchScreen('admin-dashboard')" class="nav-link text-sm">📊 Dashboard</a>
+                  <a onclick="switchScreen('admin-staff')" class="nav-link active text-sm">👥 Staff</a>
+                  <a onclick="switchScreen('admin-inventory')" class="nav-link text-sm">💊 Inventory</a>
+                  <a onclick="switchScreen('admin-reports')" class="nav-link text-sm">📈 Reports</a>
+                  <a onclick="switchScreen('admin-settings')" class="nav-link text-sm">⚙️ Settings</a>
+                </nav>
+              </aside>
+              <main class="flex-1 p-6">
+                <div class="flex justify-between items-center mb-6">
+                  <h1 class="text-2xl font-bold">👥 Staff Management</h1>
+                  <button onclick="showAddStaffModal()" class="btn btn-success">➕ Add Staff</button>
+                </div>
+                <div class="card">
+                  <table>
+                    <thead>
+                      <tr><th>Name</th><th>Role</th><th>Specialization</th><th>Phone</th><th>Email</th><th>Salary</th><th>Joining Date</th><th>Status</th><th>Actions</th></tr>
+                    </thead>
+                    <tbody>
+                      ${DB.staff.map(s => `
+                        <tr>
+                          <td class="font-semibold">${s.name}</td>
+                          <td>${s.role}</td>
+                          <td>${s.specialization || s.department || '-'}</td>
+                          <td>${s.phone}</td>
+                          <td>${s.email || '-'}</td>
+                          <td>₹${s.salary?.toLocaleString() || '-'}</td>
+                          <td>${s.joining_date || '-'}</td>
+                          <td><span class="badge badge-success">${s.status}</span></td>
+                          <td><button onclick="deleteStaff('${s.id}')" class="btn btn-danger btn-xs">Delete</button></td>
+                        </tr>
+                      `).join('')}
+                    </tbody>
+                  </table>
+                </div>
+              </main>
+            </div>
+          </div>
+        `;
+      } else if (currentScreen === 'admin-inventory') {
+        app.innerHTML = `
+          <div>
+            <nav class="bg-gray-900 text-white p-4 flex justify-between sticky top-0 z-50">
+              <div class="flex gap-3 items-center"><img src="${clinic.logo_url}" class="h-10"><div><h3 class="font-bold text-sm">${clinic.name}</h3><p class="text-xs text-gray-300">Admin</p></div></div>
+              <div class="flex items-center gap-3"><div class="text-right"><p class="font-semibold text-sm">${currentUser.name}</p><span class="role-badge role-admin">${currentUser.role}</span></div><button onclick="logout()" class="px-3 py-2 bg-white bg-opacity-10 rounded-lg text-xs">Logout</button></div>
+            </nav>
+            <div class="flex">
+              <aside class="w-64 bg-gray-800 text-white p-4 min-h-screen">
+                <div class="mb-4 p-3 rounded-lg" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);"><p class="text-xs font-bold">🏥 ADMIN</p></div>
+                <nav class="space-y-2">
+                  <a onclick="switchScreen('admin-dashboard')" class="nav-link text-sm">📊 Dashboard</a>
+                  <a onclick="switchScreen('admin-staff')" class="nav-link text-sm">👥 Staff</a>
+                  <a onclick="switchScreen('admin-inventory')" class="nav-link active text-sm">💊 Inventory</a>
+                  <a onclick="switchScreen('admin-reports')" class="nav-link text-sm">📈 Reports</a>
+                  <a onclick="switchScreen('admin-settings')" class="nav-link text-sm">⚙️ Settings</a>
+                </nav>
+              </aside>
+              <main class="flex-1 p-6">
+                <div class="flex justify-between items-center mb-6">
+                  <h1 class="text-2xl font-bold">💊 Inventory Management</h1>
+                  <button onclick="showAddMedicineModal()" class="btn btn-success">➕ Add Medicine</button>
+                </div>
+                <div class="card">
+                  <table>
+                    <thead>
+                      <tr><th>Medicine</th><th>Brand</th><th>Strength</th><th>Category</th><th>Stock</th><th>Reorder Level</th><th>Price</th><th>MRP</th><th>Supplier</th><th>Actions</th></tr>
+                    </thead>
+                    <tbody>
+                      ${DB.medicines.map(m => {
+                        const stockClass = m.stock <= m.reorder_level ? 'stock-low' : m.stock <= m.reorder_level * 2 ? 'stock-medium' : 'stock-high';
+                        return `
+                          <tr class="${stockClass}">
+                            <td class="font-semibold">${m.name}</td>
+                            <td>${m.brand_name}</td>
+                            <td>${m.strength}</td>
+                            <td>${m.category}</td>
+                            <td><span class="font-bold">${m.stock}</span></td>
+                            <td>${m.reorder_level}</td>
+                            <td>₹${m.price}</td>
+                            <td>₹${m.mrp}</td>
+                            <td>${m.supplier || '-'}</td>
+                            <td>
+                              <button onclick="updateStock('${m.id}')" class="btn btn-primary btn-xs">Update</button>
+                              <button onclick="deleteMedicine('${m.id}')" class="btn btn-danger btn-xs">Delete</button>
+                            </td>
+                          </tr>
+                        `;
+                      }).join('')}
+                    </tbody>
+                  </table>
+                </div>
+              </main>
+            </div>
+          </div>
+        `;
+      } else if (currentScreen === 'admin-reports') {
+        const today = new Date().toISOString().split('T')[0];
+        const todayRevenue = DB.invoices.filter(i => i.date === today).reduce((sum, i) => sum + i.amount, 0);
+        const thisMonth = new Date().toISOString().slice(0, 7);
+        const monthRevenue = DB.invoices.filter(i => i.date.startsWith(thisMonth)).reduce((sum, i) => sum + i.amount, 0);
+        const totalRevenue = DB.invoices.reduce((sum, i) => sum + i.amount, 0);
         
         app.innerHTML = `
           <div>
             <nav class="bg-gray-900 text-white p-4 flex justify-between sticky top-0 z-50">
-              <div class="flex gap-3 items-center"><img src="${clinic.logo_url}" class="h-10"><div><h3 class="font-bold text-sm">${clinic.name}</h3><p class="text-xs text-gray-300">Receptionist</p></div></div>
-              <div class="flex items-center gap-3"><div class="text-right"><p class="font-semibold text-sm">${currentUser.name}</p><span class="role-badge role-receptionist">${currentUser.role}</span></div><button onclick="logout()" class="px-3 py-2 bg-white bg-opacity-10 rounded-lg text-xs">Logout</button></div>
+              <div class="flex gap-3 items-center"><img src="${clinic.logo_url}" class="h-10"><div><h3 class="font-bold text-sm">${clinic.name}</h3><p class="text-xs text-gray-300">Admin</p></div></div>
+              <div class="flex items-center gap-3"><div class="text-right"><p class="font-semibold text-sm">${currentUser.name}</p><span class="role-badge role-admin">${currentUser.role}</span></div><button onclick="logout()" class="px-3 py-2 bg-white bg-opacity-10 rounded-lg text-xs">Logout</button></div>
             </nav>
             <div class="flex">
               <aside class="w-64 bg-gray-800 text-white p-4 min-h-screen">
-                <div class="mb-4 p-3 rounded-lg" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);"><p class="text-xs font-bold">📋 RECEPTIONIST</p></div>
+                <div class="mb-4 p-3 rounded-lg" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);"><p class="text-xs font-bold">🏥 ADMIN</p></div>
                 <nav class="space-y-2">
-                  <a onclick="switchScreen('receptionist-dashboard')" class="nav-link text-sm">📊 Dashboard</a>
-                  <a onclick="switchScreen('receptionist-queue')" class="nav-link active text-sm">🎫 OPD Queue</a>
-                  <a onclick="switchScreen('receptionist-registration')" class="nav-link text-sm">👤 Registration</a>
-                  <a onclick="switchScreen('receptionist-billing')" class="nav-link text-sm">💰 Billing</a>
-                  <a onclick="switchScreen('receptionist-appointments')" class="nav-link text-sm">📅 Appointments</a>
+                  <a onclick="switchScreen('admin-dashboard')" class="nav-link text-sm">📊 Dashboard</a>
+                  <a onclick="switchScreen('admin-staff')" class="nav-link text-sm">👥 Staff</a>
+                  <a onclick="switchScreen('admin-inventory')" class="nav-link text-sm">💊 Inventory</a>
+                  <a onclick="switchScreen('admin-reports')" class="nav-link active text-sm">📈 Reports</a>
+                  <a onclick="switchScreen('admin-settings')" class="nav-link text-sm">⚙️ Settings</a>
                 </nav>
               </aside>
               <main class="flex-1 p-6">
-                <div class="flex justify-between items-center mb-6">
-                  <h1 class="text-2xl font-bold">🎫 OPD Queue Management</h1>
-                  <button onclick="callNextPatient()" class="btn btn-success">🔔 Call Next Patient</button>
-                </div>
+                <h1 class="text-2xl font-bold mb-6">📈 Financial Reports</h1>
                 <div class="grid grid-cols-3 gap-4 mb-6">
-                  <div class="token-card"><p class="text-sm opacity-90 mb-1">Waiting</p><p class="text-4xl font-bold">${waiting.length}</p></div>
-                  <div class="token-card" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);"><p class="text-sm opacity-90 mb-1">In Consultation</p><p class="text-4xl font-bold">${inConsultation.length}</p></div>
-                  <div class="token-card" style="background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);"><p class="text-sm opacity-90 mb-1">Completed</p><p class="text-4xl font-bold">${completed.length}</p></div>
+                  <div class="stat-card"><p class="text-gray-600 text-sm mb-1">Today's Revenue</p><p class="text-3xl font-bold text-green-600">₹${todayRevenue.toLocaleString()}</p></div>
+                  <div class="stat-card"><p class="text-gray-600 text-sm mb-1">This Month</p><p class="text-3xl font-bold text-blue-600">₹${monthRevenue.toLocaleString()}</p></div>
+                  <div class="stat-card"><p class="text-gray-600 text-sm mb-1">Total Revenue</p><p class="text-3xl font-bold text-purple-600">₹${totalRevenue.toLocaleString()}</p></div>
                 </div>
-                <div class="card mb-6"><h3 class="font-bold mb-3">Add Patient to Queue</h3><div class="grid grid-cols-4 gap-2">${DB.patients.map(p => `<button onclick="addToQueue('${p.id}')" class="btn btn-primary btn-sm">${p.first_name} ${p.last_name}</button>`).join('')}</div></div>
-                <div class="grid grid-cols-3 gap-4">
-                  <div class="card"><h3 class="font-bold mb-3 text-green-700">⏳ Waiting (${waiting.length})</h3><div class="space-y-2">${waiting.length === 0 ? '<p class="text-sm text-gray-500">No patients waiting</p>' : waiting.map(q => `<div class="queue-item"><div class="flex justify-between items-center"><div><p class="font-bold text-lg">Token ${q.token}</p><p class="text-sm">${q.patient_name}</p><p class="text-xs text-gray-600">${q.added_at}</p></div><span class="badge badge-warning">${q.status}</span></div></div>`).join('')}</div></div>
-                  <div class="card"><h3 class="font-bold mb-3 text-orange-700">👨‍⚕️ In Consultation (${inConsultation.length})</h3><div class="space-y-2">${inConsultation.length === 0 ? '<p class="text-sm text-gray-500">No patients in consultation</p>' : inConsultation.map(q => `<div class="queue-item active"><div class="flex justify-between items-center mb-2"><div><p class="font-bold text-lg">Token ${q.token}</p><p class="text-sm">${q.patient_name}</p></div><span class="badge badge-warning">${q.status}</span></div><button onclick="markCompleted('${q.id}')" class="btn btn-success btn-sm w-full">✅ Mark Completed</button></div>`).join('')}</div></div>
-                  <div class="card"><h3 class="font-bold mb-3 text-gray-700">✅ Completed (${completed.length})</h3><div class="space-y-2">${completed.length === 0 ? '<p class="text-sm text-gray-500">No completed consultations</p>' : completed.slice(-5).map(q => `<div class="queue-item"><div class="flex justify-between items-center"><div><p class="font-bold text-sm">Token ${q.token}</p><p class="text-xs">${q.patient_name}</p></div><span class="badge badge-success">${q.status}</span></div></div>`).join('')}</div></div>
+                <div class="grid grid-cols-2 gap-4 mb-6">
+                  <div class="card"><h3 class="font-bold mb-3">💰 Revenue Breakdown</h3><div class="space-y-2"><div class="flex justify-between p-2 bg-gray-50 rounded"><span>Total Bills:</span><span class="font-bold">${DB.invoices.length}</span></div><div class="flex justify-between p-2 bg-gray-50 rounded"><span>Paid Bills:</span><span class="font-bold text-green-600">${DB.invoices.filter(i => i.status === 'Paid').length}</span></div><div class="flex justify-between p-2 bg-gray-50 rounded"><span>Pending Bills:</span><span class="font-bold text-red-600">${DB.invoices.filter(i => i.status === 'Pending').length}</span></div><div class="flex justify-between p-2 bg-gray-50 rounded"><span>Average Bill:</span><span class="font-bold">₹${DB.invoices.length > 0 ? Math.round(totalRevenue / DB.invoices.length) : 0}</span></div></div></div>
+                  <div class="card"><h3 class="font-bold mb-3">📊 Staff Expenses</h3><div class="space-y-2"><div class="flex justify-between p-2 bg-gray-50 rounded"><span>Total Staff:</span><span class="font-bold">${DB.staff.length}</span></div><div class="flex justify-between p-2 bg-gray-50 rounded"><span>Monthly Salary:</span><span class="font-bold text-red-600">₹${DB.staff.reduce((sum, s) => sum + (s.salary || 0), 0).toLocaleString()}</span></div><div class="flex justify-between p-2 bg-gray-50 rounded"><span>Doctors:</span><span class="font-bold">${DB.staff.filter(s => s.role === 'Doctor').length}</span></div><div class="flex justify-between p-2 bg-gray-50 rounded"><span>Support Staff:</span><span class="font-bold">${DB.staff.filter(s => s.role !== 'Doctor').length}</span></div></div></div>
                 </div>
+                <div class="card"><h3 class="font-bold mb-4">📋 Recent Transactions</h3><table><thead><tr><th>Date</th><th>Patient</th><th>Amount</th><th>Payment Mode</th><th>Status</th></tr></thead><tbody>${DB.invoices.slice(-10).reverse().map(inv => `<tr><td>${inv.date}</td><td>${inv.patient_name}</td><td class="font-bold">₹${inv.amount}</td><td>${inv.payment_mode || 'Cash'}</td><td><span class="badge ${inv.status === 'Paid' ? 'badge-success' : 'badge-danger'}">${inv.status}</span></td></tr>`).join('')}</tbody></table></div>
               </main>
             </div>
           </div>
         `;
-      } else if (currentScreen === 'receptionist-registration') {
+      } else if (currentScreen === 'admin-settings') {
         app.innerHTML = `
           <div>
             <nav class="bg-gray-900 text-white p-4 flex justify-between sticky top-0 z-50">
-              <div class="flex gap-3 items-center"><img src="${clinic.logo_url}" class="h-10"><div><h3 class="font-bold text-sm">${clinic.name}</h3><p class="text-xs text-gray-300">Receptionist</p></div></div>
-              <div class="flex items-center gap-3"><div class="text-right"><p class="font-semibold text-sm">${currentUser.name}</p><span class="role-badge role-receptionist">${currentUser.role}</span></div><button onclick="logout()" class="px-3 py-2 bg-white bg-opacity-10 rounded-lg text-xs">Logout</button></div>
+              <div class="flex gap-3 items-center"><img src="${clinic.logo_url}" class="h-10"><div><h3 class="font-bold text-sm">${clinic.name}</h3><p class="text-xs text-gray-300">Admin</p></div></div>
+              <div class="flex items-center gap-3"><div class="text-right"><p class="font-semibold text-sm">${currentUser.name}</p><span class="role-badge role-admin">${currentUser.role}</span></div><button onclick="logout()" class="px-3 py-2 bg-white bg-opacity-10 rounded-lg text-xs">Logout</button></div>
             </nav>
             <div class="flex">
               <aside class="w-64 bg-gray-800 text-white p-4 min-h-screen">
-                <div class="mb-4 p-3 rounded-lg" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);"><p class="text-xs font-bold">📋 RECEPTIONIST</p></div>
+                <div class="mb-4 p-3 rounded-lg" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);"><p class="text-xs font-bold">🏥 ADMIN</p></div>
                 <nav class="space-y-2">
-                  <a onclick="switchScreen('receptionist-dashboard')" class="nav-link text-sm">📊 Dashboard</a>
-                  <a onclick="switchScreen('receptionist-queue')" class="nav-link text-sm">🎫 OPD Queue</a>
-                  <a onclick="switchScreen('receptionist-registration')" class="nav-link active text-sm">👤 Registration</a>
-                  <a onclick="switchScreen('receptionist-billing')" class="nav-link text-sm">💰 Billing</a>
-                  <a onclick="switchScreen('receptionist-appointments')" class="nav-link text-sm">📅 Appointments</a>
+                  <a onclick="switchScreen('admin-dashboard')" class="nav-link text-sm">📊 Dashboard</a>
+                  <a onclick="switchScreen('admin-staff')" class="nav-link text-sm">👥 Staff</a>
+                  <a onclick="switchScreen('admin-inventory')" class="nav-link text-sm">💊 Inventory</a>
+                  <a onclick="switchScreen('admin-reports')" class="nav-link text-sm">📈 Reports</a>
+                  <a onclick="switchScreen('admin-settings')" class="nav-link active text-sm">⚙️ Settings</a>
                 </nav>
               </aside>
               <main class="flex-1 p-6">
                 <div class="flex justify-between items-center mb-6">
-                  <h1 class="text-2xl font-bold">👤 Patient Registration</h1>
-                  <button onclick="showPatientRegistrationModal()" class="btn btn-success">➕ New Patient</button>
+                  <h1 class="text-2xl font-bold">⚙️ Clinic Settings</h1>
+                  <button onclick="showClinicSettingsModal()" class="btn btn-primary">✏️ Edit Settings</button>
                 </div>
-                <div class="card"><h3 class="font-bold mb-4">📋 All Patients (${DB.patients.length})</h3><div class="space-y-2">${DB.patients.map(p => `<div class="p-3 border rounded-lg hover:bg-gray-50"><div class="flex justify-between items-start"><div class="flex-1"><p class="font-bold">${p.first_name} ${p.last_name}</p><p class="text-sm text-gray-600">${p.patient_id} • ${p.age}Y ${p.gender} • ${p.blood_group}</p><p class="text-xs text-gray-500">${p.phone} • ${p.email || 'No email'}</p>${p.allergies.length > 0 ? `<span class="badge badge-danger mt-1">⚠️ ${p.allergies.join(', ')}</span>` : ''}</div><div class="flex gap-2"><button onclick="addToQueue('${p.id}')" class="btn btn-primary btn-xs">🎫 Add to Queue</button><button onclick="showBillingModal('${p.id}')" class="btn btn-success btn-xs">💰 Bill</button></div></div></div>`).join('')}</div></div>
-              </main>
-            </div>
-          </div>
-        `;
-      } else if (currentScreen === 'receptionist-billing') {
-        app.innerHTML = `
-          <div>
-            <nav class="bg-gray-900 text-white p-4 flex justify-between sticky top-0 z-50">
-              <div class="flex gap-3 items-center"><img src="${clinic.logo_url}" class="h-10"><div><h3 class="font-bold text-sm">${clinic.name}</h3><p class="text-xs text-gray-300">Receptionist</p></div></div>
-              <div class="flex items-center gap-3"><div class="text-right"><p class="font-semibold text-sm">${currentUser.name}</p><span class="role-badge role-receptionist">${currentUser.role}</span></div><button onclick="logout()" class="px-3 py-2 bg-white bg-opacity-10 rounded-lg text-xs">Logout</button></div>
-            </nav>
-            <div class="flex">
-              <aside class="w-64 bg-gray-800 text-white p-4 min-h-screen">
-                <div class="mb-4 p-3 rounded-lg" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);"><p class="text-xs font-bold">📋 RECEPTIONIST</p></div>
-                <nav class="space-y-2">
-                  <a onclick="switchScreen('receptionist-dashboard')" class="nav-link text-sm">📊 Dashboard</a>
-                  <a onclick="switchScreen('receptionist-queue')" class="nav-link text-sm">🎫 OPD Queue</a>
-                  <a onclick="switchScreen('receptionist-registration')" class="nav-link text-sm">👤 Registration</a>
-                  <a onclick="switchScreen('receptionist-billing')" class="nav-link active text-sm">💰 Billing</a>
-                  <a onclick="switchScreen('receptionist-appointments')" class="nav-link text-sm">📅 Appointments</a>
-                </nav>
-              </aside>
-              <main class="flex-1 p-6">
-                <h1 class="text-2xl font-bold mb-6">💰 Billing & Payments</h1>
-                <div class="grid grid-cols-3 gap-4 mb-6">
-                  <div class="stat-card"><p class="text-gray-600 text-sm mb-1">Total Bills</p><p class="text-3xl font-bold">${DB.invoices.length}</p></div>
-                  <div class="stat-card"><p class="text-gray-600 text-sm mb-1">Paid</p><p class="text-3xl font-bold text-green-600">${DB.invoices.filter(i => i.status === 'Paid').length}</p></div>
-                  <div class="stat-card"><p class="text-gray-600 text-sm mb-1">Pending</p><p class="text-3xl font-bold text-red-600">${DB.invoices.filter(i => i.status === 'Pending').length}</p></div>
+                <div class="grid grid-cols-2 gap-4">
+                  <div class="card"><h3 class="font-bold mb-3">🏥 Clinic Information</h3><div class="space-y-2"><div class="p-2 bg-gray-50 rounded"><p class="text-xs text-gray-600">Name</p><p class="font-semibold">${clinic.name}</p></div><div class="p-2 bg-gray-50 rounded"><p class="text-xs text-gray-600">Phone</p><p class="font-semibold">${clinic.phone}</p></div><div class="p-2 bg-gray-50 rounded"><p class="text-xs text-gray-600">Email</p><p class="font-semibold">${clinic.email || 'Not set'}</p></div><div class="p-2 bg-gray-50 rounded"><p class="text-xs text-gray-600">Address</p><p class="font-semibold">${clinic.address}</p></div><div class="p-2 bg-gray-50 rounded"><p class="text-xs text-gray-600">GSTIN</p><p class="font-semibold">${clinic.gstin}</p></div></div></div>
+                  <div class="card"><h3 class="font-bold mb-3">🕐 Working Hours</h3><div class="space-y-2">${Object.entries(clinic.working_hours).map(([day, hours]) => `<div class="flex justify-between p-2 bg-gray-50 rounded"><span class="font-semibold capitalize">${day}:</span><span>${hours}</span></div>`).join('')}</div></div>
                 </div>
-                <div class="card mb-6"><h3 class="font-bold mb-3">Create New Bill</h3><div class="grid grid-cols-4 gap-2">${DB.patients.map(p => `<button onclick="showBillingModal('${p.id}')" class="btn btn-success btn-sm">${p.first_name} ${p.last_name}</button>`).join('')}</div></div>
-                <div class="card"><h3 class="font-bold mb-4">📋 Recent Bills</h3><div class="space-y-2">${DB.invoices.length === 0 ? '<p class="text-sm text-gray-500">No bills yet</p>' : DB.invoices.slice(-10).reverse().map(inv => `<div class="p-3 border rounded-lg"><div class="flex justify-between items-start"><div><p class="font-bold">${inv.patient_name}</p><p class="text-sm text-gray-600">${inv.date} • ${inv.payment_mode || 'Cash'}</p></div><div class="text-right"><p class="text-xl font-bold">₹${inv.amount}</p><span class="badge ${inv.status === 'Paid' ? 'badge-success' : 'badge-danger'}">${inv.status}</span></div></div></div>`).join('')}</div></div>
-              </main>
-            </div>
-          </div>
-        `;
-      } else if (currentScreen === 'receptionist-appointments') {
-        app.innerHTML = `
-          <div>
-            <nav class="bg-gray-900 text-white p-4 flex justify-between sticky top-0 z-50">
-              <div class="flex gap-3 items-center"><img src="${clinic.logo_url}" class="h-10"><div><h3 class="font-bold text-sm">${clinic.name}</h3><p class="text-xs text-gray-300">Receptionist</p></div></div>
-              <div class="flex items-center gap-3"><div class="text-right"><p class="font-semibold text-sm">${currentUser.name}</p><span class="role-badge role-receptionist">${currentUser.role}</span></div><button onclick="logout()" class="px-3 py-2 bg-white bg-opacity-10 rounded-lg text-xs">Logout</button></div>
-            </nav>
-            <div class="flex">
-              <aside class="w-64 bg-gray-800 text-white p-4 min-h-screen">
-                <div class="mb-4 p-3 rounded-lg" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);"><p class="text-xs font-bold">📋 RECEPTIONIST</p></div>
-                <nav class="space-y-2">
-                  <a onclick="switchScreen('receptionist-dashboard')" class="nav-link text-sm">📊 Dashboard</a>
-                  <a onclick="switchScreen('receptionist-queue')" class="nav-link text-sm">🎫 OPD Queue</a>
-                  <a onclick="switchScreen('receptionist-registration')" class="nav-link text-sm">👤 Registration</a>
-                  <a onclick="switchScreen('receptionist-billing')" class="nav-link text-sm">💰 Billing</a>
-                  <a onclick="switchScreen('receptionist-appointments')" class="nav-link active text-sm">📅 Appointments</a>
-                </nav>
-              </aside>
-              <main class="flex-1 p-6">
-                <div class="flex justify-between items-center mb-6">
-                  <h1 class="text-2xl font-bold">📅 Appointment Management</h1>
-                  <button onclick="showAppointmentModal()" class="btn btn-success">➕ New Appointment</button>
-                </div>
-                <div class="card"><h3 class="font-bold mb-4">📋 All Appointments (${DB.appointments.length})</h3><div class="space-y-2">${DB.appointments.length === 0 ? '<p class="text-sm text-gray-500">No appointments scheduled</p>' : DB.appointments.map(a => `<div class="p-3 border rounded-lg"><div class="flex justify-between items-start"><div><p class="font-bold">${a.patient_name}</p><p class="text-sm text-gray-600">${a.date} at ${a.time}</p><p class="text-xs text-gray-500">${a.doctor}</p>${a.notes ? `<p class="text-xs text-gray-600 mt-1">📝 ${a.notes}</p>` : ''}</div><span class="badge badge-success">${a.status}</span></div></div>`).join('')}</div></div>
               </main>
             </div>
           </div>
         `;
       } else {
-        app.innerHTML = '<div class="min-h-screen flex items-center justify-center"><div class="card"><h2 class="text-xl font-bold mb-4">Screen: ' + currentScreen + '</h2><button onclick="switchScreen(\'receptionist-dashboard\')" class="btn btn-primary">Back to Dashboard</button></div></div>';
+        app.innerHTML = '<div class="min-h-screen flex items-center justify-center"><div class="card"><h2 class="text-xl font-bold mb-4">Screen: ' + currentScreen + '</h2><button onclick="switchScreen(\'admin-dashboard\')" class="btn btn-primary">Back to Dashboard</button></div></div>';
       }
     }
 
-    console.log('✅ PHASE 1.2 COMPLETE - RECEPTIONIST SYSTEM FULLY FUNCTIONAL!');
+    console.log('✅ PHASE 1.3 COMPLETE - ADMIN SYSTEM FULLY FUNCTIONAL!');
     render();
   </script>
 </body>
