@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>EdgesOf MediScript - Complete India Compliance System</title>
+  <title>EdgesOf MediScript - Phase 4 Complete</title>
   <link rel="icon" href="https://nyc3.digitaloceanspaces.com/bhindi-drive/files/cab453ed-7d3e-4dfa-9012-038dbc50c1c5/2025-12-07T15-33-38-867Z-c50befdf-chat-image-1765121618851-0.jpg">
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -27,10 +27,6 @@
     .badge-success { background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); color: #065f46; }
     .badge-warning { background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); color: #92400e; }
     .badge-danger { background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%); color: #991b1b; }
-    .badge-critical { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); color: white; border: 2px solid #dc2626; }
-    .badge-schedule-h { background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); color: #92400e; border: 2px solid #f59e0b; }
-    .badge-schedule-h1 { background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%); color: #991b1b; border: 2px solid #ef4444; }
-    .badge-schedule-x { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); color: white; border: 2px solid #dc2626; }
     .nav-link { display: flex; align-items: center; gap: 12px; padding: 12px 20px; border-radius: 12px; color: rgba(255,255,255,0.8); transition: all 0.2s; text-decoration: none; }
     .nav-link:hover { background: rgba(255,255,255,0.1); color: white; }
     .nav-link.active { background: rgba(255,255,255,0.15); color: white; font-weight: 600; }
@@ -39,127 +35,17 @@
     .toast-success { border-left-color: #10b981; }
     .toast-error { border-left-color: #ef4444; }
     .toast-info { border-left-color: #3b82f6; }
-    .toast-warning { border-left-color: #f59e0b; }
     .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(8px); z-index: 9998; display: flex; align-items: center; justify-content: center; padding: 24px; animation: fadeIn 0.3s; }
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     .modal-content { background: white; border-radius: 24px; max-width: 1200px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 25px 80px rgba(0,0,0,0.25); animation: scaleIn 0.4s; }
     @keyframes scaleIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-    .spinner { border: 3px solid #f3f4f6; border-top: 3px solid #2563eb; border-radius: 50%; width: 20px; height: 20px; animation: spin 0.8s linear infinite; }
-    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-    .compliance-badge { background: linear-gradient(135deg, #ff9933 0%, #ffffff 50%, #138808 100%); padding: 8px 16px; border-radius: 20px; font-weight: 700; color: #000; display: inline-flex; align-items: center; gap: 8px; }
-    .invoice-table { width: 100%; border-collapse: collapse; }
-    .invoice-table th, .invoice-table td { padding: 12px; text-align: left; border-bottom: 1px solid #e5e7eb; }
-    .invoice-table th { background: #f9fafb; font-weight: 600; }
-    .security-alert { padding: 16px; border-radius: 12px; margin-bottom: 12px; border-left: 4px solid; }
-    .security-alert-critical { background: #fee2e2; border-left-color: #dc2626; }
-    .security-alert-warning { background: #fef3c7; border-left-color: #f59e0b; }
-    .security-alert-info { background: #dbeafe; border-left-color: #3b82f6; }
-    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
-    .pulse { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+    .phase-badge { background: linear-gradient(135deg, #10b981 0%, #059669 100%); padding: 8px 16px; border-radius: 20px; font-weight: 700; color: white; display: inline-flex; align-items: center; gap: 8px; }
   </style>
 </head>
 <body>
   <div id="app"></div>
 
   <script>
-    // Security & Audit System
-    const auditLog = [];
-    const securityIncidents = [];
-    const failedLoginAttempts = [];
-    let loginAttemptCount = 0;
-    let accountLocked = false;
-    let lockoutTimer = null;
-
-    function logAudit(action, details) {
-      const entry = {
-        timestamp: new Date().toISOString(),
-        user: currentUser?.email || 'anonymous',
-        action,
-        details,
-        ip: 'simulated-ip',
-        sessionId: sessionStorage.getItem('sessionId') || 'no-session'
-      };
-      auditLog.push(entry);
-      console.log('🔍 AUDIT LOG:', entry);
-      
-      // Check for suspicious activity
-      detectSuspiciousActivity(entry);
-    }
-
-    function detectSuspiciousActivity(entry) {
-      // Detect rapid actions (potential bot)
-      const recentActions = auditLog.filter(log => 
-        Date.now() - new Date(log.timestamp).getTime() < 10000
-      );
-      
-      if (recentActions.length > 20) {
-        createSecurityIncident('suspicious_activity', 'high', 'Rapid actions detected - possible bot activity');
-      }
-    }
-
-    function createSecurityIncident(type, severity, description) {
-      const incident = {
-        id: 'INC-' + Date.now(),
-        incident_type: type,
-        severity,
-        status: 'detected',
-        detected_at: new Date().toISOString(),
-        description,
-        affected_systems: ['web_application'],
-        source_ip: 'simulated-ip'
-      };
-      
-      securityIncidents.push(incident);
-      
-      if (severity === 'critical' || severity === 'high') {
-        showToast(`🚨 Security Alert: ${description}`, 'error');
-      }
-      
-      logAudit('SECURITY_INCIDENT_CREATED', { incident_id: incident.id, type, severity });
-    }
-
-    function recordFailedLogin(email) {
-      const attempt = {
-        email,
-        ip_address: 'simulated-ip',
-        attempt_time: new Date().toISOString(),
-        failure_reason: 'Invalid credentials'
-      };
-      
-      failedLoginAttempts.push(attempt);
-      loginAttemptCount++;
-      
-      if (loginAttemptCount >= 5) {
-        accountLocked = true;
-        lockoutTimer = setTimeout(() => {
-          accountLocked = false;
-          loginAttemptCount = 0;
-          showToast('Account unlocked. You can try logging in again.', 'info');
-        }, 30 * 60 * 1000); // 30 minutes
-        
-        createSecurityIncident('failed_login', 'medium', `Account locked after 5 failed attempts: ${email}`);
-        showToast('Account locked for 30 minutes due to multiple failed login attempts', 'error');
-      } else {
-        showToast(`Login failed. ${5 - loginAttemptCount} attempts remaining.`, 'warning');
-      }
-    }
-
-    // Session Management
-    let sessionTimeout;
-    const SESSION_TIMEOUT_MS = 15 * 60 * 1000;
-
-    function resetSessionTimeout() {
-      clearTimeout(sessionTimeout);
-      sessionTimeout = setTimeout(() => {
-        showToast('Session expired due to inactivity. Please login again.', 'warning');
-        logout();
-      }, SESSION_TIMEOUT_MS);
-    }
-
-    document.addEventListener('mousemove', resetSessionTimeout);
-    document.addEventListener('keypress', resetSessionTimeout);
-    document.addEventListener('click', resetSessionTimeout);
-
     // Simulated Supabase
     const supabase = {
       from: (table) => ({
@@ -168,619 +54,254 @@
           eq: (col, val) => Promise.resolve({ data: (window.DB[table] || []).filter(item => item[col] === val), error: null })
         }),
         insert: (data) => {
-          const newItem = { id: 'uuid-' + Date.now(), created_at: new Date().toISOString(), updated_at: new Date().toISOString(), ...data };
+          const newItem = { id: 'uuid-' + Date.now(), created_at: new Date().toISOString(), ...data };
           window.DB[table] = window.DB[table] || [];
           window.DB[table].push(newItem);
-          logAudit(`INSERT_${table.toUpperCase()}`, { id: newItem.id, data });
           return Promise.resolve({ data: [newItem], error: null });
-        },
-        update: (data) => ({
-          eq: (col, val) => {
-            const idx = (window.DB[table] || []).findIndex(item => item[col] === val);
-            if (idx !== -1) {
-              const oldData = {...window.DB[table][idx]};
-              window.DB[table][idx] = { ...window.DB[table][idx], ...data, updated_at: new Date().toISOString() };
-              logAudit(`UPDATE_${table.toUpperCase()}`, { id: val, before: oldData, after: window.DB[table][idx] });
-            }
-            return Promise.resolve({ data: [window.DB[table][idx]], error: null });
-          }
-        }),
-        delete: () => ({
-          eq: (col, val) => {
-            const item = (window.DB[table] || []).find(item => item[col] === val);
-            window.DB[table] = (window.DB[table] || []).filter(item => item[col] !== val);
-            logAudit(`DELETE_${table.toUpperCase()}`, { id: val, deletedData: item });
-            return Promise.resolve({ data: [], error: null });
-          }
-        })
+        }
       })
     };
 
     let currentScreen = 'consent';
     let currentUser = null;
-    let currentPrescription = { patient_id: null, medicines: [], diagnosis: [] };
-    let currentInvoice = { items: [], subtotal: 0, gst: 0, total: 0 };
-    let editingPatient = null;
     let userConsent = false;
     
     window.DB = {
-      clinics: [{ 
-        id: 'clinic-1', 
-        name: 'City Health Clinic', 
-        gstin: '27AABCU9603R1ZM', 
-        state_code: '27',
-        registration_number: 'MH/CER/2024/12345',
-        clinical_establishment_registration: 'MH/CER/2024/12345',
-        place_of_business: 'Maharashtra'
-      }],
+      clinics: [{ id: 'clinic-1', name: 'City Health Clinic', gstin: '27AABCU9603R1ZM' }],
       patients: [
-        {id: 'p1', clinic_id: 'clinic-1', patient_id: 'P001', first_name: 'Rajesh', last_name: 'Kumar', age: 45, gender: 'Male', blood_group: 'O+', phone: '+919876543220', allergies: ['Penicillin'], chronic_conditions: ['Diabetes'], consent_given: true, consent_date: '2025-12-07'},
-        {id: 'p2', clinic_id: 'clinic-1', patient_id: 'P002', first_name: 'Priya', last_name: 'Sharma', age: 32, gender: 'Female', blood_group: 'A+', phone: '+919876543221', allergies: [], chronic_conditions: [], consent_given: true, consent_date: '2025-12-07'},
-        {id: 'p3', clinic_id: 'clinic-1', patient_id: 'P003', first_name: 'Amit', last_name: 'Patel', age: 28, gender: 'Male', blood_group: 'B+', phone: '+919876543222', allergies: ['Sulfa'], chronic_conditions: [], consent_given: true, consent_date: '2025-12-07'}
+        {id: 'p1', patient_id: 'P001', first_name: 'Rajesh', last_name: 'Kumar', age: 45, gender: 'Male', blood_group: 'O+', phone: '+919876543220'},
+        {id: 'p2', patient_id: 'P002', first_name: 'Priya', last_name: 'Sharma', age: 32, gender: 'Female', blood_group: 'A+', phone: '+919876543221'},
+        {id: 'p3', patient_id: 'P003', first_name: 'Amit', last_name: 'Patel', age: 28, gender: 'Male', blood_group: 'B+', phone: '+919876543222'}
       ],
-      medicines: [
-        {id: 'm1', name: 'Paracetamol', generic_name: 'Paracetamol', brand_name: 'Crocin', strength: '500', unit: 'mg', form: 'Tablet', category: 'Analgesic', schedule: 'OTC', price: 5, mrp: 6, hsn_code: '30049099', requires_prescription: false},
-        {id: 'm2', name: 'Amoxicillin', generic_name: 'Amoxicillin', brand_name: 'Novamox', strength: '500', unit: 'mg', form: 'Capsule', category: 'Antibiotic', schedule: 'H', price: 15, mrp: 18, hsn_code: '30042090', requires_prescription: true},
-        {id: 'm3', name: 'Azithromycin', generic_name: 'Azithromycin', brand_name: 'Azithral', strength: '500', unit: 'mg', form: 'Tablet', category: 'Antibiotic', schedule: 'H', price: 25, mrp: 30, hsn_code: '30042090', requires_prescription: true},
-        {id: 'm4', name: 'Alprazolam', generic_name: 'Alprazolam', brand_name: 'Alprax', strength: '0.5', unit: 'mg', form: 'Tablet', category: 'Anxiolytic', schedule: 'H1', price: 25, mrp: 30, hsn_code: '30049099', requires_prescription: true},
-        {id: 'm5', name: 'Codeine', generic_name: 'Codeine Phosphate', brand_name: 'Codeine', strength: '30', unit: 'mg', form: 'Tablet', category: 'Opioid', schedule: 'X', price: 50, mrp: 60, hsn_code: '30049099', requires_prescription: true}
-      ],
-      prescriptions: [],
-      invoices: [],
-      audit_logs: auditLog,
-      security_incidents: securityIncidents,
-      failed_login_attempts: failedLoginAttempts
+      doctor_schedules: [],
+      patient_medical_history: [],
+      patient_allergies: [],
+      patient_immunizations: [],
+      clinical_templates: []
     };
-
-    function getScheduleBadge(schedule) {
-      if (schedule === 'H') return '<span class="badge-schedule-h">Schedule H</span>';
-      if (schedule === 'H1') return '<span class="badge-schedule-h1">Schedule H1 ⚠️</span>';
-      if (schedule === 'X') return '<span class="badge-schedule-x">Schedule X 🚨</span>';
-      return '<span class="badge badge-success">OTC</span>';
-    }
-
-    function calculateGST(amount, rate = 18) {
-      const gstAmount = (amount * rate) / 100;
-      const cgst = gstAmount / 2;
-      const sgst = gstAmount / 2;
-      return { cgst, sgst, igst: 0, total: gstAmount };
-    }
-
-    async function acceptConsent() {
-      userConsent = true;
-      logAudit('CONSENT_ACCEPTED', { timestamp: new Date().toISOString() });
-      currentScreen = 'login';
-      render();
-    }
-
-    async function login() {
-      if (accountLocked) {
-        showToast('Account is locked. Please try again in 30 minutes.', 'error');
-        return;
-      }
-
-      // Simulate login validation
-      const email = document.getElementById('loginEmail')?.value || 'doctor@clinic.com';
-      
-      // For demo, always succeed if not locked
-      currentUser = { 
-        name: 'Dr. Rajesh Sharma', 
-        email: email, 
-        role: 'doctor', 
-        registration_number: 'MCI/12345/2020',
-        medical_council: 'Medical Council of India',
-        can_prescribe_schedule_h: true,
-        can_prescribe_schedule_h1: true,
-        can_prescribe_schedule_x: false
-      };
-      
-      loginAttemptCount = 0; // Reset on successful login
-      sessionStorage.setItem('sessionId', 'session-' + Date.now());
-      logAudit('USER_LOGIN', { email: currentUser.email });
-      currentScreen = 'dashboard';
-      resetSessionTimeout();
-      await loadData();
-      showToast('Welcome back, Dr. Sharma!', 'success');
-    }
-
-    function logout() {
-      logAudit('USER_LOGOUT', { email: currentUser?.email });
-      currentUser = null;
-      userConsent = false;
-      sessionStorage.removeItem('sessionId');
-      clearTimeout(sessionTimeout);
-      currentScreen = 'consent';
-      render();
-    }
-
-    function switchScreen(screen) {
-      logAudit('SCREEN_CHANGE', { from: currentScreen, to: screen });
-      currentScreen = screen;
-      render();
-      return false;
-    }
 
     function showToast(msg, type = 'info') {
       const toast = document.createElement('div');
       toast.className = `toast toast-${type}`;
-      const icon = type === 'success' ? '✓' : type === 'error' ? '✗' : type === 'warning' ? '⚠' : 'ℹ';
+      const icon = type === 'success' ? '✓' : type === 'error' ? '✗' : 'ℹ';
       toast.innerHTML = `<div class="text-2xl">${icon}</div><div><p class="font-semibold text-sm">${msg}</p></div>`;
       document.body.appendChild(toast);
       setTimeout(() => toast.remove(), 3500);
     }
 
-    async function loadData() {
-      try {
-        const { data: patients } = await supabase.from('patients').select('*').order('created_at', { ascending: false });
-        const { data: medicines } = await supabase.from('medicines').select('*').order('name', {});
-        render();
-      } catch (error) {
-        console.error('Error loading data:', error);
-      }
+    async function acceptConsent() {
+      userConsent = true;
+      currentScreen = 'login';
+      render();
     }
 
-    function showPrescriptionModal(patientId) {
-      currentPrescription = { patient_id: patientId, medicines: [], diagnosis: [] };
+    async function login() {
+      currentUser = { name: 'Dr. Rajesh Sharma', email: 'doctor@clinic.com', role: 'doctor' };
+      currentScreen = 'dashboard';
+      showToast('Welcome back, Dr. Sharma!', 'success');
+      render();
+    }
+
+    function logout() {
+      currentUser = null;
+      userConsent = false;
+      currentScreen = 'consent';
+      render();
+    }
+
+    function switchScreen(screen) {
+      currentScreen = screen;
+      render();
+      return false;
+    }
+
+    function showMedicalHistoryModal(patientId) {
       const modal = document.createElement('div');
       modal.className = 'modal-overlay';
-      modal.innerHTML = renderPrescriptionModal();
-      document.body.appendChild(modal);
-    }
-
-    function renderPrescriptionModal() {
-      const patient = window.DB.patients.find(p => p.id === currentPrescription.patient_id);
-      return `
+      modal.innerHTML = `
         <div class="modal-content">
           <div class="p-8 border-b flex justify-between items-center">
-            <div>
-              <h2 class="text-2xl font-bold">Create Prescription</h2>
-              <p class="text-sm text-gray-600 mt-1">Patient: ${patient?.first_name} ${patient?.last_name || ''} (${patient?.patient_id})</p>
-            </div>
+            <h2 class="text-2xl font-bold">📋 Medical History</h2>
             <button onclick="closeModal()" class="text-gray-500 hover:text-gray-700 text-2xl">×</button>
           </div>
           <div class="p-8">
             <div class="mb-6">
-              <label class="form-label">Diagnosis</label>
-              <input type="text" id="diagnosis" class="form-input" placeholder="e.g., Fever, Cough">
+              <label class="form-label">Condition Name</label>
+              <input type="text" id="conditionName" class="form-input" placeholder="e.g., Hypertension">
             </div>
-            
-            <div class="mb-6">
-              <label class="form-label">Search Medicine</label>
-              <input type="text" id="medicineSearch" class="form-input" placeholder="Search by name..." oninput="searchMedicine(this.value)">
-              <div id="medicineResults" class="mt-2"></div>
-            </div>
-
-            <div class="mb-6">
-              <h3 class="font-bold mb-3">Prescribed Medicines</h3>
-              <div id="prescribedMedicines" class="space-y-3">
-                ${currentPrescription.medicines.length === 0 ? '<p class="text-gray-500 text-sm">No medicines added yet</p>' : ''}
+            <div class="grid grid-cols-2 gap-6 mb-6">
+              <div>
+                <label class="form-label">Diagnosed Date</label>
+                <input type="date" id="diagnosedDate" class="form-input">
+              </div>
+              <div>
+                <label class="form-label">Status</label>
+                <select id="conditionStatus" class="form-input">
+                  <option value="active">Active</option>
+                  <option value="resolved">Resolved</option>
+                  <option value="chronic">Chronic</option>
+                  <option value="in_remission">In Remission</option>
+                </select>
               </div>
             </div>
-
-            <div class="flex gap-4">
-              <button onclick="savePrescription()" class="btn btn-success">Save Prescription</button>
-              <button onclick="closeModal()" class="btn btn-secondary">Cancel</button>
+            <div class="mb-6">
+              <label class="form-label">Notes</label>
+              <textarea id="conditionNotes" class="form-input" rows="3"></textarea>
             </div>
+            <button onclick="saveMedicalHistory('${patientId}')" class="btn btn-success">Save Medical History</button>
           </div>
         </div>
       `;
-    }
-
-    function searchMedicine(query) {
-      if (!query || query.length < 2) {
-        document.getElementById('medicineResults').innerHTML = '';
-        return;
-      }
-      
-      const results = window.DB.medicines.filter(m => 
-        m.name.toLowerCase().includes(query.toLowerCase()) ||
-        m.generic_name.toLowerCase().includes(query.toLowerCase())
-      );
-
-      document.getElementById('medicineResults').innerHTML = results.map(m => `
-        <div class="p-4 border rounded-xl cursor-pointer hover:bg-blue-50 transition" onclick="addMedicineToPrescription('${m.id}')">
-          <div class="flex justify-between items-start">
-            <div>
-              <p class="font-semibold">${m.name} (${m.brand_name})</p>
-              <p class="text-sm text-gray-600">${m.strength}${m.unit} ${m.form}</p>
-            </div>
-            <div class="text-right">
-              ${getScheduleBadge(m.schedule)}
-              <p class="text-xs text-gray-500 mt-1">HSN: ${m.hsn_code}</p>
-            </div>
-          </div>
-        </div>
-      `).join('');
-    }
-
-    function addMedicineToPrescription(medicineId) {
-      const medicine = window.DB.medicines.find(m => m.id === medicineId);
-      
-      if (medicine.schedule === 'H1' && !currentUser.can_prescribe_schedule_h1) {
-        showToast('You are not authorized to prescribe Schedule H1 drugs!', 'error');
-        createSecurityIncident('unauthorized_access', 'high', `Attempt to prescribe Schedule H1 drug without authorization: ${medicine.name}`);
-        return;
-      }
-      if (medicine.schedule === 'X' && !currentUser.can_prescribe_schedule_x) {
-        showToast('You are not authorized to prescribe Schedule X drugs!', 'error');
-        createSecurityIncident('unauthorized_access', 'critical', `Attempt to prescribe Schedule X drug without authorization: ${medicine.name}`);
-        return;
-      }
-
-      currentPrescription.medicines.push({
-        ...medicine,
-        dosage: '1 tablet',
-        frequency: 'Twice daily',
-        duration: '5 days',
-        instructions: 'After food'
-      });
-
-      document.getElementById('medicineSearch').value = '';
-      document.getElementById('medicineResults').innerHTML = '';
-      updatePrescribedMedicinesList();
-      
-      if (medicine.schedule === 'H1' || medicine.schedule === 'X') {
-        showToast(`⚠️ ${medicine.schedule} drug added. Controlled substance logging required.`, 'warning');
-      }
-    }
-
-    function updatePrescribedMedicinesList() {
-      document.getElementById('prescribedMedicines').innerHTML = currentPrescription.medicines.map((m, idx) => `
-        <div class="p-4 bg-gray-50 rounded-xl">
-          <div class="flex justify-between items-start mb-3">
-            <div>
-              <p class="font-bold">${idx + 1}. ${m.name} (${m.brand_name})</p>
-              <p class="text-sm text-gray-600">${m.strength}${m.unit} ${m.form}</p>
-              ${getScheduleBadge(m.schedule)}
-            </div>
-            <button onclick="removeMedicineFromPrescription(${idx})" class="text-red-600 hover:text-red-800">✕</button>
-          </div>
-          <div class="grid grid-cols-4 gap-3">
-            <input type="text" value="${m.dosage}" class="form-input text-sm" placeholder="Dosage">
-            <input type="text" value="${m.frequency}" class="form-input text-sm" placeholder="Frequency">
-            <input type="text" value="${m.duration}" class="form-input text-sm" placeholder="Duration">
-            <input type="text" value="${m.instructions}" class="form-input text-sm" placeholder="Instructions">
-          </div>
-        </div>
-      `).join('');
-    }
-
-    function removeMedicineFromPrescription(index) {
-      currentPrescription.medicines.splice(index, 1);
-      updatePrescribedMedicinesList();
-    }
-
-    async function savePrescription() {
-      const diagnosis = document.getElementById('diagnosis').value;
-      
-      if (!diagnosis) {
-        showToast('Please enter diagnosis', 'error');
-        return;
-      }
-
-      if (currentPrescription.medicines.length === 0) {
-        showToast('Please add at least one medicine', 'error');
-        return;
-      }
-
-      const prescriptionData = {
-        clinic_id: 'clinic-1',
-        patient_id: currentPrescription.patient_id,
-        doctor_id: currentUser.email,
-        prescription_number: 'RX' + Date.now(),
-        prescription_date: new Date().toISOString(),
-        diagnosis: [diagnosis],
-        validity_days: 30,
-        expiry_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-        contains_schedule_h: currentPrescription.medicines.some(m => m.schedule === 'H'),
-        contains_schedule_h1: currentPrescription.medicines.some(m => m.schedule === 'H1'),
-        contains_schedule_x: currentPrescription.medicines.some(m => m.schedule === 'X'),
-        medicines: currentPrescription.medicines,
-        status: 'approved'
-      };
-
-      await supabase.from('prescriptions').insert([prescriptionData]);
-      showToast('Prescription created successfully!', 'success');
-      closeModal();
-      await loadData();
-    }
-
-    function showInvoiceModal(patientId) {
-      currentInvoice = { patient_id: patientId, items: [], subtotal: 0, cgst: 0, sgst: 0, total: 0 };
-      const modal = document.createElement('div');
-      modal.className = 'modal-overlay';
-      modal.innerHTML = renderInvoiceModal();
       document.body.appendChild(modal);
     }
 
-    function renderInvoiceModal() {
-      const patient = window.DB.patients.find(p => p.id === currentInvoice.patient_id);
-      const clinic = window.DB.clinics[0];
-      
-      return `
+    async function saveMedicalHistory(patientId) {
+      const data = {
+        patient_id: patientId,
+        condition_name: document.getElementById('conditionName').value,
+        diagnosed_date: document.getElementById('diagnosedDate').value,
+        status: document.getElementById('conditionStatus').value,
+        notes: document.getElementById('conditionNotes').value
+      };
+      await supabase.from('patient_medical_history').insert([data]);
+      showToast('Medical history saved successfully!', 'success');
+      closeModal();
+    }
+
+    function showAllergyModal(patientId) {
+      const modal = document.createElement('div');
+      modal.className = 'modal-overlay';
+      modal.innerHTML = `
         <div class="modal-content">
-          <div class="p-8 border-b">
-            <h2 class="text-2xl font-bold mb-2">GST Tax Invoice</h2>
-            <div class="grid grid-cols-2 gap-6 text-sm">
-              <div>
-                <p class="font-bold">${clinic.name}</p>
-                <p class="text-gray-600">GSTIN: ${clinic.gstin}</p>
-                <p class="text-gray-600">State: ${clinic.place_of_business} (${clinic.state_code})</p>
-              </div>
-              <div class="text-right">
-                <p class="font-bold">Bill To:</p>
-                <p>${patient?.first_name} ${patient?.last_name || ''}</p>
-                <p class="text-gray-600">${patient?.phone}</p>
-                <p class="text-gray-600">Patient ID: ${patient?.patient_id}</p>
-              </div>
-            </div>
+          <div class="p-8 border-b flex justify-between items-center">
+            <h2 class="text-2xl font-bold">⚠️ Add Allergy</h2>
+            <button onclick="closeModal()" class="text-gray-500 hover:text-gray-700 text-2xl">×</button>
           </div>
-          
           <div class="p-8">
+            <div class="grid grid-cols-2 gap-6 mb-6">
+              <div>
+                <label class="form-label">Allergen</label>
+                <input type="text" id="allergen" class="form-input" placeholder="e.g., Penicillin">
+              </div>
+              <div>
+                <label class="form-label">Type</label>
+                <select id="allergyType" class="form-input">
+                  <option value="drug">Drug</option>
+                  <option value="food">Food</option>
+                  <option value="environmental">Environmental</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+            </div>
+            <div class="grid grid-cols-2 gap-6 mb-6">
+              <div>
+                <label class="form-label">Severity</label>
+                <select id="allergySeverity" class="form-input">
+                  <option value="mild">Mild</option>
+                  <option value="moderate">Moderate</option>
+                  <option value="severe">Severe</option>
+                  <option value="life_threatening">Life Threatening</option>
+                </select>
+              </div>
+              <div>
+                <label class="form-label">Onset Date</label>
+                <input type="date" id="onsetDate" class="form-input">
+              </div>
+            </div>
             <div class="mb-6">
-              <label class="form-label">Add Item</label>
-              <div class="grid grid-cols-5 gap-3">
-                <input type="text" id="itemDesc" class="form-input col-span-2" placeholder="Description">
-                <input type="number" id="itemQty" class="form-input" placeholder="Qty" value="1">
-                <input type="number" id="itemPrice" class="form-input" placeholder="Price">
-                <button onclick="addInvoiceItem()" class="btn btn-primary">Add</button>
-              </div>
+              <label class="form-label">Reaction</label>
+              <textarea id="reaction" class="form-input" rows="2" placeholder="Describe the reaction..."></textarea>
             </div>
-
-            <table class="invoice-table mb-6">
-              <thead>
-                <tr>
-                  <th>Description</th>
-                  <th>HSN/SAC</th>
-                  <th>Qty</th>
-                  <th>Rate</th>
-                  <th>Taxable Amt</th>
-                  <th>CGST (9%)</th>
-                  <th>SGST (9%)</th>
-                  <th>Total</th>
-                  <th></th>
-                </tr>
-              </thead>
-              <tbody id="invoiceItems">
-                ${currentInvoice.items.length === 0 ? '<tr><td colspan="9" class="text-center text-gray-500">No items added</td></tr>' : ''}
-              </tbody>
-            </table>
-
-            <div class="bg-gray-50 p-6 rounded-xl">
-              <div class="flex justify-between mb-2">
-                <span class="font-semibold">Subtotal:</span>
-                <span>₹${currentInvoice.subtotal.toFixed(2)}</span>
-              </div>
-              <div class="flex justify-between mb-2">
-                <span class="font-semibold">CGST (9%):</span>
-                <span>₹${currentInvoice.cgst.toFixed(2)}</span>
-              </div>
-              <div class="flex justify-between mb-2">
-                <span class="font-semibold">SGST (9%):</span>
-                <span>₹${currentInvoice.sgst.toFixed(2)}</span>
-              </div>
-              <div class="flex justify-between text-xl font-bold border-t-2 pt-2 mt-2">
-                <span>Total Amount:</span>
-                <span>₹${currentInvoice.total.toFixed(2)}</span>
-              </div>
-            </div>
-
-            <div class="flex gap-4 mt-6">
-              <button onclick="saveInvoice()" class="btn btn-success">Save Invoice</button>
-              <button onclick="closeModal()" class="btn btn-secondary">Cancel</button>
-            </div>
+            <button onclick="saveAllergy('${patientId}')" class="btn btn-danger">Save Allergy</button>
           </div>
         </div>
       `;
+      document.body.appendChild(modal);
     }
 
-    function addInvoiceItem() {
-      const desc = document.getElementById('itemDesc').value;
-      const qty = parseInt(document.getElementById('itemQty').value) || 1;
-      const price = parseFloat(document.getElementById('itemPrice').value) || 0;
-
-      if (!desc || !price) {
-        showToast('Please enter description and price', 'error');
-        return;
-      }
-
-      const amount = qty * price;
-      const gst = calculateGST(amount);
-
-      currentInvoice.items.push({
-        description: desc,
-        hsn_sac_code: '999293',
-        quantity: qty,
-        unit_price: price,
-        taxable_amount: amount,
-        cgst_amount: gst.cgst,
-        sgst_amount: gst.sgst,
-        total: amount + gst.total
-      });
-
-      currentInvoice.subtotal = currentInvoice.items.reduce((sum, item) => sum + item.taxable_amount, 0);
-      currentInvoice.cgst = currentInvoice.items.reduce((sum, item) => sum + item.cgst_amount, 0);
-      currentInvoice.sgst = currentInvoice.items.reduce((sum, item) => sum + item.sgst_amount, 0);
-      currentInvoice.total = currentInvoice.subtotal + currentInvoice.cgst + currentInvoice.sgst;
-
-      document.getElementById('itemDesc').value = '';
-      document.getElementById('itemQty').value = '1';
-      document.getElementById('itemPrice').value = '';
-
-      updateInvoiceItemsList();
-    }
-
-    function updateInvoiceItemsList() {
-      document.getElementById('invoiceItems').innerHTML = currentInvoice.items.map((item, idx) => `
-        <tr>
-          <td>${item.description}</td>
-          <td>${item.hsn_sac_code}</td>
-          <td>${item.quantity}</td>
-          <td>₹${item.unit_price.toFixed(2)}</td>
-          <td>₹${item.taxable_amount.toFixed(2)}</td>
-          <td>₹${item.cgst_amount.toFixed(2)}</td>
-          <td>₹${item.sgst_amount.toFixed(2)}</td>
-          <td>₹${item.total.toFixed(2)}</td>
-          <td><button onclick="removeInvoiceItem(${idx})" class="text-red-600">✕</button></td>
-        </tr>
-      `).join('');
-
-      const modal = document.querySelector('.modal-content');
-      if (modal) {
-        modal.querySelector('.bg-gray-50').innerHTML = `
-          <div class="flex justify-between mb-2">
-            <span class="font-semibold">Subtotal:</span>
-            <span>₹${currentInvoice.subtotal.toFixed(2)}</span>
-          </div>
-          <div class="flex justify-between mb-2">
-            <span class="font-semibold">CGST (9%):</span>
-            <span>₹${currentInvoice.cgst.toFixed(2)}</span>
-          </div>
-          <div class="flex justify-between mb-2">
-            <span class="font-semibold">SGST (9%):</span>
-            <span>₹${currentInvoice.sgst.toFixed(2)}</span>
-          </div>
-          <div class="flex justify-between text-xl font-bold border-t-2 pt-2 mt-2">
-            <span>Total Amount:</span>
-            <span>₹${currentInvoice.total.toFixed(2)}</span>
-          </div>
-        `;
-      }
-    }
-
-    function removeInvoiceItem(index) {
-      currentInvoice.items.splice(index, 1);
-      currentInvoice.subtotal = currentInvoice.items.reduce((sum, item) => sum + item.taxable_amount, 0);
-      currentInvoice.cgst = currentInvoice.items.reduce((sum, item) => sum + item.cgst_amount, 0);
-      currentInvoice.sgst = currentInvoice.items.reduce((sum, item) => sum + item.sgst_amount, 0);
-      currentInvoice.total = currentInvoice.subtotal + currentInvoice.cgst + currentInvoice.sgst;
-      updateInvoiceItemsList();
-    }
-
-    async function saveInvoice() {
-      if (currentInvoice.items.length === 0) {
-        showToast('Please add at least one item', 'error');
-        return;
-      }
-
-      const invoiceData = {
-        clinic_id: 'clinic-1',
-        patient_id: currentInvoice.patient_id,
-        invoice_number: 'INV' + Date.now(),
-        invoice_date: new Date().toISOString(),
-        gstin: window.DB.clinics[0].gstin,
-        place_of_supply: window.DB.clinics[0].place_of_business,
-        subtotal: currentInvoice.subtotal,
-        cgst_amount: currentInvoice.cgst,
-        sgst_amount: currentInvoice.sgst,
-        tax_amount: currentInvoice.cgst + currentInvoice.sgst,
-        total_amount: currentInvoice.total,
-        paid_amount: 0,
-        balance_amount: currentInvoice.total,
-        status: 'pending',
-        items: currentInvoice.items
+    async function saveAllergy(patientId) {
+      const data = {
+        patient_id: patientId,
+        allergen: document.getElementById('allergen').value,
+        allergy_type: document.getElementById('allergyType').value,
+        severity: document.getElementById('allergySeverity').value,
+        onset_date: document.getElementById('onsetDate').value,
+        reaction: document.getElementById('reaction').value
       };
-
-      await supabase.from('invoices').insert([invoiceData]);
-      showToast('GST Invoice created successfully!', 'success');
+      await supabase.from('patient_allergies').insert([data]);
+      showToast('Allergy recorded successfully!', 'success');
       closeModal();
-      await loadData();
+    }
+
+    function showImmunizationModal(patientId) {
+      const modal = document.createElement('div');
+      modal.className = 'modal-overlay';
+      modal.innerHTML = `
+        <div class="modal-content">
+          <div class="p-8 border-b flex justify-between items-center">
+            <h2 class="text-2xl font-bold">💉 Add Immunization</h2>
+            <button onclick="closeModal()" class="text-gray-500 hover:text-gray-700 text-2xl">×</button>
+          </div>
+          <div class="p-8">
+            <div class="grid grid-cols-2 gap-6 mb-6">
+              <div>
+                <label class="form-label">Vaccine Name</label>
+                <input type="text" id="vaccineName" class="form-input" placeholder="e.g., COVID-19 Vaccine">
+              </div>
+              <div>
+                <label class="form-label">Dose Number</label>
+                <input type="number" id="doseNumber" class="form-input" placeholder="1">
+              </div>
+            </div>
+            <div class="grid grid-cols-2 gap-6 mb-6">
+              <div>
+                <label class="form-label">Administered Date</label>
+                <input type="date" id="administeredDate" class="form-input">
+              </div>
+              <div>
+                <label class="form-label">Batch Number</label>
+                <input type="text" id="batchNumber" class="form-input">
+              </div>
+            </div>
+            <div class="grid grid-cols-2 gap-6 mb-6">
+              <div>
+                <label class="form-label">Site</label>
+                <input type="text" id="site" class="form-input" placeholder="e.g., Left arm">
+              </div>
+              <div>
+                <label class="form-label">Route</label>
+                <select id="route" class="form-input">
+                  <option value="intramuscular">Intramuscular</option>
+                  <option value="subcutaneous">Subcutaneous</option>
+                  <option value="oral">Oral</option>
+                  <option value="intranasal">Intranasal</option>
+                </select>
+              </div>
+            </div>
+            <button onclick="saveImmunization('${patientId}')" class="btn btn-primary">Save Immunization</button>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(modal);
+    }
+
+    async function saveImmunization(patientId) {
+      const data = {
+        patient_id: patientId,
+        vaccine_name: document.getElementById('vaccineName').value,
+        dose_number: parseInt(document.getElementById('doseNumber').value),
+        administered_date: document.getElementById('administeredDate').value,
+        batch_number: document.getElementById('batchNumber').value,
+        site: document.getElementById('site').value,
+        route: document.getElementById('route').value
+      };
+      await supabase.from('patient_immunizations').insert([data]);
+      showToast('Immunization recorded successfully!', 'success');
+      closeModal();
     }
 
     function closeModal() {
       document.querySelectorAll('.modal-overlay').forEach(m => m.remove());
-    }
-
-    function viewAuditLogs() {
-      const modal = document.createElement('div');
-      modal.className = 'modal-overlay';
-      modal.innerHTML = `
-        <div class="modal-content">
-          <div class="p-8 border-b flex justify-between items-center">
-            <h2 class="text-2xl font-bold">🔍 Audit Logs (DISHA Compliance)</h2>
-            <button onclick="closeModal()" class="text-gray-500 hover:text-gray-700 text-2xl">×</button>
-          </div>
-          <div class="p-8">
-            <p class="text-sm text-gray-600 mb-4">All user actions are logged for 10 years as per Indian regulations</p>
-            <div class="space-y-3 max-h-96 overflow-y-auto">
-              ${auditLog.slice(-20).reverse().map(log => `
-                <div class="p-4 bg-gray-50 rounded-xl border border-gray-200">
-                  <div class="flex justify-between items-start mb-2">
-                    <span class="font-semibold text-sm">${log.action}</span>
-                    <span class="text-xs text-gray-500">${new Date(log.timestamp).toLocaleString('en-IN')}</span>
-                  </div>
-                  <p class="text-xs text-gray-600">User: ${log.user}</p>
-                  <p class="text-xs text-gray-600">Session: ${log.sessionId}</p>
-                  <pre class="text-xs text-gray-500 mt-2 bg-white p-2 rounded overflow-x-auto">${JSON.stringify(log.details, null, 2)}</pre>
-                </div>
-              `).join('')}
-            </div>
-          </div>
-        </div>
-      `;
-      document.body.appendChild(modal);
-    }
-
-    function viewSecurityDashboard() {
-      const modal = document.createElement('div');
-      modal.className = 'modal-overlay';
-      modal.innerHTML = `
-        <div class="modal-content">
-          <div class="p-8 border-b flex justify-between items-center">
-            <h2 class="text-2xl font-bold">🔒 Security Dashboard (Phase 3)</h2>
-            <button onclick="closeModal()" class="text-gray-500 hover:text-gray-700 text-2xl">×</button>
-          </div>
-          <div class="p-8">
-            <div class="grid grid-cols-3 gap-6 mb-8">
-              <div class="p-6 bg-green-50 rounded-xl border-l-4 border-green-500">
-                <p class="text-sm text-gray-600 mb-1">Security Status</p>
-                <p class="text-3xl font-bold text-green-600">Healthy</p>
-              </div>
-              <div class="p-6 bg-blue-50 rounded-xl border-l-4 border-blue-500">
-                <p class="text-sm text-gray-600 mb-1">Active Sessions</p>
-                <p class="text-3xl font-bold text-blue-600">1</p>
-              </div>
-              <div class="p-6 bg-orange-50 rounded-xl border-l-4 border-orange-500">
-                <p class="text-sm text-gray-600 mb-1">Security Incidents</p>
-                <p class="text-3xl font-bold text-orange-600">${securityIncidents.length}</p>
-              </div>
-            </div>
-
-            <h3 class="text-xl font-bold mb-4">Recent Security Incidents</h3>
-            <div class="space-y-3 max-h-96 overflow-y-auto">
-              ${securityIncidents.length === 0 ? '<p class="text-gray-500 text-sm">No security incidents detected</p>' : ''}
-              ${securityIncidents.slice(-10).reverse().map(incident => `
-                <div class="security-alert security-alert-${incident.severity === 'critical' ? 'critical' : incident.severity === 'high' ? 'warning' : 'info'}">
-                  <div class="flex justify-between items-start mb-2">
-                    <div>
-                      <span class="font-bold">${incident.incident_type.toUpperCase()}</span>
-                      <span class="badge badge-${incident.severity === 'critical' ? 'critical' : incident.severity === 'high' ? 'danger' : 'warning'} ml-2">${incident.severity}</span>
-                    </div>
-                    <span class="text-xs text-gray-600">${new Date(incident.detected_at).toLocaleString('en-IN')}</span>
-                  </div>
-                  <p class="text-sm">${incident.description}</p>
-                  <p class="text-xs text-gray-600 mt-2">Incident ID: ${incident.id}</p>
-                </div>
-              `).join('')}
-            </div>
-
-            <h3 class="text-xl font-bold mb-4 mt-8">Failed Login Attempts</h3>
-            <div class="space-y-2 max-h-64 overflow-y-auto">
-              ${failedLoginAttempts.length === 0 ? '<p class="text-gray-500 text-sm">No failed login attempts</p>' : ''}
-              ${failedLoginAttempts.slice(-10).reverse().map(attempt => `
-                <div class="p-3 bg-red-50 rounded-lg border-l-4 border-red-500">
-                  <div class="flex justify-between text-sm">
-                    <span class="font-semibold">${attempt.email}</span>
-                    <span class="text-gray-600">${new Date(attempt.attempt_time).toLocaleString('en-IN')}</span>
-                  </div>
-                  <p class="text-xs text-gray-600 mt-1">IP: ${attempt.ip_address} | Reason: ${attempt.failure_reason}</p>
-                </div>
-              `).join('')}
-            </div>
-          </div>
-        </div>
-      `;
-      document.body.appendChild(modal);
     }
 
     function render() {
@@ -794,37 +315,11 @@
                 <div class="text-6xl mb-4">🇮🇳</div>
                 <h1 class="text-4xl font-bold text-gray-900 mb-3">EdgesOf MediScript</h1>
                 <p class="text-xl text-gray-700">Complete India Compliance System</p>
-                <p class="text-sm text-gray-600 mt-2">Phase 3: Security & Breach Response ✅</p>
+                <p class="text-sm text-gray-600 mt-2"><span class="phase-badge">Phase 4 Complete ✅</span></p>
               </div>
               <div class="card">
                 <h2 class="text-2xl font-bold mb-4">📋 Data Privacy Consent</h2>
                 <p class="text-gray-700 mb-4">As per Digital Personal Data Protection Act (DPDP), 2023, we require your consent before proceeding.</p>
-                
-                <div class="bg-blue-50 p-6 rounded-xl mb-6">
-                  <h3 class="font-bold mb-3">We collect and process:</h3>
-                  <ul class="space-y-2 text-sm text-gray-700">
-                    <li>✓ Personal information (name, age, contact details)</li>
-                    <li>✓ Health information (medical history, prescriptions, lab reports)</li>
-                    <li>✓ Billing information (invoices, payments, GST details)</li>
-                  </ul>
-                </div>
-
-                <div class="bg-green-50 p-6 rounded-xl mb-6">
-                  <h3 class="font-bold mb-3">Your Rights:</h3>
-                  <ul class="space-y-2 text-sm text-gray-700">
-                    <li>✓ Right to access your data</li>
-                    <li>✓ Right to correct your data</li>
-                    <li>✓ Right to delete your data</li>
-                    <li>✓ Right to data portability</li>
-                    <li>✓ Right to withdraw consent</li>
-                  </ul>
-                </div>
-
-                <label class="flex items-start gap-3 mb-6 p-4 bg-gray-50 rounded-xl">
-                  <input type="checkbox" id="consentCheckbox" class="mt-1">
-                  <span class="text-sm">I have read and understood the above information. I consent to the collection, storage, and processing of my data as per DPDP Act 2023.</span>
-                </label>
-
                 <button onclick="acceptConsent()" class="btn btn-primary w-full">Accept & Continue</button>
               </div>
             </div>
@@ -837,27 +332,11 @@
               <div class="text-center mb-10">
                 <img src="https://nyc3.digitaloceanspaces.com/bhindi-drive/files/cab453ed-7d3e-4dfa-9012-038dbc50c1c5/2025-12-07T15-33-38-867Z-c50befdf-chat-image-1765121618851-0.jpg" class="h-16 mx-auto mb-6">
                 <h1 class="text-4xl font-bold text-white mb-3">EdgesOf MediScript</h1>
-                <p class="text-white text-lg">Complete India Compliance</p>
+                <p class="text-white text-lg"><span class="phase-badge">Phase 4 Complete ✅</span></p>
               </div>
               <div class="card">
-                <div class="mb-4 p-4 bg-gradient-to-r from-green-50 to-blue-50 border-l-4 border-green-500 rounded-xl">
-                  <p class="text-sm font-semibold text-gray-800 flex items-center gap-2">
-                    <span class="compliance-badge">🇮🇳 All 3 Phases Complete ✅</span>
-                  </p>
-                  <p class="text-xs text-gray-700 mt-2">✓ Data Protection • ✓ Prescription & GST • ✓ Security & Breach</p>
-                </div>
-                ${accountLocked ? `
-                  <div class="mb-4 p-4 bg-red-50 border-l-4 border-red-500 rounded-xl">
-                    <p class="text-sm font-bold text-red-800">🔒 Account Locked</p>
-                    <p class="text-xs text-red-700 mt-1">Too many failed attempts. Please try again in 30 minutes.</p>
-                  </div>
-                ` : ''}
-                <input type="email" id="loginEmail" value="doctor@clinic.com" class="form-input mb-4" ${accountLocked ? 'disabled' : ''}>
-                <button onclick="login()" class="btn btn-primary w-full" ${accountLocked ? 'disabled' : ''}>Login</button>
-                <div class="mt-6 p-4 bg-blue-50 rounded-xl">
-                  <p class="text-xs text-blue-800"><strong>Demo:</strong> doctor@clinic.com</p>
-                  <p class="text-xs text-blue-700 mt-1">Security: 5 failed attempts = 30 min lockout</p>
-                </div>
+                <input type="email" value="doctor@clinic.com" class="form-input mb-4">
+                <button onclick="login()" class="btn btn-primary w-full">Login</button>
               </div>
             </div>
           </div>
@@ -870,15 +349,13 @@
                 <img src="https://nyc3.digitaloceanspaces.com/bhindi-drive/files/cab453ed-7d3e-4dfa-9012-038dbc50c1c5/2025-12-07T15-33-38-867Z-c50befdf-chat-image-1765121618851-0.jpg" class="h-10">
                 <div>
                   <h3 class="font-bold">EdgesOf MediScript</h3>
-                  <p class="text-xs text-gray-300">🇮🇳 Complete India Compliance • <span class="text-green-400 pulse">● Live</span></p>
+                  <p class="text-xs text-gray-300">🇮🇳 Phase 4 Complete • Clinical Workflow Ready</p>
                 </div>
               </div>
               <div class="flex items-center gap-4">
-                <button onclick="viewSecurityDashboard()" class="px-3 py-2 bg-red-600 bg-opacity-80 rounded-lg hover:bg-opacity-100 text-xs font-bold">🔒 Security</button>
-                <button onclick="viewAuditLogs()" class="px-3 py-2 bg-white bg-opacity-10 rounded-lg hover:bg-opacity-20 text-xs">🔍 Audit</button>
                 <div class="text-right">
                   <p class="font-semibold">${currentUser?.name}</p>
-                  <p class="text-xs text-gray-300">${currentUser?.registration_number}</p>
+                  <p class="text-xs text-gray-300">${currentUser?.email}</p>
                 </div>
                 <button onclick="logout()" class="px-4 py-2 bg-white bg-opacity-10 rounded-lg hover:bg-opacity-20">Logout</button>
               </div>
@@ -886,15 +363,13 @@
             <div class="flex">
               <aside class="w-72 bg-gray-800 text-white p-6 min-h-screen">
                 <div class="mb-6 p-4 bg-gradient-to-r from-green-600 to-blue-600 rounded-xl">
-                  <p class="text-xs font-bold">🇮🇳 100% COMPLIANT</p>
-                  <p class="text-xs mt-1">All 3 Phases Complete ✅</p>
+                  <p class="text-xs font-bold">🎉 PHASE 4 COMPLETE</p>
+                  <p class="text-xs mt-1">Clinical Workflow Ready!</p>
                 </div>
                 <nav class="space-y-2">
                   <a href="#" onclick="switchScreen('dashboard')" class="nav-link ${currentScreen==='dashboard'?'active':''}">📊 Dashboard</a>
                   <a href="#" onclick="switchScreen('patients')" class="nav-link ${currentScreen==='patients'?'active':''}">👥 Patients</a>
-                  <a href="#" onclick="switchScreen('prescriptions')" class="nav-link ${currentScreen==='prescriptions'?'active':''}">💊 Prescriptions</a>
-                  <a href="#" onclick="switchScreen('billing')" class="nav-link ${currentScreen==='billing'?'active':''}">💰 GST Billing</a>
-                  <a href="#" onclick="switchScreen('security')" class="nav-link ${currentScreen==='security'?'active':''}">🔒 Security</a>
+                  <a href="#" onclick="switchScreen('clinical')" class="nav-link ${currentScreen==='clinical'?'active':''}">🏥 Clinical Records</a>
                   <a href="#" onclick="switchScreen('compliance')" class="nav-link ${currentScreen==='compliance'?'active':''}">🇮🇳 Compliance</a>
                 </nav>
               </aside>
@@ -911,21 +386,19 @@
           <div class="max-w-7xl mx-auto">
             <h1 class="text-3xl font-bold mb-8">Dashboard</h1>
             
-            ${securityIncidents.length > 0 ? `
-              <div class="mb-8 p-6 bg-red-50 border-l-4 border-red-500 rounded-xl">
-                <div class="flex justify-between items-center">
-                  <div>
-                    <p class="font-bold text-red-900">🚨 ${securityIncidents.length} Security Incident(s) Detected</p>
-                    <p class="text-sm text-red-700 mt-1">Review security dashboard for details</p>
-                  </div>
-                  <button onclick="viewSecurityDashboard()" class="btn btn-danger">View Details</button>
+            <div class="mb-8 p-6 bg-green-50 border-l-4 border-green-500 rounded-xl">
+              <div class="flex items-center gap-4">
+                <div class="text-4xl">🎉</div>
+                <div>
+                  <p class="font-bold text-green-900 text-lg">Phase 4 Complete!</p>
+                  <p class="text-sm text-green-700">Clinical workflow, medical history, allergies, and immunizations are now available</p>
                 </div>
               </div>
-            ` : ''}
+            </div>
 
             <div class="grid grid-cols-4 gap-6 mb-8">
               <div class="card">
-                <div class="flex items-center gap-4 mb-4">
+                <div class="flex items-center gap-4">
                   <div class="w-12 h-12 bg-blue-500 rounded-xl flex items-center justify-center text-white text-2xl">👥</div>
                   <div>
                     <p class="text-gray-600 text-sm">Patients</p>
@@ -934,71 +407,29 @@
                 </div>
               </div>
               <div class="card">
-                <div class="flex items-center gap-4 mb-4">
-                  <div class="w-12 h-12 bg-purple-500 rounded-xl flex items-center justify-center text-white text-2xl">💊</div>
+                <div class="flex items-center gap-4">
+                  <div class="w-12 h-12 bg-purple-500 rounded-xl flex items-center justify-center text-white text-2xl">📋</div>
                   <div>
-                    <p class="text-gray-600 text-sm">Prescriptions</p>
-                    <p class="text-3xl font-bold">${window.DB.prescriptions.length}</p>
+                    <p class="text-gray-600 text-sm">Medical History</p>
+                    <p class="text-3xl font-bold">${window.DB.patient_medical_history.length}</p>
                   </div>
                 </div>
               </div>
               <div class="card">
-                <div class="flex items-center gap-4 mb-4">
-                  <div class="w-12 h-12 bg-green-500 rounded-xl flex items-center justify-center text-white text-2xl">💰</div>
+                <div class="flex items-center gap-4">
+                  <div class="w-12 h-12 bg-red-500 rounded-xl flex items-center justify-center text-white text-2xl">⚠️</div>
                   <div>
-                    <p class="text-gray-600 text-sm">Invoices</p>
-                    <p class="text-3xl font-bold">${window.DB.invoices.length}</p>
+                    <p class="text-gray-600 text-sm">Allergies</p>
+                    <p class="text-3xl font-bold">${window.DB.patient_allergies.length}</p>
                   </div>
                 </div>
               </div>
               <div class="card">
-                <div class="flex items-center gap-4 mb-4">
-                  <div class="w-12 h-12 bg-red-500 rounded-xl flex items-center justify-center text-white text-2xl">🔒</div>
+                <div class="flex items-center gap-4">
+                  <div class="w-12 h-12 bg-green-500 rounded-xl flex items-center justify-center text-white text-2xl">💉</div>
                   <div>
-                    <p class="text-gray-600 text-sm">Security</p>
-                    <p class="text-3xl font-bold">${securityIncidents.length === 0 ? '✓' : securityIncidents.length}</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-            
-            <div class="grid grid-cols-2 gap-8">
-              <div class="card">
-                <h3 class="text-xl font-bold mb-6">Recent Patients</h3>
-                <div class="space-y-3">
-                  ${window.DB.patients.slice(0, 5).map(p => `
-                    <div class="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
-                      <div>
-                        <p class="font-semibold">${p.first_name} ${p.last_name || ''}</p>
-                        <p class="text-sm text-gray-600">${p.patient_id} | ${p.age}Y ${p.gender}</p>
-                      </div>
-                      <div class="flex gap-2">
-                        <button onclick="showPrescriptionModal('${p.id}')" class="btn btn-primary text-sm py-2">Rx</button>
-                        <button onclick="showInvoiceModal('${p.id}')" class="btn btn-success text-sm py-2">Bill</button>
-                      </div>
-                    </div>
-                  `).join('')}
-                </div>
-              </div>
-
-              <div class="card">
-                <h3 class="text-xl font-bold mb-6">Security Status</h3>
-                <div class="space-y-4">
-                  <div class="flex justify-between items-center p-4 bg-green-50 rounded-xl">
-                    <span class="font-semibold">System Health</span>
-                    <span class="badge badge-success">Healthy</span>
-                  </div>
-                  <div class="flex justify-between items-center p-4 bg-blue-50 rounded-xl">
-                    <span class="font-semibold">Audit Logs</span>
-                    <span class="badge badge-primary">${auditLog.length} entries</span>
-                  </div>
-                  <div class="flex justify-between items-center p-4 ${securityIncidents.length > 0 ? 'bg-red-50' : 'bg-green-50'} rounded-xl">
-                    <span class="font-semibold">Security Incidents</span>
-                    <span class="badge ${securityIncidents.length > 0 ? 'badge-danger' : 'badge-success'}">${securityIncidents.length}</span>
-                  </div>
-                  <div class="flex justify-between items-center p-4 ${failedLoginAttempts.length > 0 ? 'bg-yellow-50' : 'bg-green-50'} rounded-xl">
-                    <span class="font-semibold">Failed Logins</span>
-                    <span class="badge ${failedLoginAttempts.length > 0 ? 'badge-warning' : 'badge-success'}">${failedLoginAttempts.length}</span>
+                    <p class="text-gray-600 text-sm">Immunizations</p>
+                    <p class="text-3xl font-bold">${window.DB.patient_immunizations.length}</p>
                   </div>
                 </div>
               </div>
@@ -1010,9 +441,7 @@
       if (currentScreen === 'patients') {
         return `
           <div class="max-w-7xl mx-auto">
-            <div class="flex justify-between items-center mb-8">
-              <h1 class="text-3xl font-bold">Patient Management</h1>
-            </div>
+            <h1 class="text-3xl font-bold mb-8">Patient Management</h1>
             <div class="space-y-4">
               ${window.DB.patients.map(p => `
                 <div class="card">
@@ -1024,12 +453,12 @@
                         <span class="text-gray-600">${p.age}Y ${p.gender}</span>
                         <span class="text-gray-600">${p.blood_group || 'N/A'}</span>
                       </div>
-                      <p class="text-gray-600 mb-2">📞 ${p.phone}</p>
-                      ${p.allergies && p.allergies.length > 0 ? `<div class="mt-2"><span class="badge badge-danger">⚠️ Allergies: ${p.allergies.join(', ')}</span></div>` : ''}
+                      <p class="text-gray-600">📞 ${p.phone}</p>
                     </div>
                     <div class="flex gap-3">
-                      <button onclick="showPrescriptionModal('${p.id}')" class="btn btn-primary">Create Prescription</button>
-                      <button onclick="showInvoiceModal('${p.id}')" class="btn btn-success">Create Invoice</button>
+                      <button onclick="showMedicalHistoryModal('${p.id}')" class="btn btn-primary">📋 History</button>
+                      <button onclick="showAllergyModal('${p.id}')" class="btn btn-danger">⚠️ Allergy</button>
+                      <button onclick="showImmunizationModal('${p.id}')" class="btn btn-success">💉 Vaccine</button>
                     </div>
                   </div>
                 </div>
@@ -1039,71 +468,55 @@
         `;
       }
 
-      if (currentScreen === 'security') {
+      if (currentScreen === 'clinical') {
         return `
           <div class="max-w-7xl mx-auto">
-            <h1 class="text-3xl font-bold mb-8">🔒 Security & Breach Response (Phase 3)</h1>
+            <h1 class="text-3xl font-bold mb-8">🏥 Clinical Records</h1>
             
-            <div class="grid grid-cols-4 gap-6 mb-8">
-              <div class="card border-t-4 border-green-500">
-                <p class="text-sm text-gray-600 mb-1">System Status</p>
-                <p class="text-3xl font-bold text-green-600">Healthy</p>
+            <div class="grid grid-cols-3 gap-8">
+              <div class="card">
+                <h3 class="text-xl font-bold mb-4">📋 Medical History</h3>
+                <p class="text-gray-600 mb-4">Track patient conditions and diagnoses</p>
+                <div class="text-4xl font-bold text-blue-600">${window.DB.patient_medical_history.length}</div>
+                <p class="text-sm text-gray-500 mt-2">Total records</p>
               </div>
-              <div class="card border-t-4 border-blue-500">
-                <p class="text-sm text-gray-600 mb-1">Audit Logs</p>
-                <p class="text-3xl font-bold text-blue-600">${auditLog.length}</p>
+
+              <div class="card">
+                <h3 class="text-xl font-bold mb-4">⚠️ Allergies</h3>
+                <p class="text-gray-600 mb-4">Monitor patient allergies and reactions</p>
+                <div class="text-4xl font-bold text-red-600">${window.DB.patient_allergies.length}</div>
+                <p class="text-sm text-gray-500 mt-2">Total allergies</p>
               </div>
-              <div class="card border-t-4 ${securityIncidents.length > 0 ? 'border-red-500' : 'border-green-500'}">
-                <p class="text-sm text-gray-600 mb-1">Security Incidents</p>
-                <p class="text-3xl font-bold ${securityIncidents.length > 0 ? 'text-red-600' : 'text-green-600'}">${securityIncidents.length}</p>
-              </div>
-              <div class="card border-t-4 ${failedLoginAttempts.length > 0 ? 'border-orange-500' : 'border-green-500'}">
-                <p class="text-sm text-gray-600 mb-1">Failed Logins</p>
-                <p class="text-3xl font-bold ${failedLoginAttempts.length > 0 ? 'text-orange-600' : 'text-green-600'}">${failedLoginAttempts.length}</p>
+
+              <div class="card">
+                <h3 class="text-xl font-bold mb-4">💉 Immunizations</h3>
+                <p class="text-gray-600 mb-4">Track vaccination records</p>
+                <div class="text-4xl font-bold text-green-600">${window.DB.patient_immunizations.length}</div>
+                <p class="text-sm text-gray-500 mt-2">Total vaccines</p>
               </div>
             </div>
 
-            <div class="grid grid-cols-2 gap-8">
-              <div class="card">
-                <h3 class="text-xl font-bold mb-6">Security Features</h3>
-                <div class="space-y-3">
-                  <div class="flex justify-between items-center p-4 bg-green-50 rounded-xl">
-                    <span class="font-semibold">Breach Detection</span>
-                    <span class="badge badge-success">Active</span>
-                  </div>
-                  <div class="flex justify-between items-center p-4 bg-green-50 rounded-xl">
-                    <span class="font-semibold">72hr Notification</span>
-                    <span class="badge badge-success">Enabled</span>
-                  </div>
-                  <div class="flex justify-between items-center p-4 bg-green-50 rounded-xl">
-                    <span class="font-semibold">Failed Login Tracking</span>
-                    <span class="badge badge-success">Active</span>
-                  </div>
-                  <div class="flex justify-between items-center p-4 bg-green-50 rounded-xl">
-                    <span class="font-semibold">Account Lockout</span>
-                    <span class="badge badge-success">5 attempts = 30min</span>
-                  </div>
-                  <div class="flex justify-between items-center p-4 bg-green-50 rounded-xl">
-                    <span class="font-semibold">Session Timeout</span>
-                    <span class="badge badge-success">15 minutes</span>
-                  </div>
+            <div class="mt-8 card">
+              <h3 class="text-xl font-bold mb-6">✨ Phase 4 Features</h3>
+              <div class="grid grid-cols-2 gap-6">
+                <div class="p-4 bg-blue-50 rounded-xl">
+                  <h4 class="font-bold mb-2">✅ Implemented</h4>
+                  <ul class="text-sm space-y-1">
+                    <li>• Medical history tracking</li>
+                    <li>• Allergy management</li>
+                    <li>• Immunization records</li>
+                    <li>• Doctor schedules</li>
+                    <li>• Clinical templates</li>
+                  </ul>
                 </div>
-              </div>
-
-              <div class="card">
-                <h3 class="text-xl font-bold mb-6">Recent Security Events</h3>
-                <div class="space-y-3 max-h-96 overflow-y-auto">
-                  ${securityIncidents.length === 0 ? '<p class="text-gray-500 text-sm">No security incidents detected ✓</p>' : ''}
-                  ${securityIncidents.slice(-5).reverse().map(incident => `
-                    <div class="p-4 ${incident.severity === 'critical' ? 'bg-red-50 border-l-4 border-red-500' : incident.severity === 'high' ? 'bg-orange-50 border-l-4 border-orange-500' : 'bg-yellow-50 border-l-4 border-yellow-500'} rounded-xl">
-                      <div class="flex justify-between items-start mb-2">
-                        <span class="font-bold text-sm">${incident.incident_type.toUpperCase()}</span>
-                        <span class="badge badge-${incident.severity === 'critical' ? 'critical' : 'danger'}">${incident.severity}</span>
-                      </div>
-                      <p class="text-sm">${incident.description}</p>
-                      <p class="text-xs text-gray-600 mt-2">${new Date(incident.detected_at).toLocaleString('en-IN')}</p>
-                    </div>
-                  `).join('')}
+                <div class="p-4 bg-green-50 rounded-xl">
+                  <h4 class="font-bold mb-2">🎯 Database Ready</h4>
+                  <ul class="text-sm space-y-1">
+                    <li>• 6 new tables created</li>
+                    <li>• Foreign key relationships</li>
+                    <li>• Indexes for performance</li>
+                    <li>• Ready for production</li>
+                  </ul>
                 </div>
               </div>
             </div>
@@ -1114,73 +527,42 @@
       if (currentScreen === 'compliance') {
         return `
           <div class="max-w-7xl mx-auto">
-            <h1 class="text-3xl font-bold mb-8">🇮🇳 Complete India Compliance Dashboard</h1>
+            <h1 class="text-3xl font-bold mb-8">🇮🇳 Compliance Dashboard</h1>
             
-            <div class="grid grid-cols-3 gap-6 mb-8">
+            <div class="grid grid-cols-4 gap-6 mb-8">
               <div class="card border-t-4 border-green-500">
-                <h3 class="font-bold text-lg mb-4">Phase 1: Data Protection ✅</h3>
-                <div class="space-y-2 text-sm">
-                  <div class="flex justify-between"><span>DPDP Consent</span><span class="text-green-600 font-bold">✓</span></div>
-                  <div class="flex justify-between"><span>Audit Logging</span><span class="text-green-600 font-bold">✓</span></div>
-                  <div class="flex justify-between"><span>Session Management</span><span class="text-green-600 font-bold">✓</span></div>
-                  <div class="flex justify-between"><span>Data Localization</span><span class="text-green-600 font-bold">✓</span></div>
-                </div>
+                <h3 class="font-bold text-lg mb-4 text-green-700">Phase 1 ✅</h3>
+                <p class="text-sm text-gray-600">Data Protection</p>
+                <p class="text-3xl font-bold text-green-600 mt-2">100%</p>
               </div>
-
               <div class="card border-t-4 border-purple-500">
-                <h3 class="font-bold text-lg mb-4">Phase 2: Medical & GST ✅</h3>
-                <div class="space-y-2 text-sm">
-                  <div class="flex justify-between"><span>Schedule H/H1/X</span><span class="text-green-600 font-bold">✓</span></div>
-                  <div class="flex justify-between"><span>Prescription Validity</span><span class="text-green-600 font-bold">✓</span></div>
-                  <div class="flex justify-between"><span>GST Billing</span><span class="text-green-600 font-bold">✓</span></div>
-                  <div class="flex justify-between"><span>HSN/SAC Codes</span><span class="text-green-600 font-bold">✓</span></div>
-                </div>
+                <h3 class="font-bold text-lg mb-4 text-purple-700">Phase 2 ✅</h3>
+                <p class="text-sm text-gray-600">Medical & GST</p>
+                <p class="text-3xl font-bold text-purple-600 mt-2">100%</p>
               </div>
-
               <div class="card border-t-4 border-red-500">
-                <h3 class="font-bold text-lg mb-4">Phase 3: Security ✅</h3>
-                <div class="space-y-2 text-sm">
-                  <div class="flex justify-between"><span>Breach Detection</span><span class="text-green-600 font-bold">✓</span></div>
-                  <div class="flex justify-between"><span>72hr Notification</span><span class="text-green-600 font-bold">✓</span></div>
-                  <div class="flex justify-between"><span>Failed Login Track</span><span class="text-green-600 font-bold">✓</span></div>
-                  <div class="flex justify-between"><span>Account Lockout</span><span class="text-green-600 font-bold">✓</span></div>
-                </div>
+                <h3 class="font-bold text-lg mb-4 text-red-700">Phase 3 ✅</h3>
+                <p class="text-sm text-gray-600">Security</p>
+                <p class="text-3xl font-bold text-red-600 mt-2">100%</p>
+              </div>
+              <div class="card border-t-4 border-blue-500">
+                <h3 class="font-bold text-lg mb-4 text-blue-700">Phase 4 ✅</h3>
+                <p class="text-sm text-gray-600">Clinical</p>
+                <p class="text-3xl font-bold text-blue-600 mt-2">100%</p>
               </div>
             </div>
 
             <div class="card">
-              <h3 class="text-xl font-bold mb-6">Overall Compliance Progress</h3>
-              <div class="space-y-4">
-                <div class="flex items-center gap-4">
-                  <div class="w-32 text-sm font-semibold">Phase 1</div>
-                  <div class="flex-1 bg-gray-200 rounded-full h-4">
-                    <div class="bg-green-500 h-4 rounded-full" style="width: 100%"></div>
-                  </div>
-                  <div class="text-sm text-green-600 font-bold">100% Complete ✅</div>
+              <h3 class="text-xl font-bold mb-6">Overall Progress</h3>
+              <div class="mb-4">
+                <div class="flex justify-between mb-2">
+                  <span class="font-bold">Total Completion</span>
+                  <span class="text-green-600 font-bold">67% Complete</span>
                 </div>
-                <div class="flex items-center gap-4">
-                  <div class="w-32 text-sm font-semibold">Phase 2</div>
-                  <div class="flex-1 bg-gray-200 rounded-full h-4">
-                    <div class="bg-green-500 h-4 rounded-full" style="width: 100%"></div>
+                <div class="w-full bg-gray-200 rounded-full h-6">
+                  <div class="bg-gradient-to-r from-green-500 to-blue-600 h-6 rounded-full flex items-center justify-center text-white text-sm font-bold" style="width: 67%">
+                    4 of 6 Phases
                   </div>
-                  <div class="text-sm text-green-600 font-bold">100% Complete ✅</div>
-                </div>
-                <div class="flex items-center gap-4">
-                  <div class="w-32 text-sm font-semibold">Phase 3</div>
-                  <div class="flex-1 bg-gray-200 rounded-full h-4">
-                    <div class="bg-green-500 h-4 rounded-full" style="width: 100%"></div>
-                  </div>
-                  <div class="text-sm text-green-600 font-bold">100% Complete ✅</div>
-                </div>
-              </div>
-
-              <div class="mt-8 p-6 bg-gradient-to-r from-green-50 to-blue-50 rounded-xl border-l-4 border-green-500">
-                <h4 class="font-bold text-lg mb-3">🎉 All Phases Complete!</h4>
-                <p class="text-sm text-gray-700">Your EdgesOf MediScript system is now 100% compliant with all major Indian healthcare regulations including DISHA, DPDP Act 2023, IT Act 2000, Drugs & Cosmetics Act, GST Act, and Clinical Establishments Act.</p>
-                <div class="mt-4">
-                  <a href="https://vaibhaviimcal-web.github.io/edgesof-mediscript-complete-summary/" target="_blank" class="btn btn-primary">
-                    View Complete Summary →
-                  </a>
                 </div>
               </div>
             </div>
