@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>EdgesOf MediScript - Enterprise Edition (India Compliant)</title>
+  <title>EdgesOf MediScript - Two-Tier Enterprise System</title>
   <link rel="icon" href="https://nyc3.digitaloceanspaces.com/bhindi-drive/files/cab453ed-7d3e-4dfa-9012-038dbc50c1c5/2025-12-07T15-33-38-867Z-c50befdf-chat-image-1765121618851-0.jpg">
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -36,121 +36,236 @@
     .badge-danger { background: #fee2e2; color: #991b1b; }
     .badge-info { background: #dbeafe; color: #1e40af; }
     .badge-purple { background: #ede9fe; color: #6b21a8; }
-    .badge-schedule-h { background: #fef3c7; color: #92400e; border: 2px solid #f59e0b; font-weight: 700; }
-    .role-badge { padding: 4px 10px; border-radius: 16px; font-size: 10px; font-weight: 700; text-transform: uppercase; color: white; }
-    .role-doctor { background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%); }
-    .role-admin { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); }
-    .role-superadmin { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); }
-    .role-receptionist { background: linear-gradient(135deg, #10b981 0%, #059669 100%); }
-    .nav-link { display: flex; align-items: center; gap: 10px; padding: 10px 16px; border-radius: 10px; color: rgba(255,255,255,0.8); transition: all 0.2s; cursor: pointer; }
-    .nav-link:hover { background: rgba(255,255,255,0.1); color: white; }
-    .nav-link.active { background: rgba(255,255,255,0.15); color: white; font-weight: 600; }
-    table { width: 100%; border-collapse: collapse; }
-    th, td { padding: 12px; text-align: left; border-bottom: 1px solid #e5e7eb; font-size: 13px; }
-    th { background: #f9fafb; font-weight: 600; }
-    .patient-card { border: 2px solid #e5e7eb; border-radius: 12px; padding: 16px; transition: all 0.3s; margin-bottom: 12px; }
-    .patient-card:hover { border-color: #2563eb; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.1); }
     .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; align-items: center; justify-content: center; overflow-y: auto; }
     .modal.active { display: flex; }
-    .modal-content { background: white; border-radius: 20px; padding: 32px; max-width: 1000px; max-height: 90vh; overflow-y: auto; width: 90%; margin: 20px; }
-    .save-indicator { position: fixed; top: 20px; right: 20px; padding: 8px 16px; background: white; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); font-size: 12px; font-weight: 600; z-index: 9999; display: none; }
-    .save-indicator.saving { display: block; color: #f59e0b; }
-    .save-indicator.saved { display: block; color: #10b981; }
-    .compliance-badge { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 6px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; display: inline-flex; align-items: center; gap: 4px; }
-    .signature-pad { border: 2px solid #e5e7eb; border-radius: 10px; cursor: crosshair; }
-    .audit-log { background: #f9fafb; padding: 12px; border-left: 4px solid #2563eb; border-radius: 8px; margin-bottom: 8px; font-size: 12px; }
-    .consent-box { background: #eff6ff; border: 2px solid #2563eb; border-radius: 12px; padding: 16px; margin-bottom: 16px; }
-    .enterprise-header { background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%); color: white; padding: 4px 12px; border-radius: 8px; font-size: 10px; font-weight: 700; display: inline-block; margin-bottom: 8px; }
+    .modal-content { background: white; border-radius: 20px; padding: 32px; max-width: 900px; max-height: 90vh; overflow-y: auto; width: 90%; margin: 20px; }
+    .progress-bar { width: 100%; height: 8px; background: #e5e7eb; border-radius: 10px; overflow: hidden; }
+    .progress-fill { height: 100%; background: linear-gradient(90deg, #10b981 0%, #059669 100%); transition: width 0.3s; }
+    .completion-banner { background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border: 2px solid #f59e0b; border-radius: 12px; padding: 16px; margin-bottom: 20px; }
+    .wizard-step { display: none; }
+    .wizard-step.active { display: block; }
+    .step-indicator { display: flex; justify-content: space-between; margin-bottom: 30px; }
+    .step-item { flex: 1; text-align: center; position: relative; }
+    .step-circle { width: 40px; height: 40px; border-radius: 50%; background: #e5e7eb; color: #9ca3af; display: flex; align-items: center; justify-content: center; margin: 0 auto 8px; font-weight: 700; }
+    .step-item.active .step-circle { background: #2563eb; color: white; }
+    .step-item.completed .step-circle { background: #10b981; color: white; }
+    .feature-lock { opacity: 0.5; pointer-events: none; position: relative; }
+    .feature-lock::after { content: '🔒 Complete Profile to Unlock'; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.8); color: white; padding: 8px 16px; border-radius: 8px; font-size: 12px; white-space: nowrap; }
   </style>
 </head>
 <body>
-  <div id="saveIndicator" class="save-indicator"></div>
   <div id="app"></div>
-  
-  <!-- Consent Modal -->
-  <div id="consentModal" class="modal">
+
+  <!-- Quick Setup Modal -->
+  <div id="quickSetupModal" class="modal">
     <div class="modal-content">
       <div class="flex justify-between items-center mb-6">
-        <h2 class="text-2xl font-bold">📋 Patient Consent Form</h2>
-        <button onclick="closeModal('consentModal')" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
+        <div>
+          <h2 class="text-2xl font-bold">⚡ Quick Clinic Setup</h2>
+          <p class="text-sm text-gray-600 mt-1">Add basic info now, clinic admin completes profile later</p>
+        </div>
+        <button onclick="closeModal('quickSetupModal')" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
       </div>
-      <div class="consent-box">
-        <h3 class="font-bold mb-3">Data Protection & Privacy Consent (DPDP Act 2023)</h3>
-        <div class="text-sm space-y-2 mb-4">
-          <p>✓ I consent to the collection and processing of my personal health information</p>
-          <p>✓ I understand my data will be stored securely and used only for medical purposes</p>
-          <p>✓ I have the right to access, correct, or delete my data at any time</p>
-          <p>✓ I consent to receive appointment reminders and health notifications</p>
+      <form onsubmit="saveQuickClinic(event)">
+        <div class="grid grid-cols-2 gap-4 mb-4">
+          <div class="col-span-2"><label class="form-label">Clinic Name *</label><input type="text" id="qClinicName" class="form-input" required></div>
+          <div><label class="form-label">Type *</label><select id="qClinicType" class="form-input" required><option>Clinic</option><option>Polyclinic</option><option>Hospital</option><option>Nursing Home</option><option>Diagnostic Center</option></select></div>
+          <div><label class="form-label">Specialization</label><input type="text" id="qClinicSpec" class="form-input" placeholder="e.g., Multi-specialty"></div>
+        </div>
+        <div class="mb-4"><label class="form-label">Address *</label><textarea id="qClinicAddress" class="form-input" rows="2" required></textarea></div>
+        <div class="grid grid-cols-3 gap-4 mb-4">
+          <div><label class="form-label">City *</label><input type="text" id="qClinicCity" class="form-input" required></div>
+          <div><label class="form-label">State *</label><input type="text" id="qClinicState" class="form-input" required></div>
+          <div><label class="form-label">PIN Code *</label><input type="text" id="qClinicPIN" class="form-input" required></div>
         </div>
         <div class="grid grid-cols-2 gap-4 mb-4">
-          <div><label class="form-label">Patient Name</label><input type="text" id="consentName" class="form-input" required></div>
-          <div><label class="form-label">Date</label><input type="date" id="consentDate" class="form-input" value="${new Date().toISOString().split('T')[0]}" required></div>
+          <div><label class="form-label">Phone *</label><input type="tel" id="qClinicPhone" class="form-input" required></div>
+          <div><label class="form-label">Email *</label><input type="email" id="qClinicEmail" class="form-input" required></div>
         </div>
-        <div class="mb-4">
-          <label class="form-label">Signature</label>
-          <canvas id="consentSignature" class="signature-pad" width="400" height="150"></canvas>
-          <button type="button" onclick="clearConsentSignature()" class="btn btn-secondary btn-sm mt-2">Clear</button>
+        <div class="grid grid-cols-2 gap-4 mb-4">
+          <div><label class="form-label">GSTIN *</label><input type="text" id="qClinicGSTIN" class="form-input" placeholder="27AABCU9603R1ZM" required></div>
+          <div><label class="form-label">Medical Director Name *</label><input type="text" id="qClinicDirector" class="form-input" required></div>
         </div>
-      </div>
-      <div class="flex gap-3">
-        <button onclick="saveConsent()" class="btn btn-success">Accept & Continue</button>
-        <button onclick="closeModal('consentModal')" class="btn btn-secondary">Cancel</button>
-      </div>
+        <div class="grid grid-cols-2 gap-4 mb-4">
+          <div><label class="form-label">Opening Time</label><input type="time" id="qClinicOpen" class="form-input" value="09:00"></div>
+          <div><label class="form-label">Closing Time</label><input type="time" id="qClinicClose" class="form-input" value="18:00"></div>
+        </div>
+        <div class="bg-blue-50 border-2 border-blue-200 rounded-lg p-4 mb-4">
+          <p class="text-sm text-blue-800"><strong>📧 Clinic Admin Account:</strong> An invitation will be sent to the clinic email to complete their profile and unlock all features.</p>
+        </div>
+        <div class="flex gap-3">
+          <button type="submit" class="btn btn-success">✅ Create Clinic (Quick Setup)</button>
+          <button type="button" onclick="closeModal('quickSetupModal')" class="btn btn-secondary">Cancel</button>
+        </div>
+      </form>
     </div>
   </div>
 
-  <!-- Digital Signature Modal -->
-  <div id="signatureModal" class="modal">
+  <!-- Complete Setup Wizard Modal -->
+  <div id="completeSetupModal" class="modal">
     <div class="modal-content">
       <div class="flex justify-between items-center mb-6">
-        <h2 class="text-2xl font-bold">✍️ Digital Signature</h2>
-        <button onclick="closeModal('signatureModal')" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
+        <div>
+          <h2 class="text-2xl font-bold">🏆 Complete Your Clinic Profile</h2>
+          <p class="text-sm text-gray-600 mt-1">Unlock all features with full compliance</p>
+        </div>
+        <button onclick="closeModal('completeSetupModal')" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
       </div>
-      <div class="mb-4">
-        <p class="text-sm text-gray-600 mb-3">Sign below to save your digital signature for prescriptions</p>
-        <canvas id="doctorSignature" class="signature-pad" width="500" height="200"></canvas>
+      
+      <!-- Progress Bar -->
+      <div class="mb-6">
+        <div class="flex justify-between items-center mb-2">
+          <span class="text-sm font-semibold">Profile Completion</span>
+          <span class="text-sm font-bold text-green-600" id="wizardProgress">18%</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" id="wizardProgressBar" style="width: 18%"></div>
+        </div>
       </div>
-      <div class="flex gap-3">
-        <button onclick="saveSignature()" class="btn btn-success">Save Signature</button>
-        <button onclick="clearSignature()" class="btn btn-secondary">Clear</button>
-        <button onclick="closeModal('signatureModal')" class="btn btn-secondary">Cancel</button>
+
+      <!-- Step Indicator -->
+      <div class="step-indicator">
+        <div class="step-item active" id="stepInd1"><div class="step-circle">1</div><div class="text-xs">Basic</div></div>
+        <div class="step-item" id="stepInd2"><div class="step-circle">2</div><div class="text-xs">Legal</div></div>
+        <div class="step-item" id="stepInd3"><div class="step-circle">3</div><div class="text-xs">Infrastructure</div></div>
+        <div class="step-item" id="stepInd4"><div class="step-circle">4</div><div class="text-xs">Banking</div></div>
+        <div class="step-item" id="stepInd5"><div class="step-circle">5</div><div class="text-xs">Certifications</div></div>
+        <div class="step-item" id="stepInd6"><div class="step-circle">6</div><div class="text-xs">Operations</div></div>
+        <div class="step-item" id="stepInd7"><div class="step-circle">7</div><div class="text-xs">Branding</div></div>
       </div>
+
+      <form id="wizardForm">
+        <!-- Step 1: Basic Details -->
+        <div class="wizard-step active" id="wizardStep1">
+          <h3 class="text-lg font-bold mb-4">📋 Step 1: Basic Details</h3>
+          <div class="grid grid-cols-2 gap-4 mb-4">
+            <div><label class="form-label">Ownership Type *</label><select id="wOwnership" class="form-input" required><option>Proprietorship</option><option>Partnership</option><option>Private Limited</option><option>Public Limited</option><option>Trust/NGO</option><option>Government</option></select></div>
+            <div><label class="form-label">PAN Number *</label><input type="text" id="wPAN" class="form-input" placeholder="ABCDE1234F" required></div>
+          </div>
+          <div class="grid grid-cols-2 gap-4 mb-4">
+            <div><label class="form-label">Year Established *</label><input type="number" id="wYear" class="form-input" min="1900" max="2025" required></div>
+            <div><label class="form-label">Total Area (sq ft) *</label><input type="number" id="wArea" class="form-input" required></div>
+          </div>
+        </div>
+
+        <!-- Step 2: Legal Compliance -->
+        <div class="wizard-step" id="wizardStep2">
+          <h3 class="text-lg font-bold mb-4">⚖️ Step 2: Legal Compliance</h3>
+          <div class="mb-4"><label class="form-label">CEA Registration Number *</label><input type="text" id="wCEA" class="form-input" placeholder="CEA/MH/2024/12345" required></div>
+          <div class="grid grid-cols-2 gap-4 mb-4">
+            <div><label class="form-label">CEA Issue Date *</label><input type="date" id="wCEADate" class="form-input" required></div>
+            <div><label class="form-label">CEA Valid Until *</label><input type="date" id="wCEAExpiry" class="form-input" required></div>
+          </div>
+          <div class="mb-4"><label class="form-label">Drug License 20B *</label><input type="text" id="wDrug20B" class="form-input" placeholder="DL-MH-20B-12345" required></div>
+          <div class="mb-4"><label class="form-label">Drug License 21B</label><input type="text" id="wDrug21B" class="form-input" placeholder="DL-MH-21B-12345"></div>
+          <div class="grid grid-cols-2 gap-4 mb-4">
+            <div><label class="form-label">Drug License Issue Date *</label><input type="date" id="wDrugDate" class="form-input" required></div>
+            <div><label class="form-label">Drug License Valid Until *</label><input type="date" id="wDrugExpiry" class="form-input" required></div>
+          </div>
+        </div>
+
+        <!-- Step 3: Infrastructure -->
+        <div class="wizard-step" id="wizardStep3">
+          <h3 class="text-lg font-bold mb-4">🏥 Step 3: Infrastructure</h3>
+          <div class="grid grid-cols-3 gap-4 mb-4">
+            <div><label class="form-label">Number of Beds *</label><input type="number" id="wBeds" class="form-input" min="0" required></div>
+            <div><label class="form-label">ICU Beds</label><input type="number" id="wICU" class="form-input" min="0" value="0"></div>
+            <div><label class="form-label">Operation Theaters</label><input type="number" id="wOT" class="form-input" min="0" value="0"></div>
+          </div>
+          <div class="grid grid-cols-2 gap-4 mb-4">
+            <div><label class="form-label">Consultation Rooms *</label><input type="number" id="wConsult" class="form-input" min="1" required></div>
+            <div><label class="form-label">Emergency Services</label><select id="wEmergency" class="form-input"><option value="yes">Yes</option><option value="no">No</option></select></div>
+          </div>
+          <div class="grid grid-cols-3 gap-4 mb-4">
+            <div><label class="form-label">Ambulance</label><select id="wAmbulance" class="form-input"><option value="yes">Yes</option><option value="no">No</option></select></div>
+            <div><label class="form-label">Pharmacy</label><select id="wPharmacy" class="form-input"><option value="yes">Yes</option><option value="no">No</option></select></div>
+            <div><label class="form-label">Diagnostic Lab</label><select id="wLab" class="form-input"><option value="yes">Yes</option><option value="no">No</option></select></div>
+          </div>
+        </div>
+
+        <!-- Step 4: Banking -->
+        <div class="wizard-step" id="wizardStep4">
+          <h3 class="text-lg font-bold mb-4">🏦 Step 4: Banking & Financial</h3>
+          <div class="grid grid-cols-2 gap-4 mb-4">
+            <div><label class="form-label">Bank Name *</label><input type="text" id="wBankName" class="form-input" required></div>
+            <div><label class="form-label">Branch Name *</label><input type="text" id="wBranch" class="form-input" required></div>
+          </div>
+          <div class="grid grid-cols-2 gap-4 mb-4">
+            <div><label class="form-label">Account Number *</label><input type="text" id="wAccount" class="form-input" required></div>
+            <div><label class="form-label">IFSC Code *</label><input type="text" id="wIFSC" class="form-input" placeholder="SBIN0001234" required></div>
+          </div>
+          <div class="mb-4"><label class="form-label">Account Holder Name *</label><input type="text" id="wAccountHolder" class="form-input" required></div>
+          <div class="grid grid-cols-2 gap-4 mb-4">
+            <div><label class="form-label">Insurance Policy Number</label><input type="text" id="wInsurance" class="form-input"></div>
+            <div><label class="form-label">Insurance Valid Until</label><input type="date" id="wInsuranceExpiry" class="form-input"></div>
+          </div>
+        </div>
+
+        <!-- Step 5: Certifications -->
+        <div class="wizard-step" id="wizardStep5">
+          <h3 class="text-lg font-bold mb-4">🏅 Step 5: Certifications</h3>
+          <div class="grid grid-cols-2 gap-4 mb-4">
+            <div><label class="form-label">Fire Safety Certificate *</label><input type="text" id="wFire" class="form-input" required></div>
+            <div><label class="form-label">Fire Safety Valid Until *</label><input type="date" id="wFireExpiry" class="form-input" required></div>
+          </div>
+          <div class="grid grid-cols-2 gap-4 mb-4">
+            <div><label class="form-label">BMW Authorization *</label><input type="text" id="wBMW" class="form-input" placeholder="From Pollution Control Board" required></div>
+            <div><label class="form-label">BMW Valid Until *</label><input type="date" id="wBMWExpiry" class="form-input" required></div>
+          </div>
+          <div class="grid grid-cols-2 gap-4 mb-4">
+            <div><label class="form-label">NABL Accreditation</label><input type="text" id="wNABL" class="form-input"></div>
+            <div><label class="form-label">ISO Certification</label><input type="text" id="wISO" class="form-input"></div>
+          </div>
+        </div>
+
+        <!-- Step 6: Operations -->
+        <div class="wizard-step" id="wizardStep6">
+          <h3 class="text-lg font-bold mb-4">⏰ Step 6: Operational Details</h3>
+          <div class="mb-4"><label class="form-label">Working Days *</label><div class="grid grid-cols-7 gap-2"><label class="flex items-center gap-2"><input type="checkbox" value="Mon" checked> Mon</label><label class="flex items-center gap-2"><input type="checkbox" value="Tue" checked> Tue</label><label class="flex items-center gap-2"><input type="checkbox" value="Wed" checked> Wed</label><label class="flex items-center gap-2"><input type="checkbox" value="Thu" checked> Thu</label><label class="flex items-center gap-2"><input type="checkbox" value="Fri" checked> Fri</label><label class="flex items-center gap-2"><input type="checkbox" value="Sat" checked> Sat</label><label class="flex items-center gap-2"><input type="checkbox" value="Sun"> Sun</label></div></div>
+          <div class="grid grid-cols-2 gap-4 mb-4">
+            <div><label class="form-label">24x7 Services</label><select id="w24x7" class="form-input"><option value="no">No</option><option value="yes">Yes</option></select></div>
+            <div><label class="form-label">Online Consultation</label><select id="wOnline" class="form-input"><option value="no">No</option><option value="yes">Yes</option></select></div>
+          </div>
+          <div class="mb-4"><label class="form-label">Empaneled With</label><div class="grid grid-cols-2 gap-2"><label class="flex items-center gap-2"><input type="checkbox" value="CGHS"> CGHS</label><label class="flex items-center gap-2"><input type="checkbox" value="ECHS"> ECHS</label><label class="flex items-center gap-2"><input type="checkbox" value="ESI"> ESI</label><label class="flex items-center gap-2"><input type="checkbox" value="Ayushman"> Ayushman Bharat</label></div></div>
+        </div>
+
+        <!-- Step 7: Branding -->
+        <div class="wizard-step" id="wizardStep7">
+          <h3 class="text-lg font-bold mb-4">🎨 Step 7: Branding & Social</h3>
+          <div class="grid grid-cols-2 gap-4 mb-4">
+            <div><label class="form-label">Primary Brand Color</label><input type="color" id="wColorPrimary" class="form-input" value="#2563eb"></div>
+            <div><label class="form-label">Secondary Brand Color</label><input type="color" id="wColorSecondary" class="form-input" value="#10b981"></div>
+          </div>
+          <div class="mb-4"><label class="form-label">WhatsApp Business Number</label><input type="tel" id="wWhatsApp" class="form-input"></div>
+          <div class="mb-4"><label class="form-label">Facebook Page URL</label><input type="url" id="wFacebook" class="form-input" placeholder="https://facebook.com/yourpage"></div>
+          <div class="mb-4"><label class="form-label">Google My Business Link</label><input type="url" id="wGoogle" class="form-input" placeholder="https://g.page/yourplace"></div>
+          <div class="bg-green-50 border-2 border-green-200 rounded-lg p-4">
+            <p class="text-sm text-green-800 font-semibold">🎉 Congratulations! You're about to unlock all features!</p>
+          </div>
+        </div>
+
+        <!-- Navigation Buttons -->
+        <div class="flex justify-between mt-6">
+          <button type="button" onclick="wizardPrev()" id="wizardPrevBtn" class="btn btn-secondary" style="display: none;">← Previous</button>
+          <div class="flex gap-3 ml-auto">
+            <button type="button" onclick="saveWizardProgress()" class="btn btn-secondary">💾 Save & Continue Later</button>
+            <button type="button" onclick="wizardNext()" id="wizardNextBtn" class="btn btn-primary">Next →</button>
+            <button type="button" onclick="completeWizard()" id="wizardCompleteBtn" class="btn btn-success" style="display: none;">✅ Complete Profile</button>
+          </div>
+        </div>
+      </form>
     </div>
   </div>
-
-  <!-- All other modals from previous version -->
-  <div id="prescriptionModal" class="modal"><div class="modal-content"><div class="flex justify-between items-center mb-6"><h2 class="text-2xl font-bold">📋 Create Prescription</h2><button onclick="closeModal('prescriptionModal')" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button></div><form onsubmit="savePrescription(event)"><div class="mb-4"><label class="form-label">Patient</label><select id="rxPatient" class="form-input" required></select></div><div class="mb-4"><label class="form-label">Chief Complaint</label><textarea id="rxComplaint" class="form-input" rows="2" required></textarea><button type="button" onclick="getAIDiagnosis()" class="btn btn-purple btn-sm mt-2">🤖 AI Diagnosis</button></div><div id="aiSuggestion"></div><div class="mb-4"><label class="form-label">Diagnosis</label><input type="text" id="rxDiagnosis" class="form-input" required></div><div class="mb-4"><label class="form-label">Medicines</label><div id="medicineList"></div><div class="flex gap-2 mt-2"><button type="button" onclick="addMedicine()" class="btn btn-secondary btn-sm">+ Add</button><button type="button" onclick="getAIPrescription()" class="btn btn-purple btn-sm">🤖 AI Rx</button></div></div><div class="mb-4"><label class="form-label">Advice</label><textarea id="rxAdvice" class="form-input" rows="2"></textarea></div><div class="flex gap-3"><button type="submit" class="btn btn-primary">Save</button><button type="button" onclick="closeModal('prescriptionModal')" class="btn btn-secondary">Cancel</button></div></form></div></div>
-  
-  <div id="patientModal" class="modal"><div class="modal-content"><div class="flex justify-between items-center mb-6"><h2 class="text-2xl font-bold">👤 Register Patient</h2><button onclick="closeModal('patientModal')" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button></div><form onsubmit="savePatient(event)"><div class="grid grid-cols-2 gap-4 mb-4"><div><label class="form-label">First Name</label><input type="text" id="patFirstName" class="form-input" required></div><div><label class="form-label">Last Name</label><input type="text" id="patLastName" class="form-input" required></div></div><div class="grid grid-cols-3 gap-4 mb-4"><div><label class="form-label">Age</label><input type="number" id="patAge" class="form-input" required></div><div><label class="form-label">Gender</label><select id="patGender" class="form-input" required><option>Male</option><option>Female</option><option>Other</option></select></div><div><label class="form-label">Blood</label><select id="patBlood" class="form-input"><option>A+</option><option>A-</option><option>B+</option><option>B-</option><option>O+</option><option>O-</option><option>AB+</option><option>AB-</option></select></div></div><div class="grid grid-cols-2 gap-4 mb-4"><div><label class="form-label">Phone</label><input type="tel" id="patPhone" class="form-input" required></div><div><label class="form-label">Email</label><input type="email" id="patEmail" class="form-input"></div></div><div class="mb-4"><label class="form-label">Address</label><textarea id="patAddress" class="form-input" rows="2"></textarea></div><div class="consent-box"><label class="flex items-center gap-2"><input type="checkbox" id="patConsent" required><span class="text-sm">I have obtained patient consent as per DPDP Act 2023</span></label></div><div class="flex gap-3"><button type="submit" class="btn btn-success">Register</button><button type="button" onclick="closeModal('patientModal')" class="btn btn-secondary">Cancel</button></div></form></div></div>
-
-  <div id="medicineModal" class="modal"><div class="modal-content"><div class="flex justify-between items-center mb-6"><h2 class="text-2xl font-bold" id="medicineModalTitle">💊 Add Medicine</h2><button onclick="closeModal('medicineModal')" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button></div><form onsubmit="saveMedicine(event)"><input type="hidden" id="medicineId"><div class="grid grid-cols-2 gap-4 mb-4"><div><label class="form-label">Name</label><input type="text" id="medicineName" class="form-input" required></div><div><label class="form-label">Brand</label><input type="text" id="medicineBrand" class="form-input" required></div></div><div class="grid grid-cols-3 gap-4 mb-4"><div><label class="form-label">Strength</label><input type="text" id="medicineStrength" class="form-input" required></div><div><label class="form-label">Category</label><input type="text" id="medicineCategory" class="form-input" required></div><div><label class="form-label">Price</label><input type="number" id="medicinePrice" class="form-input" required></div></div><div class="grid grid-cols-3 gap-4 mb-4"><div><label class="form-label">Stock</label><input type="number" id="medicineStock" class="form-input" required></div><div><label class="form-label">Reorder Level</label><input type="number" id="medicineReorder" class="form-input" required></div><div><label class="form-label">HSN Code</label><input type="text" id="medicineHSN" class="form-input" placeholder="3004" required></div></div><div class="grid grid-cols-3 gap-4 mb-4"><div><label class="form-label">Schedule</label><select id="medicineSchedule" class="form-input"><option value="">None</option><option value="H">Schedule H</option><option value="H1">Schedule H1</option><option value="X">Schedule X</option></select></div><div><label class="form-label">Batch Number</label><input type="text" id="medicineBatch" class="form-input" required></div><div><label class="form-label">Expiry Date</label><input type="date" id="medicineExpiry" class="form-input" required></div></div><div class="mb-4"><label class="form-label">Manufacturer</label><input type="text" id="medicineManufacturer" class="form-input" required></div><div class="flex gap-3"><button type="submit" class="btn btn-success">Save</button><button type="button" onclick="closeModal('medicineModal')" class="btn btn-secondary">Cancel</button></div></form></div></div>
-
-  <div id="clinicModal" class="modal"><div class="modal-content"><div class="flex justify-between items-center mb-6"><h2 class="text-2xl font-bold" id="clinicModalTitle">🏥 Add Clinic</h2><button onclick="closeModal('clinicModal')" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button></div><form onsubmit="saveClinic(event)"><input type="hidden" id="clinicId"><div class="mb-4"><label class="form-label">Clinic Name</label><input type="text" id="clinicName" class="form-input" required></div><div class="mb-4"><label class="form-label">Address</label><textarea id="clinicAddress" class="form-input" rows="2" required></textarea></div><div class="grid grid-cols-2 gap-4 mb-4"><div><label class="form-label">Phone</label><input type="tel" id="clinicPhone" class="form-input" required></div><div><label class="form-label">Email</label><input type="email" id="clinicEmail" class="form-input" required></div></div><div class="grid grid-cols-2 gap-4 mb-4"><div><label class="form-label">GSTIN</label><input type="text" id="clinicGSTIN" class="form-input" placeholder="27AABCU9603R1ZM" required></div><div><label class="form-label">Clinic Registration No.</label><input type="text" id="clinicRegNo" class="form-input" placeholder="CEA/MH/2024/12345" required></div></div><div class="mb-4"><label class="form-label">Drug License Number</label><input type="text" id="clinicDrugLicense" class="form-input" placeholder="DL-MH-20B-12345" required></div><div class="flex gap-3"><button type="submit" class="btn btn-success">Save</button><button type="button" onclick="closeModal('clinicModal')" class="btn btn-secondary">Cancel</button></div></form></div></div>
-
-  <div id="staffModal" class="modal"><div class="modal-content"><div class="flex justify-between items-center mb-6"><h2 class="text-2xl font-bold" id="staffModalTitle">👥 Add Staff</h2><button onclick="closeModal('staffModal')" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button></div><form onsubmit="saveStaff(event)"><input type="hidden" id="staffId"><div class="grid grid-cols-2 gap-4 mb-4"><div><label class="form-label">Name</label><input type="text" id="staffName" class="form-input" required></div><div><label class="form-label">Role</label><select id="staffRole" class="form-input" required><option>Doctor</option><option>Nurse</option><option>Receptionist</option><option>Pharmacist</option><option>Lab Technician</option></select></div></div><div class="grid grid-cols-2 gap-4 mb-4"><div><label class="form-label">Specialization/Dept</label><input type="text" id="staffSpec" class="form-input"></div><div><label class="form-label">Phone</label><input type="tel" id="staffPhone" class="form-input" required></div></div><div class="grid grid-cols-2 gap-4 mb-4"><div><label class="form-label">MCI/State Registration No.</label><input type="text" id="staffRegNo" class="form-input" placeholder="MCI-12345 or SMC-67890"></div><div><label class="form-label">Salary</label><input type="number" id="staffSalary" class="form-input" required></div></div><div class="mb-4"><label class="form-label">Status</label><select id="staffStatus" class="form-input"><option>Active</option><option>Inactive</option></select></div><div class="flex gap-3"><button type="submit" class="btn btn-success">Save</button><button type="button" onclick="closeModal('staffModal')" class="btn btn-secondary">Cancel</button></div></form></div></div>
 
   <script>
     const { jsPDF } = window.jspdf;
-    let signaturePad = null;
-    let consentPad = null;
+    let currentWizardStep = 1;
     
     const DataManager = {
-      STORAGE_KEY: 'edgesof_mediscript_enterprise',
+      STORAGE_KEY: 'edgesof_mediscript_twotier',
       save(data) {
         try {
-          const indicator = document.getElementById('saveIndicator');
-          indicator.className = 'save-indicator saving';
-          indicator.textContent = '💾 Saving...';
           localStorage.setItem(this.STORAGE_KEY, JSON.stringify(data));
-          
-          // Audit log
-          addAuditLog('DATA_SAVE', 'System auto-saved data');
-          
-          setTimeout(() => {
-            indicator.className = 'save-indicator saved';
-            indicator.textContent = '✅ Saved';
-            setTimeout(() => indicator.style.display = 'none', 2000);
-          }, 300);
           return true;
         } catch (error) {
           console.error('Save failed:', error);
@@ -169,671 +284,254 @@
 
     let DB = DataManager.load() || {
       clinics: [{
-        id: 'c1', 
-        name: 'City Health Clinic', 
-        logo_url: 'https://nyc3.digitaloceanspaces.com/bhindi-drive/files/cab453ed-7d3e-4dfa-9012-038dbc50c1c5/2025-12-07T15-33-38-867Z-c50befdf-chat-image-1765121618851-0.jpg', 
-        primary_color: '#2563eb', 
-        secondary_color: '#10b981',
+        id: 'c1',
+        name: 'City Health Clinic',
+        type: 'Clinic',
         address: '123 Medical Street, Mumbai, Maharashtra 400001',
-        phone: '+91-9876543210', 
+        city: 'Mumbai',
+        state: 'Maharashtra',
+        pin: '400001',
+        phone: '+91-9876543210',
         email: 'info@cityhealthclinic.com',
         gstin: '27AABCU9603R1ZM',
-        registration_no: 'CEA/MH/2024/12345',
-        drug_license: 'DL-MH-20B-12345'
+        medical_director: 'Dr. Rajesh Sharma',
+        opening_time: '09:00',
+        closing_time: '18:00',
+        status: 'BASIC',
+        completion_percentage: 18,
+        created_at: new Date().toISOString(),
+        logo_url: 'https://nyc3.digitaloceanspaces.com/bhindi-drive/files/cab453ed-7d3e-4dfa-9012-038dbc50c1c5/2025-12-07T15-33-38-867Z-c50befdf-chat-image-1765121618851-0.jpg'
       }],
       users: [
         {id: 'u1', email: 'system@edgesof.com', password: 'admin123', role: 'superadmin', name: 'System Admin'},
-        {id: 'u2', email: 'admin@clinic.com', password: 'admin123', role: 'admin', name: 'Clinic Admin'},
-        {id: 'u3', email: 'doctor@clinic.com', password: 'doctor123', role: 'doctor', name: 'Dr. Rajesh Sharma', mci_registration: 'MCI-12345', signature: null},
-        {id: 'u4', email: 'reception@clinic.com', password: 'reception123', role: 'receptionist', name: 'Priya Patel'}
+        {id: 'u2', email: 'admin@clinic.com', password: 'admin123', role: 'admin', name: 'Clinic Admin', clinic_id: 'c1'},
+        {id: 'u3', email: 'doctor@clinic.com', password: 'doctor123', role: 'doctor', name: 'Dr. Rajesh Sharma', clinic_id: 'c1'},
+        {id: 'u4', email: 'reception@clinic.com', password: 'reception123', role: 'receptionist', name: 'Priya Patel', clinic_id: 'c1'}
       ],
-      staff: [
-        {id: 's1', name: 'Dr. Rajesh Sharma', role: 'Doctor', specialization: 'General Medicine', phone: '+919876543210', mci_registration: 'MCI-12345', salary: 80000, status: 'Active'},
-        {id: 's2', name: 'Priya Patel', role: 'Receptionist', department: 'Front Desk', phone: '+919876543213', salary: 25000, status: 'Active'}
-      ],
-      medicines: [
-        {id: 'm1', name: 'Paracetamol', brand: 'Crocin', strength: '500mg', category: 'Analgesic', price: 5, stock: 100, reorder_level: 20, hsn_code: '3004', schedule: '', batch_no: 'BATCH001', expiry_date: '2026-12-31', manufacturer: 'GSK'},
-        {id: 'm2', name: 'Cetirizine', brand: 'Zyrtec', strength: '10mg', category: 'Antihistamine', price: 8, stock: 75, reorder_level: 25, hsn_code: '3004', schedule: '', batch_no: 'BATCH002', expiry_date: '2026-06-30', manufacturer: 'UCB'},
-        {id: 'm3', name: 'Alprazolam', brand: 'Alprax', strength: '0.5mg', category: 'Anxiolytic', price: 15, stock: 30, reorder_level: 10, hsn_code: '3004', schedule: 'H', batch_no: 'BATCH003', expiry_date: '2025-12-31', manufacturer: 'Torrent'}
-      ],
-      patients: [
-        {id: 'p1', patient_id: 'P001', first_name: 'Rajesh', last_name: 'Kumar', age: 45, gender: 'Male', blood_group: 'O+', phone: '+919876543220', email: 'rajesh@example.com', address: 'Mumbai', last_visit: '2025-12-05', consent_given: true, consent_date: '2025-12-05', vitals: [], soap_notes: []},
-        {id: 'p2', patient_id: 'P002', first_name: 'Priya', last_name: 'Sharma', age: 32, gender: 'Female', blood_group: 'A+', phone: '+919876543221', email: 'priya@example.com', address: 'Mumbai', last_visit: '2025-12-06', consent_given: true, consent_date: '2025-12-06', vitals: [], soap_notes: []},
-        {id: 'p3', patient_id: 'P003', first_name: 'Amit', last_name: 'Patel', age: 28, gender: 'Male', blood_group: 'B+', phone: '+919876543222', email: 'amit@example.com', address: 'Mumbai', last_visit: '2025-12-07', consent_given: true, consent_date: '2025-12-07', vitals: [], soap_notes: []}
-      ],
-      appointments: [
-        {id: 'a1', patient_id: 'p1', patient_name: 'Rajesh Kumar', doctor: 'Dr. Rajesh Sharma', date: '2025-12-08', time: '10:00 AM', status: 'Scheduled', notes: 'Follow-up'},
-        {id: 'a2', patient_id: 'p2', patient_name: 'Priya Sharma', doctor: 'Dr. Rajesh Sharma', date: '2025-12-08', time: '11:00 AM', status: 'Scheduled', notes: 'Consultation'}
-      ],
+      patients: [],
+      appointments: [],
       prescriptions: [],
-      opd_queue: [],
-      invoices: [],
-      audit_logs: [],
-      prescription_counter: 1
+      audit_logs: []
     };
 
     function saveDB() { DataManager.save(DB); }
 
-    let currentUser = null, currentScreen = 'login', searchQuery = '', filterGender = '', filterBloodGroup = '', medicineCount = 0, billItemCount = 0, currentPatientId = null, recognition = null, editingId = null;
+    let currentUser = null, currentScreen = 'login';
 
-    // Audit Log Function
-    function addAuditLog(action, details, userId = null) {
-      const log = {
-        id: 'log' + Date.now(),
-        timestamp: new Date().toISOString(),
-        user_id: userId || (currentUser ? currentUser.id : 'system'),
-        user_name: currentUser ? currentUser.name : 'System',
-        action: action,
-        details: details,
-        ip_address: 'N/A'
-      };
-      DB.audit_logs.unshift(log);
-      if (DB.audit_logs.length > 1000) DB.audit_logs = DB.audit_logs.slice(0, 1000);
-      saveDB();
-    }
-
-    // Digital Signature Functions
-    function openSignatureModal() {
-      openModal('signatureModal');
-      setTimeout(() => {
-        const canvas = document.getElementById('doctorSignature');
-        signaturePad = new SignaturePad(canvas);
-        if (currentUser.signature) {
-          const img = new Image();
-          img.onload = () => {
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(img, 0, 0);
-          };
-          img.src = currentUser.signature;
-        }
-      }, 100);
-    }
-
-    function clearSignature() {
-      if (signaturePad) signaturePad.clear();
-    }
-
-    function saveSignature() {
-      if (signaturePad && !signaturePad.isEmpty()) {
-        const signatureData = signaturePad.toDataURL();
-        currentUser.signature = signatureData;
-        const userIdx = DB.users.findIndex(u => u.id === currentUser.id);
-        DB.users[userIdx].signature = signatureData;
-        addAuditLog('SIGNATURE_SAVED', 'Doctor saved digital signature');
-        saveDB();
-        closeModal('signatureModal');
-        alert('✅ Signature saved successfully!');
-      } else {
-        alert('Please sign before saving');
-      }
-    }
-
-    // Consent Functions
-    function clearConsentSignature() {
-      if (consentPad) consentPad.clear();
-    }
-
-    function saveConsent() {
-      const name = document.getElementById('consentName').value;
-      const date = document.getElementById('consentDate').value;
-      if (!name || !date) { alert('Please fill all fields'); return; }
-      if (consentPad && !consentPad.isEmpty()) {
-        addAuditLog('CONSENT_OBTAINED', `Patient consent obtained: ${name}`);
-        closeModal('consentModal');
-        alert('✅ Consent recorded successfully!');
-      } else {
-        alert('Please sign the consent form');
-      }
-    }
-
-    // Generate Prescription Serial Number
-    function generatePrescriptionNo() {
-      const year = new Date().getFullYear();
-      const serial = String(DB.prescription_counter).padStart(5, '0');
-      DB.prescription_counter++;
-      return `RX-${year}-${serial}`;
-    }
-
-    // PDF Generation with India Compliance
-    function generatePrescriptionPDF(rxId) {
-      const rx = DB.prescriptions.find(r => r.id === rxId);
-      const patient = DB.patients.find(p => p.id === rx.patient_id);
-      const clinic = DB.clinics[0];
-      const doctor = DB.users.find(u => u.name === rx.doctor);
-      
-      const doc = new jsPDF();
-      
-      // Header with compliance info
-      doc.setFillColor(37, 99, 235);
-      doc.rect(0, 0, 210, 50, 'F');
-      doc.setTextColor(255, 255, 255);
-      doc.setFontSize(22);
-      doc.text(clinic.name, 105, 15, { align: 'center' });
-      doc.setFontSize(9);
-      doc.text(clinic.address, 105, 22, { align: 'center' });
-      doc.text(`Phone: ${clinic.phone} | Email: ${clinic.email}`, 105, 28, { align: 'center' });
-      doc.text(`GSTIN: ${clinic.gstin} | Reg No: ${clinic.registration_no}`, 105, 34, { align: 'center' });
-      doc.text(`Drug License: ${clinic.drug_license}`, 105, 40, { align: 'center' });
-      
-      // Prescription details
-      doc.setTextColor(0, 0, 0);
-      doc.setFontSize(16);
-      doc.text('PRESCRIPTION', 105, 58, { align: 'center' });
-      
-      doc.setFontSize(10);
-      doc.text(`Rx No: ${rx.prescription_no}`, 20, 68);
-      doc.text(`Date: ${rx.date}`, 150, 68);
-      
-      doc.text(`Patient: ${patient.first_name} ${patient.last_name}`, 20, 76);
-      doc.text(`Age/Gender: ${patient.age}Y ${patient.gender}`, 20, 82);
-      doc.text(`Patient ID: ${patient.patient_id}`, 150, 76);
-      doc.text(`Phone: ${patient.phone}`, 150, 82);
-      
-      doc.text(`Chief Complaint: ${rx.chief_complaint}`, 20, 92);
-      doc.text(`Diagnosis: ${rx.diagnosis}`, 20, 98);
-      
-      // Medicines table with Schedule H marking
-      const medicineData = rx.medicines.map((med, idx) => {
-        const scheduleMarker = med.schedule ? `[Schedule ${med.schedule}]` : '';
-        return [
-          idx + 1,
-          med.name + ' ' + scheduleMarker,
-          med.dosage,
-          med.frequency,
-          med.duration
-        ];
-      });
-      
-      doc.autoTable({
-        startY: 105,
-        head: [['#', 'Medicine', 'Dosage', 'Frequency', 'Duration']],
-        body: medicineData,
-        theme: 'grid',
-        headStyles: { fillColor: [37, 99, 235] },
-        didDrawCell: (data) => {
-          if (data.column.index === 1 && data.cell.raw.includes('[Schedule')) {
-            doc.setTextColor(245, 158, 11);
-            doc.setFontSize(8);
-            doc.text('⚠️ Controlled Drug', data.cell.x + 2, data.cell.y + data.cell.height - 2);
-          }
-        }
-      });
-      
-      const finalY = doc.lastAutoTable.finalY + 10;
-      doc.setFontSize(10);
-      doc.text(`Advice: ${rx.advice}`, 20, finalY);
-      
-      // Doctor signature
-      doc.text(`Dr. ${rx.doctor}`, 150, finalY + 15);
-      if (doctor && doctor.mci_registration) {
-        doc.setFontSize(8);
-        doc.text(`MCI Reg: ${doctor.mci_registration}`, 150, finalY + 20);
-      }
-      if (doctor && doctor.signature) {
-        const img = new Image();
-        img.src = doctor.signature;
-        doc.addImage(img, 'PNG', 150, finalY + 22, 40, 15);
-      }
-      
-      // Footer
-      doc.setFontSize(8);
-      doc.setTextColor(128, 128, 128);
-      doc.text('This is a computer-generated prescription and is valid without signature', 105, 285, { align: 'center' });
-      
-      doc.save(`Prescription_${rx.prescription_no}.pdf`);
-      addAuditLog('PDF_GENERATED', `Prescription PDF generated: ${rx.prescription_no}`);
-      alert('✅ Prescription PDF downloaded!');
-    }
-
-    function generateInvoicePDF(invId) {
-      const inv = DB.invoices.find(i => i.id === invId);
-      const clinic = DB.clinics[0];
-      
-      const doc = new jsPDF();
-      
-      // Header
-      doc.setFillColor(37, 99, 235);
-      doc.rect(0, 0, 210, 50, 'F');
-      doc.setTextColor(255, 255, 255);
-      doc.setFontSize(22);
-      doc.text(clinic.name, 105, 15, { align: 'center' });
-      doc.setFontSize(9);
-      doc.text(clinic.address, 105, 22, { align: 'center' });
-      doc.text(`GSTIN: ${clinic.gstin} | Reg No: ${clinic.registration_no}`, 105, 28, { align: 'center' });
-      doc.text(`Drug License: ${clinic.drug_license}`, 105, 34, { align: 'center' });
-      
-      doc.setTextColor(0, 0, 0);
-      doc.setFontSize(16);
-      doc.text('TAX INVOICE', 105, 58, { align: 'center' });
-      
-      doc.setFontSize(10);
-      doc.text(`Invoice No: ${inv.invoice_no}`, 20, 68);
-      doc.text(`Date: ${inv.date}`, 150, 68);
-      doc.text(`Patient: ${inv.patient_name}`, 20, 75);
-      doc.text(`Payment: ${inv.payment_mode}`, 150, 75);
-      
-      // Items table with HSN codes
-      const itemData = inv.items.map((item, idx) => [
-        idx + 1,
-        item.description,
-        item.hsn_code || '9987',
-        item.quantity,
-        '₹' + item.rate.toFixed(2),
-        '₹' + item.amount.toFixed(2)
-      ]);
-      
-      doc.autoTable({
-        startY: 82,
-        head: [['#', 'Description', 'HSN/SAC', 'Qty', 'Rate', 'Amount']],
-        body: itemData,
-        theme: 'grid',
-        headStyles: { fillColor: [37, 99, 235] }
-      });
-      
-      const finalY = doc.lastAutoTable.finalY + 10;
-      doc.text(`Subtotal: ₹${inv.subtotal.toFixed(2)}`, 150, finalY);
-      doc.text(`CGST (9%): ₹${inv.cgst.toFixed(2)}`, 150, finalY + 7);
-      doc.text(`SGST (9%): ₹${inv.sgst.toFixed(2)}`, 150, finalY + 14);
-      doc.setFontSize(12);
-      doc.setFont(undefined, 'bold');
-      doc.text(`Total: ₹${inv.total.toFixed(2)}`, 150, finalY + 24);
-      
-      // Footer
-      doc.setFontSize(8);
-      doc.setTextColor(128, 128, 128);
-      doc.text('This is a computer-generated invoice', 105, 285, { align: 'center' });
-      
-      doc.save(`Invoice_${inv.invoice_no}.pdf`);
-      addAuditLog('PDF_GENERATED', `Invoice PDF generated: ${inv.invoice_no}`);
-      alert('✅ Invoice PDF downloaded!');
-    }
-
-    // AI Functions (same as before)
-    function getAIDiagnosis() {
-      const complaint = document.getElementById('rxComplaint').value;
-      if (!complaint) { alert('Please enter chief complaint first'); return; }
-      const diagnoses = {'fever': 'Viral Fever - Common viral infection', 'cough': 'URTI - Upper respiratory infection', 'headache': 'Tension Headache', 'stomach': 'Gastritis', 'cold': 'Common Cold'};
-      let suggestion = 'Unable to determine';
-      for (let key in diagnoses) { if (complaint.toLowerCase().includes(key)) { suggestion = diagnoses[key]; break; } }
-      document.getElementById('aiSuggestion').innerHTML = `<div class="ai-suggestion"><div class="flex items-start gap-3"><div class="text-2xl">🤖</div><div class="flex-1"><p class="font-bold text-purple-700 mb-1">AI Suggestion</p><p class="text-sm text-gray-700">${suggestion}</p><button type="button" onclick="document.getElementById('rxDiagnosis').value='${suggestion.split(' - ')[0]}'" class="btn btn-purple btn-xs mt-2">Use This</button></div></div></div>`;
-    }
-
-    function getAIPrescription() {
-      const diagnosis = document.getElementById('rxDiagnosis').value;
-      if (!diagnosis) { alert('Please enter diagnosis first'); return; }
-      const prescriptions = {'Viral Fever': [{name: 'Paracetamol', dosage: '500mg', frequency: 'TDS', duration: '5 days'}, {name: 'Cetirizine', dosage: '10mg', frequency: 'OD', duration: '3 days'}], 'Common Cold': [{name: 'Cetirizine', dosage: '10mg', frequency: 'OD', duration: '5 days'}], 'Gastritis': [{name: 'Omeprazole', dosage: '20mg', frequency: 'BD', duration: '7 days'}]};
-      const meds = prescriptions[diagnosis] || [{name: 'Paracetamol', dosage: '500mg', frequency: 'TDS', duration: '3 days'}];
-      document.getElementById('medicineList').innerHTML = ''; medicineCount = 0;
-      meds.forEach(med => { addMedicine(); const lastMed = document.querySelector('#medicineList > div:last-child'); const inputs = lastMed.querySelectorAll('input, select'); inputs[0].value = med.name; inputs[1].value = med.dosage; inputs[2].value = med.frequency; inputs[3].value = med.duration; });
-      alert('🤖 AI prescription added!');
-    }
-
-    // CRUD Functions
-    function editStaff(id) {
-      const staff = DB.staff.find(s => s.id === id);
-      editingId = id;
-      document.getElementById('staffModalTitle').textContent = '✏️ Edit Staff';
-      document.getElementById('staffId').value = id;
-      document.getElementById('staffName').value = staff.name;
-      document.getElementById('staffRole').value = staff.role;
-      document.getElementById('staffSpec').value = staff.specialization || staff.department || '';
-      document.getElementById('staffPhone').value = staff.phone;
-      document.getElementById('staffRegNo').value = staff.mci_registration || '';
-      document.getElementById('staffSalary').value = staff.salary;
-      document.getElementById('staffStatus').value = staff.status;
-      openModal('staffModal');
-    }
-
-    function deleteStaff(id) {
-      if (!confirm('Delete this staff member?')) return;
-      const staff = DB.staff.find(s => s.id === id);
-      DB.staff = DB.staff.filter(s => s.id !== id);
-      addAuditLog('STAFF_DELETED', `Deleted staff: ${staff.name}`);
-      saveDB(); alert('✅ Staff deleted!'); render();
-    }
-
-    function saveStaff(e) {
+    function saveQuickClinic(e) {
       e.preventDefault();
-      const id = document.getElementById('staffId').value;
-      const staff = {
-        id: id || 's' + Date.now(),
-        name: document.getElementById('staffName').value,
-        role: document.getElementById('staffRole').value,
-        specialization: document.getElementById('staffSpec').value,
-        phone: document.getElementById('staffPhone').value,
-        mci_registration: document.getElementById('staffRegNo').value,
-        salary: parseInt(document.getElementById('staffSalary').value),
-        status: document.getElementById('staffStatus').value
-      };
-      if (id) { 
-        const idx = DB.staff.findIndex(s => s.id === id); 
-        DB.staff[idx] = staff; 
-        addAuditLog('STAFF_UPDATED', `Updated staff: ${staff.name}`);
-      } else { 
-        DB.staff.push(staff); 
-        addAuditLog('STAFF_ADDED', `Added new staff: ${staff.name}`);
-      }
-      saveDB(); closeModal('staffModal'); alert('✅ Staff saved!'); render();
-    }
-
-    function editMedicine(id) {
-      const med = DB.medicines.find(m => m.id === id);
-      editingId = id;
-      document.getElementById('medicineModalTitle').textContent = '✏️ Edit Medicine';
-      document.getElementById('medicineId').value = id;
-      document.getElementById('medicineName').value = med.name;
-      document.getElementById('medicineBrand').value = med.brand;
-      document.getElementById('medicineStrength').value = med.strength;
-      document.getElementById('medicineCategory').value = med.category;
-      document.getElementById('medicinePrice').value = med.price;
-      document.getElementById('medicineStock').value = med.stock;
-      document.getElementById('medicineReorder').value = med.reorder_level;
-      document.getElementById('medicineHSN').value = med.hsn_code || '';
-      document.getElementById('medicineSchedule').value = med.schedule || '';
-      document.getElementById('medicineBatch').value = med.batch_no || '';
-      document.getElementById('medicineExpiry').value = med.expiry_date || '';
-      document.getElementById('medicineManufacturer').value = med.manufacturer || '';
-      openModal('medicineModal');
-    }
-
-    function deleteMedicine(id) {
-      if (!confirm('Delete this medicine?')) return;
-      const med = DB.medicines.find(m => m.id === id);
-      DB.medicines = DB.medicines.filter(m => m.id !== id);
-      addAuditLog('MEDICINE_DELETED', `Deleted medicine: ${med.name}`);
-      saveDB(); alert('✅ Medicine deleted!'); render();
-    }
-
-    function saveMedicine(e) {
-      e.preventDefault();
-      const id = document.getElementById('medicineId').value;
-      const med = {
-        id: id || 'm' + Date.now(),
-        name: document.getElementById('medicineName').value,
-        brand: document.getElementById('medicineBrand').value,
-        strength: document.getElementById('medicineStrength').value,
-        category: document.getElementById('medicineCategory').value,
-        price: parseFloat(document.getElementById('medicinePrice').value),
-        stock: parseInt(document.getElementById('medicineStock').value),
-        reorder_level: parseInt(document.getElementById('medicineReorder').value),
-        hsn_code: document.getElementById('medicineHSN').value,
-        schedule: document.getElementById('medicineSchedule').value,
-        batch_no: document.getElementById('medicineBatch').value,
-        expiry_date: document.getElementById('medicineExpiry').value,
-        manufacturer: document.getElementById('medicineManufacturer').value
-      };
-      if (id) { 
-        const idx = DB.medicines.findIndex(m => m.id === id); 
-        DB.medicines[idx] = med; 
-        addAuditLog('MEDICINE_UPDATED', `Updated medicine: ${med.name}`);
-      } else { 
-        DB.medicines.push(med); 
-        addAuditLog('MEDICINE_ADDED', `Added new medicine: ${med.name}`);
-      }
-      saveDB(); closeModal('medicineModal'); alert('✅ Medicine saved!'); render();
-    }
-
-    function editClinic(id) {
-      const clinic = DB.clinics.find(c => c.id === id);
-      editingId = id;
-      document.getElementById('clinicModalTitle').textContent = '✏️ Edit Clinic';
-      document.getElementById('clinicId').value = id;
-      document.getElementById('clinicName').value = clinic.name;
-      document.getElementById('clinicAddress').value = clinic.address;
-      document.getElementById('clinicPhone').value = clinic.phone;
-      document.getElementById('clinicEmail').value = clinic.email;
-      document.getElementById('clinicGSTIN').value = clinic.gstin;
-      document.getElementById('clinicRegNo').value = clinic.registration_no || '';
-      document.getElementById('clinicDrugLicense').value = clinic.drug_license || '';
-      openModal('clinicModal');
-    }
-
-    function deleteClinic(id) {
-      if (!confirm('Delete this clinic?')) return;
-      const clinic = DB.clinics.find(c => c.id === id);
-      DB.clinics = DB.clinics.filter(c => c.id !== id);
-      addAuditLog('CLINIC_DELETED', `Deleted clinic: ${clinic.name}`);
-      saveDB(); alert('✅ Clinic deleted!'); render();
-    }
-
-    function saveClinic(e) {
-      e.preventDefault();
-      const id = document.getElementById('clinicId').value;
       const clinic = {
-        id: id || 'c' + Date.now(),
-        name: document.getElementById('clinicName').value,
-        address: document.getElementById('clinicAddress').value,
-        phone: document.getElementById('clinicPhone').value,
-        email: document.getElementById('clinicEmail').value,
-        gstin: document.getElementById('clinicGSTIN').value,
-        registration_no: document.getElementById('clinicRegNo').value,
-        drug_license: document.getElementById('clinicDrugLicense').value,
-        logo_url: 'https://nyc3.digitaloceanspaces.com/bhindi-drive/files/cab453ed-7d3e-4dfa-9012-038dbc50c1c5/2025-12-07T15-33-38-867Z-c50befdf-chat-image-1765121618851-0.jpg',
-        primary_color: '#2563eb',
-        secondary_color: '#10b981'
+        id: 'c' + Date.now(),
+        name: document.getElementById('qClinicName').value,
+        type: document.getElementById('qClinicType').value,
+        specialization: document.getElementById('qClinicSpec').value,
+        address: document.getElementById('qClinicAddress').value,
+        city: document.getElementById('qClinicCity').value,
+        state: document.getElementById('qClinicState').value,
+        pin: document.getElementById('qClinicPIN').value,
+        phone: document.getElementById('qClinicPhone').value,
+        email: document.getElementById('qClinicEmail').value,
+        gstin: document.getElementById('qClinicGSTIN').value,
+        medical_director: document.getElementById('qClinicDirector').value,
+        opening_time: document.getElementById('qClinicOpen').value,
+        closing_time: document.getElementById('qClinicClose').value,
+        status: 'BASIC',
+        completion_percentage: 18,
+        created_at: new Date().toISOString(),
+        logo_url: 'https://nyc3.digitaloceanspaces.com/bhindi-drive/files/cab453ed-7d3e-4dfa-9012-038dbc50c1c5/2025-12-07T15-33-38-867Z-c50befdf-chat-image-1765121618851-0.jpg'
       };
-      if (id) { 
-        const idx = DB.clinics.findIndex(c => c.id === id); 
-        DB.clinics[idx] = clinic; 
-        addAuditLog('CLINIC_UPDATED', `Updated clinic: ${clinic.name}`);
-      } else { 
-        DB.clinics.push(clinic); 
-        addAuditLog('CLINIC_ADDED', `Added new clinic: ${clinic.name}`);
-      }
-      saveDB(); closeModal('clinicModal'); alert('✅ Clinic saved!'); render();
-    }
 
-    function savePrescription(e) {
-      e.preventDefault();
-      const patientId = document.getElementById('rxPatient').value;
-      const patient = DB.patients.find(p => p.id === patientId);
-      
-      // Check for Schedule H drugs
-      const medicines = [];
-      let hasScheduleH = false;
-      document.querySelectorAll('#medicineList > div').forEach(med => {
-        const inputs = med.querySelectorAll('input, select');
-        const medName = inputs[0].value;
-        const dbMed = DB.medicines.find(m => m.name.toLowerCase() === medName.toLowerCase());
-        const schedule = dbMed ? dbMed.schedule : '';
-        if (schedule) hasScheduleH = true;
-        medicines.push({
-          name: medName,
-          dosage: inputs[1].value,
-          frequency: inputs[2].value,
-          duration: inputs[3].value,
-          schedule: schedule
-        });
-      });
-      
-      if (hasScheduleH) {
-        alert('⚠️ This prescription contains Schedule H drugs. Ensure proper documentation.');
-      }
-      
-      const rx = {
-        id: 'rx' + Date.now(),
-        prescription_no: generatePrescriptionNo(),
-        patient_id: patientId,
-        patient_name: patient.first_name + ' ' + patient.last_name,
-        doctor: currentUser.name,
-        date: new Date().toISOString().split('T')[0],
-        chief_complaint: document.getElementById('rxComplaint').value,
-        diagnosis: document.getElementById('rxDiagnosis').value,
-        medicines: medicines,
-        advice: document.getElementById('rxAdvice').value
+      // Create clinic admin account
+      const adminUser = {
+        id: 'u' + Date.now(),
+        email: clinic.email,
+        password: 'clinic123',
+        role: 'admin',
+        name: clinic.medical_director,
+        clinic_id: clinic.id,
+        first_login: true
       };
-      
-      DB.prescriptions.push(rx);
-      patient.last_visit = rx.date;
-      addAuditLog('PRESCRIPTION_CREATED', `Created prescription: ${rx.prescription_no} for ${patient.first_name} ${patient.last_name}`);
+
+      DB.clinics.push(clinic);
+      DB.users.push(adminUser);
       saveDB();
-      closeModal('prescriptionModal');
-      alert('✅ Prescription saved successfully!');
+      closeModal('quickSetupModal');
+      alert(`✅ Clinic created successfully!\n\n📧 Invitation sent to: ${clinic.email}\nPassword: clinic123\n\nClinic admin can complete their profile to unlock all features.`);
       render();
     }
 
-    function savePatient(e) {
-      e.preventDefault();
-      const consentGiven = document.getElementById('patConsent').checked;
-      if (!consentGiven) { alert('Please obtain patient consent first'); return; }
-      
-      const patient = {
-        id: 'p' + Date.now(),
-        patient_id: 'P' + String(DB.patients.length + 1).padStart(3, '0'),
-        first_name: document.getElementById('patFirstName').value,
-        last_name: document.getElementById('patLastName').value,
-        age: parseInt(document.getElementById('patAge').value),
-        gender: document.getElementById('patGender').value,
-        blood_group: document.getElementById('patBlood').value,
-        phone: document.getElementById('patPhone').value,
-        email: document.getElementById('patEmail').value,
-        address: document.getElementById('patAddress').value,
-        last_visit: new Date().toISOString().split('T')[0],
-        consent_given: true,
-        consent_date: new Date().toISOString().split('T')[0],
-        vitals: [],
-        soap_notes: []
-      };
-      
-      DB.patients.push(patient);
-      addAuditLog('PATIENT_REGISTERED', `Registered new patient: ${patient.first_name} ${patient.last_name} (${patient.patient_id})`);
-      saveDB();
-      closeModal('patientModal');
-      alert('✅ Patient registered successfully!');
-      render();
+    function wizardNext() {
+      if (currentWizardStep < 7) {
+        document.getElementById('wizardStep' + currentWizardStep).classList.remove('active');
+        document.getElementById('stepInd' + currentWizardStep).classList.add('completed');
+        currentWizardStep++;
+        document.getElementById('wizardStep' + currentWizardStep).classList.add('active');
+        document.getElementById('stepInd' + currentWizardStep).classList.add('active');
+        updateWizardButtons();
+        updateWizardProgress();
+      }
     }
 
-    function quickLogin(email, password) { 
-      document.getElementById('loginEmail').value = email; 
-      document.getElementById('loginPassword').value = password; 
-      login(); 
+    function wizardPrev() {
+      if (currentWizardStep > 1) {
+        document.getElementById('wizardStep' + currentWizardStep).classList.remove('active');
+        document.getElementById('stepInd' + currentWizardStep).classList.remove('active');
+        currentWizardStep--;
+        document.getElementById('wizardStep' + currentWizardStep).classList.add('active');
+        updateWizardButtons();
+        updateWizardProgress();
+      }
     }
-    
+
+    function updateWizardButtons() {
+      document.getElementById('wizardPrevBtn').style.display = currentWizardStep > 1 ? 'block' : 'none';
+      document.getElementById('wizardNextBtn').style.display = currentWizardStep < 7 ? 'block' : 'none';
+      document.getElementById('wizardCompleteBtn').style.display = currentWizardStep === 7 ? 'block' : 'none';
+    }
+
+    function updateWizardProgress() {
+      const progress = Math.round((currentWizardStep / 7) * 82) + 18; // 18% base + up to 82% more
+      document.getElementById('wizardProgress').textContent = progress + '%';
+      document.getElementById('wizardProgressBar').style.width = progress + '%';
+    }
+
+    function saveWizardProgress() {
+      alert('💾 Progress saved! You can continue later from where you left off.');
+      closeModal('completeSetupModal');
+    }
+
+    function completeWizard() {
+      const clinic = DB.clinics.find(c => c.id === currentUser.clinic_id);
+      if (clinic) {
+        clinic.status = 'VERIFIED';
+        clinic.completion_percentage = 100;
+        clinic.ownership = document.getElementById('wOwnership').value;
+        clinic.pan = document.getElementById('wPAN').value;
+        clinic.year_established = document.getElementById('wYear').value;
+        clinic.area = document.getElementById('wArea').value;
+        clinic.cea_registration = document.getElementById('wCEA').value;
+        clinic.cea_issue_date = document.getElementById('wCEADate').value;
+        clinic.cea_expiry = document.getElementById('wCEAExpiry').value;
+        clinic.drug_license_20b = document.getElementById('wDrug20B').value;
+        clinic.drug_license_21b = document.getElementById('wDrug21B').value;
+        clinic.drug_license_date = document.getElementById('wDrugDate').value;
+        clinic.drug_license_expiry = document.getElementById('wDrugExpiry').value;
+        clinic.beds = document.getElementById('wBeds').value;
+        clinic.icu_beds = document.getElementById('wICU').value;
+        clinic.operation_theaters = document.getElementById('wOT').value;
+        clinic.consultation_rooms = document.getElementById('wConsult').value;
+        clinic.emergency_services = document.getElementById('wEmergency').value;
+        clinic.ambulance = document.getElementById('wAmbulance').value;
+        clinic.pharmacy = document.getElementById('wPharmacy').value;
+        clinic.diagnostic_lab = document.getElementById('wLab').value;
+        clinic.bank_name = document.getElementById('wBankName').value;
+        clinic.branch_name = document.getElementById('wBranch').value;
+        clinic.account_number = document.getElementById('wAccount').value;
+        clinic.ifsc_code = document.getElementById('wIFSC').value;
+        clinic.account_holder = document.getElementById('wAccountHolder').value;
+        clinic.insurance_policy = document.getElementById('wInsurance').value;
+        clinic.insurance_expiry = document.getElementById('wInsuranceExpiry').value;
+        clinic.fire_safety = document.getElementById('wFire').value;
+        clinic.fire_safety_expiry = document.getElementById('wFireExpiry').value;
+        clinic.bmw_authorization = document.getElementById('wBMW').value;
+        clinic.bmw_expiry = document.getElementById('wBMWExpiry').value;
+        clinic.nabl = document.getElementById('wNABL').value;
+        clinic.iso = document.getElementById('wISO').value;
+        clinic.services_24x7 = document.getElementById('w24x7').value;
+        clinic.online_consultation = document.getElementById('wOnline').value;
+        clinic.primary_color = document.getElementById('wColorPrimary').value;
+        clinic.secondary_color = document.getElementById('wColorSecondary').value;
+        clinic.whatsapp = document.getElementById('wWhatsApp').value;
+        clinic.facebook = document.getElementById('wFacebook').value;
+        clinic.google_business = document.getElementById('wGoogle').value;
+        
+        currentUser.first_login = false;
+        saveDB();
+        closeModal('completeSetupModal');
+        alert('🎉 Congratulations! Your clinic profile is now 100% complete!\n\n✅ All features unlocked:\n• Insurance claims\n• Advanced analytics\n• API access\n• Priority support');
+        render();
+      }
+    }
+
+    function openModal(modalId) {
+      document.getElementById(modalId).classList.add('active');
+      if (modalId === 'completeSetupModal') {
+        currentWizardStep = 1;
+        updateWizardButtons();
+        updateWizardProgress();
+      }
+    }
+
+    function closeModal(modalId) {
+      document.getElementById(modalId).classList.remove('active');
+    }
+
+    function quickLogin(email, password) {
+      document.getElementById('loginEmail').value = email;
+      document.getElementById('loginPassword').value = password;
+      login();
+    }
+
     function login() {
       const email = document.getElementById('loginEmail').value;
       const password = document.getElementById('loginPassword').value;
       const user = DB.users.find(u => u.email === email && u.password === password);
       if (!user) { alert('Invalid credentials'); return; }
       currentUser = user;
-      currentScreen = user.role + '-dashboard';
-      addAuditLog('USER_LOGIN', `User logged in: ${user.name} (${user.role})`);
+      
+      // Show complete setup wizard on first login for clinic admin
+      if (user.role === 'admin' && user.first_login) {
+        currentScreen = user.role + '-dashboard';
+        render();
+        setTimeout(() => openModal('completeSetupModal'), 500);
+      } else {
+        currentScreen = user.role + '-dashboard';
+        render();
+      }
+    }
+
+    function logout() {
+      currentUser = null;
+      currentScreen = 'login';
       render();
     }
-    
-    function logout() { 
-      addAuditLog('USER_LOGOUT', `User logged out: ${currentUser.name}`);
-      currentUser = null; 
-      currentScreen = 'login'; 
-      render(); 
-    }
-    
+
     function switchScreen(screen) { currentScreen = screen; render(); }
 
-    function openModal(modalId, patientId = null) {
-      currentPatientId = patientId; editingId = null;
-      document.getElementById(modalId).classList.add('active');
-      
-      if (modalId === 'prescriptionModal') { 
-        const select = document.getElementById('rxPatient'); 
-        select.innerHTML = '<option value="">Select Patient</option>' + DB.patients.map(p => `<option value="${p.id}">${p.first_name} ${p.last_name} (${p.patient_id})</option>`).join(''); 
-        medicineCount = 0; 
-        document.getElementById('medicineList').innerHTML = ''; 
-        document.getElementById('aiSuggestion').innerHTML = ''; 
-        addMedicine(); 
-      }
-      else if (modalId === 'staffModal' && !editingId) { 
-        document.getElementById('staffId').value = ''; 
-        document.getElementById('staffModalTitle').textContent = '👥 Add Staff'; 
-        document.querySelectorAll('#staffModal input, #staffModal select').forEach(el => el.value = ''); 
-      }
-      else if (modalId === 'medicineModal' && !editingId) { 
-        document.getElementById('medicineId').value = ''; 
-        document.getElementById('medicineModalTitle').textContent = '💊 Add Medicine'; 
-        document.querySelectorAll('#medicineModal input, #medicineModal select').forEach(el => el.value = ''); 
-      }
-      else if (modalId === 'clinicModal' && !editingId) { 
-        document.getElementById('clinicId').value = ''; 
-        document.getElementById('clinicModalTitle').textContent = '🏥 Add Clinic'; 
-        document.querySelectorAll('#clinicModal input, #clinicModal textarea').forEach(el => el.value = ''); 
-      }
-      else if (modalId === 'consentModal') {
-        setTimeout(() => {
-          const canvas = document.getElementById('consentSignature');
-          consentPad = new SignaturePad(canvas);
-        }, 100);
-      }
+    function getClinicStatus(clinicId) {
+      const clinic = DB.clinics.find(c => c.id === clinicId);
+      return clinic ? clinic.status : 'BASIC';
     }
 
-    function closeModal(modalId) { 
-      document.getElementById(modalId).classList.remove('active'); 
-      currentPatientId = null; 
-      editingId = null; 
-    }
-
-    function addMedicine() { 
-      medicineCount++; 
-      const html = `<div class="grid grid-cols-5 gap-2 mb-2" id="med${medicineCount}"><input type="text" placeholder="Medicine" class="form-input" list="medicinesList" required><input type="text" placeholder="Dosage" class="form-input" required><select class="form-input"><option>OD</option><option>BD</option><option>TDS</option><option>QID</option></select><input type="text" placeholder="Duration" class="form-input" required><button type="button" onclick="document.getElementById('med${medicineCount}').remove()" class="btn btn-danger btn-xs">×</button></div>`; 
-      document.getElementById('medicineList').insertAdjacentHTML('beforeend', html); 
+    function getCompletionPercentage(clinicId) {
+      const clinic = DB.clinics.find(c => c.id === clinicId);
+      return clinic ? clinic.completion_percentage : 18;
     }
 
     function render() {
       const app = document.getElementById('app');
-      const clinic = DB.clinics[0];
       
       if (currentScreen === 'login') {
-        app.innerHTML = `<div class="min-h-screen flex items-center justify-center p-6" style="background: linear-gradient(135deg, ${clinic.primary_color} 0%, ${clinic.secondary_color} 100%);"><div class="w-full max-w-4xl"><div class="text-center mb-8"><img src="${clinic.logo_url}" class="h-16 mx-auto mb-4"><h1 class="text-3xl font-bold text-white mb-2">${clinic.name}</h1><div class="compliance-badge mx-auto">🇮🇳 India Compliant | Enterprise Edition</div></div><div class="grid grid-cols-1 lg:grid-cols-2 gap-6"><div class="card"><h2 class="text-xl font-bold mb-4">🔐 Login</h2><div class="mb-3"><label class="form-label">Email</label><input type="email" id="loginEmail" class="form-input"></div><div class="mb-3"><label class="form-label">Password</label><input type="password" id="loginPassword" class="form-input"></div><button onclick="login()" class="btn btn-primary w-full">Login</button></div><div class="card"><h2 class="text-xl font-bold mb-4">⚡ Quick Login</h2><button onclick="quickLogin('system@edgesof.com', 'admin123')" class="btn btn-danger w-full mb-2">👑 Super Admin</button><button onclick="quickLogin('admin@clinic.com', 'admin123')" class="btn btn-warning w-full mb-2">🏥 Admin</button><button onclick="quickLogin('doctor@clinic.com', 'doctor123')" class="btn btn-primary w-full mb-2">👨‍⚕️ Doctor</button><button onclick="quickLogin('reception@clinic.com', 'reception123')" class="btn btn-success w-full">📋 Receptionist</button></div></div></div></div>`;
-      } else if (currentScreen.startsWith('doctor-')) {
-        renderDoctorScreens(app, clinic);
-      } else if (currentScreen.startsWith('admin-')) {
-        renderAdminScreens(app, clinic);
-      } else if (currentScreen.startsWith('superadmin-')) {
-        renderSuperAdminScreens(app, clinic);
+        app.innerHTML = `<div class="min-h-screen flex items-center justify-center p-6" style="background: linear-gradient(135deg, #2563eb 0%, #10b981 100%);"><div class="w-full max-w-4xl"><div class="text-center mb-8"><img src="https://nyc3.digitaloceanspaces.com/bhindi-drive/files/cab453ed-7d3e-4dfa-9012-038dbc50c1c5/2025-12-07T15-33-38-867Z-c50befdf-chat-image-1765121618851-0.jpg" class="h-16 mx-auto mb-4"><h1 class="text-3xl font-bold text-white mb-2">EdgesOf MediScript</h1><div class="inline-block bg-white bg-opacity-20 text-white px-4 py-2 rounded-full text-sm font-semibold">🇮🇳 Two-Tier Enterprise System | India Compliant</div></div><div class="grid grid-cols-1 lg:grid-cols-2 gap-6"><div class="card"><h2 class="text-xl font-bold mb-4">🔐 Login</h2><div class="mb-3"><label class="form-label">Email</label><input type="email" id="loginEmail" class="form-input"></div><div class="mb-3"><label class="form-label">Password</label><input type="password" id="loginPassword" class="form-input"></div><button onclick="login()" class="btn btn-primary w-full">Login</button></div><div class="card"><h2 class="text-xl font-bold mb-4">⚡ Quick Login</h2><button onclick="quickLogin('system@edgesof.com', 'admin123')" class="btn btn-danger w-full mb-2">👑 Super Admin</button><button onclick="quickLogin('admin@clinic.com', 'admin123')" class="btn btn-warning w-full mb-2">🏥 Clinic Admin</button><button onclick="quickLogin('doctor@clinic.com', 'doctor123')" class="btn btn-primary w-full mb-2">👨‍⚕️ Doctor</button><button onclick="quickLogin('reception@clinic.com', 'reception123')" class="btn btn-success w-full">📋 Receptionist</button></div></div></div></div>`;
+      } else if (currentScreen === 'superadmin-dashboard') {
+        const basicClinics = DB.clinics.filter(c => c.status === 'BASIC').length;
+        const verifiedClinics = DB.clinics.filter(c => c.status === 'VERIFIED').length;
+        
+        app.innerHTML = `<div><nav class="bg-gray-900 text-white p-4 flex justify-between sticky top-0 z-50"><div class="flex gap-3 items-center"><h3 class="font-bold">EdgesOf MediScript</h3><span class="text-xs bg-white bg-opacity-20 px-2 py-1 rounded">Super Admin</span></div><div class="flex items-center gap-3"><p class="font-semibold text-sm">${currentUser.name}</p><button onclick="logout()" class="px-3 py-2 bg-white bg-opacity-10 rounded-lg text-xs">Logout</button></div></nav><main class="p-6"><h1 class="text-2xl font-bold mb-6">👑 Super Admin Dashboard</h1><div class="grid grid-cols-4 gap-4 mb-6"><div class="stat-card"><p class="text-gray-600 text-sm mb-1">Total Clinics</p><p class="text-3xl font-bold text-blue-600">${DB.clinics.length}</p></div><div class="stat-card"><p class="text-gray-600 text-sm mb-1">✅ Verified</p><p class="text-3xl font-bold text-green-600">${verifiedClinics}</p></div><div class="stat-card"><p class="text-gray-600 text-sm mb-1">⚠️ Basic</p><p class="text-3xl font-bold text-orange-600">${basicClinics}</p></div><div class="stat-card"><p class="text-gray-600 text-sm mb-1">Total Users</p><p class="text-3xl font-bold text-purple-600">${DB.users.length}</p></div></div><div class="mb-4"><button onclick="openModal('quickSetupModal')" class="btn btn-success">⚡ Quick Add Clinic (5 min)</button></div><div class="card"><h3 class="font-bold mb-3">🏥 Clinics Overview</h3><table><thead><tr><th>Clinic Name</th><th>Type</th><th>Status</th><th>Completion</th><th>Created</th><th>Actions</th></tr></thead><tbody>${DB.clinics.map(c => `<tr><td class="font-semibold">${c.name}</td><td>${c.type}</td><td>${c.status === 'VERIFIED' ? '<span class="badge badge-success">✅ VERIFIED</span>' : '<span class="badge badge-warning">⚠️ BASIC</span>'}</td><td><div class="flex items-center gap-2"><div class="progress-bar" style="width: 100px;"><div class="progress-fill" style="width: ${c.completion_percentage}%"></div></div><span class="text-xs font-semibold">${c.completion_percentage}%</span></div></td><td class="text-xs">${new Date(c.created_at).toLocaleDateString()}</td><td><button class="btn btn-primary btn-xs">View</button></td></tr>`).join('')}</tbody></table></div></main></div>`;
+      } else if (currentScreen === 'admin-dashboard') {
+        const clinic = DB.clinics.find(c => c.id === currentUser.clinic_id);
+        const showBanner = clinic && clinic.status === 'BASIC';
+        
+        app.innerHTML = `<div><nav class="bg-gray-900 text-white p-4 flex justify-between sticky top-0 z-50"><div class="flex gap-3 items-center"><img src="${clinic.logo_url}" class="h-10"><div><h3 class="font-bold text-sm">${clinic.name}</h3><span class="text-xs ${clinic.status === 'VERIFIED' ? 'bg-green-500' : 'bg-orange-500'} px-2 py-1 rounded">${clinic.status}</span></div></div><div class="flex items-center gap-3"><p class="font-semibold text-sm">${currentUser.name}</p><button onclick="logout()" class="px-3 py-2 bg-white bg-opacity-10 rounded-lg text-xs">Logout</button></div></nav><main class="p-6">${showBanner ? `<div class="completion-banner mb-6"><div class="flex justify-between items-center"><div><p class="font-bold text-orange-800 mb-1">⚠️ Complete Your Profile (${clinic.completion_percentage}%)</p><p class="text-sm text-orange-700">Unlock insurance claims, advanced analytics, and all features</p></div><button onclick="openModal('completeSetupModal')" class="btn btn-warning">Complete Now →</button></div><div class="progress-bar mt-3"><div class="progress-fill" style="width: ${clinic.completion_percentage}%"></div></div></div>` : ''}<h1 class="text-2xl font-bold mb-6">🏥 Admin Dashboard</h1><div class="grid grid-cols-4 gap-4"><div class="stat-card"><p class="text-gray-600 text-sm mb-1">Patients</p><p class="text-3xl font-bold text-green-600">${DB.patients.length}</p></div><div class="stat-card"><p class="text-gray-600 text-sm mb-1">Appointments</p><p class="text-3xl font-bold text-blue-600">${DB.appointments.length}</p></div><div class="stat-card"><p class="text-gray-600 text-sm mb-1">Prescriptions</p><p class="text-3xl font-bold text-purple-600">${DB.prescriptions.length}</p></div><div class="stat-card ${clinic.status === 'BASIC' ? 'feature-lock' : ''}"><p class="text-gray-600 text-sm mb-1">Revenue</p><p class="text-3xl font-bold text-orange-600">₹0</p></div></div></main></div>`;
+      } else if (currentScreen === 'doctor-dashboard') {
+        app.innerHTML = `<div><nav class="bg-gray-900 text-white p-4 flex justify-between sticky top-0 z-50"><div class="flex gap-3 items-center"><h3 class="font-bold">EdgesOf MediScript</h3></div><div class="flex items-center gap-3"><p class="font-semibold text-sm">${currentUser.name}</p><button onclick="logout()" class="px-3 py-2 bg-white bg-opacity-10 rounded-lg text-xs">Logout</button></div></nav><main class="p-6"><h1 class="text-2xl font-bold mb-6">👨‍⚕️ Doctor Dashboard</h1><div class="grid grid-cols-4 gap-4"><div class="stat-card"><p class="text-gray-600 text-sm mb-1">Patients</p><p class="text-3xl font-bold text-green-600">${DB.patients.length}</p></div><div class="stat-card"><p class="text-gray-600 text-sm mb-1">Appointments</p><p class="text-3xl font-bold text-blue-600">${DB.appointments.length}</p></div><div class="stat-card"><p class="text-gray-600 text-sm mb-1">Prescriptions</p><p class="text-3xl font-bold text-purple-600">${DB.prescriptions.length}</p></div><div class="stat-card"><p class="text-gray-600 text-sm mb-1">Today</p><p class="text-3xl font-bold text-orange-600">0</p></div></div></main></div>`;
+      } else if (currentScreen === 'receptionist-dashboard') {
+        app.innerHTML = `<div><nav class="bg-gray-900 text-white p-4 flex justify-between sticky top-0 z-50"><div class="flex gap-3 items-center"><h3 class="font-bold">EdgesOf MediScript</h3></div><div class="flex items-center gap-3"><p class="font-semibold text-sm">${currentUser.name}</p><button onclick="logout()" class="px-3 py-2 bg-white bg-opacity-10 rounded-lg text-xs">Logout</button></div></nav><main class="p-6"><h1 class="text-2xl font-bold mb-6">📋 Receptionist Dashboard</h1><div class="grid grid-cols-4 gap-4"><div class="stat-card"><p class="text-gray-600 text-sm mb-1">Patients</p><p class="text-3xl font-bold text-green-600">${DB.patients.length}</p></div><div class="stat-card"><p class="text-gray-600 text-sm mb-1">Appointments</p><p class="text-3xl font-bold text-blue-600">${DB.appointments.length}</p></div><div class="stat-card"><p class="text-gray-600 text-sm mb-1">Queue</p><p class="text-3xl font-bold text-purple-600">0</p></div><div class="stat-card"><p class="text-gray-600 text-sm mb-1">Billing</p><p class="text-3xl font-bold text-orange-600">₹0</p></div></div></main></div>`;
       }
     }
 
-    function renderDoctorScreens(app, clinic) {
-      const nav = `<nav class="bg-gray-900 text-white p-4 flex justify-between sticky top-0 z-50"><div class="flex gap-3 items-center"><img src="${clinic.logo_url}" class="h-10"><div><h3 class="font-bold text-sm">${clinic.name}</h3><div class="compliance-badge text-xs">🇮🇳 India Compliant</div></div></div><div class="flex items-center gap-3"><button onclick="openSignatureModal()" class="btn btn-purple btn-sm">✍️ Signature</button><p class="font-semibold text-sm">${currentUser.name}</p><button onclick="logout()" class="px-3 py-2 bg-white bg-opacity-10 rounded-lg text-xs">Logout</button></div></nav>`;
-      const sidebar = `<aside class="w-64 bg-gray-800 text-white p-4 min-h-screen"><nav class="space-y-2"><a onclick="switchScreen('doctor-dashboard')" class="nav-link ${currentScreen === 'doctor-dashboard' ? 'active' : ''} text-sm">📊 Dashboard</a><a onclick="switchScreen('doctor-patients')" class="nav-link ${currentScreen === 'doctor-patients' ? 'active' : ''} text-sm">👥 Patients</a><a onclick="switchScreen('doctor-prescriptions')" class="nav-link ${currentScreen === 'doctor-prescriptions' ? 'active' : ''} text-sm">📋 Prescriptions</a></nav></aside>`;
-
-      if (currentScreen === 'doctor-dashboard') {
-        app.innerHTML = `<div>${nav}<div class="flex">${sidebar}<main class="flex-1 p-6"><div class="enterprise-header">ENTERPRISE EDITION - INDIA COMPLIANT</div><h1 class="text-2xl font-bold mb-6">👨‍⚕️ Doctor Dashboard</h1><div class="grid grid-cols-4 gap-4 mb-6"><div class="stat-card"><p class="text-gray-600 text-sm mb-1">Patients</p><p class="text-3xl font-bold text-green-600">${DB.patients.length}</p></div><div class="stat-card"><p class="text-gray-600 text-sm mb-1">Prescriptions</p><p class="text-3xl font-bold text-purple-600">${DB.prescriptions.length}</p></div><div class="stat-card"><p class="text-gray-600 text-sm mb-1">Schedule H Drugs</p><p class="text-3xl font-bold text-orange-600">${DB.medicines.filter(m => m.schedule).length}</p></div><div class="stat-card"><p class="text-gray-600 text-sm mb-1">Audit Logs</p><p class="text-3xl font-bold text-blue-600">${DB.audit_logs.length}</p></div></div><div class="mb-4"><button onclick="openModal('prescriptionModal')" class="btn btn-primary">📋 Create Prescription</button></div><div class="card"><h3 class="font-bold mb-3">📋 Recent Prescriptions</h3><table><thead><tr><th>Rx No</th><th>Date</th><th>Patient</th><th>Diagnosis</th><th>Actions</th></tr></thead><tbody>${DB.prescriptions.slice(-5).reverse().map(rx => `<tr><td class="font-semibold">${rx.prescription_no}</td><td>${rx.date}</td><td>${rx.patient_name}</td><td>${rx.diagnosis}</td><td><button onclick="generatePrescriptionPDF('${rx.id}')" class="btn btn-success btn-xs">📄 PDF</button></td></tr>`).join('')}</tbody></table></div></main></div></div>`;
-      } else if (currentScreen === 'doctor-prescriptions') {
-        app.innerHTML = `<div>${nav}<div class="flex">${sidebar}<main class="flex-1 p-6"><h1 class="text-2xl font-bold mb-6">📋 All Prescriptions</h1><div class="card"><table><thead><tr><th>Rx No</th><th>Date</th><th>Patient</th><th>Diagnosis</th><th>Medicines</th><th>Actions</th></tr></thead><tbody>${DB.prescriptions.map(rx => `<tr><td class="font-semibold">${rx.prescription_no}</td><td>${rx.date}</td><td>${rx.patient_name}</td><td>${rx.diagnosis}</td><td>${rx.medicines.map(m => m.name + (m.schedule ? ' <span class="badge-schedule-h">H</span>' : '')).join(', ')}</td><td><button onclick="generatePrescriptionPDF('${rx.id}')" class="btn btn-success btn-xs">📄 PDF</button></td></tr>`).join('')}</tbody></table></div></main></div></div>`;
-      }
-    }
-
-    function renderAdminScreens(app, clinic) {
-      const nav = `<nav class="bg-gray-900 text-white p-4 flex justify-between sticky top-0 z-50"><div class="flex gap-3 items-center"><img src="${clinic.logo_url}" class="h-10"><div><h3 class="font-bold text-sm">${clinic.name}</h3><div class="compliance-badge text-xs">🇮🇳 India Compliant</div></div></div><div class="flex items-center gap-3"><p class="font-semibold text-sm">${currentUser.name}</p><button onclick="logout()" class="px-3 py-2 bg-white bg-opacity-10 rounded-lg text-xs">Logout</button></div></nav>`;
-      const sidebar = `<aside class="w-64 bg-gray-800 text-white p-4 min-h-screen"><nav class="space-y-2"><a onclick="switchScreen('admin-dashboard')" class="nav-link ${currentScreen === 'admin-dashboard' ? 'active' : ''} text-sm">📊 Dashboard</a><a onclick="switchScreen('admin-staff')" class="nav-link ${currentScreen === 'admin-staff' ? 'active' : ''} text-sm">👥 Staff</a><a onclick="switchScreen('admin-inventory')" class="nav-link ${currentScreen === 'admin-inventory' ? 'active' : ''} text-sm">💊 Inventory</a><a onclick="switchScreen('admin-audit')" class="nav-link ${currentScreen === 'admin-audit' ? 'active' : ''} text-sm">📜 Audit Logs</a></nav></aside>`;
-
-      if (currentScreen === 'admin-dashboard') {
-        app.innerHTML = `<div>${nav}<div class="flex">${sidebar}<main class="flex-1 p-6"><div class="enterprise-header">ENTERPRISE EDITION - INDIA COMPLIANT</div><h1 class="text-2xl font-bold mb-6">🏥 Admin Dashboard</h1><div class="grid grid-cols-4 gap-4"><div class="stat-card"><p class="text-gray-600 text-sm mb-1">Staff</p><p class="text-3xl font-bold text-blue-600">${DB.staff.length}</p></div><div class="stat-card"><p class="text-gray-600 text-sm mb-1">Medicines</p><p class="text-3xl font-bold text-green-600">${DB.medicines.length}</p></div><div class="stat-card"><p class="text-gray-600 text-sm mb-1">Schedule H</p><p class="text-3xl font-bold text-orange-600">${DB.medicines.filter(m => m.schedule).length}</p></div><div class="stat-card"><p class="text-gray-600 text-sm mb-1">Patients</p><p class="text-3xl font-bold text-purple-600">${DB.patients.length}</p></div></div></main></div></div>`;
-      } else if (currentScreen === 'admin-staff') {
-        app.innerHTML = `<div>${nav}<div class="flex">${sidebar}<main class="flex-1 p-6"><h1 class="text-2xl font-bold mb-6">👥 Staff Management</h1><div class="mb-4"><button onclick="openModal('staffModal')" class="btn btn-success">+ Add Staff</button></div><div class="card"><table><thead><tr><th>Name</th><th>Role</th><th>MCI/Reg No</th><th>Phone</th><th>Salary</th><th>Status</th><th>Actions</th></tr></thead><tbody>${DB.staff.map(s => `<tr><td class="font-semibold">${s.name}</td><td>${s.role}</td><td>${s.mci_registration || '-'}</td><td>${s.phone}</td><td>₹${s.salary.toLocaleString()}</td><td><span class="badge badge-success">${s.status}</span></td><td><button onclick="editStaff('${s.id}')" class="btn btn-warning btn-xs">✏️</button> <button onclick="deleteStaff('${s.id}')" class="btn btn-danger btn-xs">🗑️</button></td></tr>`).join('')}</tbody></table></div></main></div></div>`;
-      } else if (currentScreen === 'admin-inventory') {
-        app.innerHTML = `<div>${nav}<div class="flex">${sidebar}<main class="flex-1 p-6"><h1 class="text-2xl font-bold mb-6">💊 Inventory Management</h1><div class="mb-4"><button onclick="openModal('medicineModal')" class="btn btn-success">+ Add Medicine</button></div><div class="card"><table><thead><tr><th>Medicine</th><th>Brand</th><th>HSN</th><th>Schedule</th><th>Batch</th><th>Expiry</th><th>Stock</th><th>Actions</th></tr></thead><tbody>${DB.medicines.map(m => `<tr><td class="font-semibold">${m.name}</td><td>${m.brand}</td><td>${m.hsn_code}</td><td>${m.schedule ? `<span class="badge-schedule-h">Schedule ${m.schedule}</span>` : '-'}</td><td>${m.batch_no}</td><td>${m.expiry_date}</td><td class="font-bold ${m.stock < m.reorder_level ? 'text-red-600' : 'text-green-600'}">${m.stock}</td><td><button onclick="editMedicine('${m.id}')" class="btn btn-warning btn-xs">✏️</button> <button onclick="deleteMedicine('${m.id}')" class="btn btn-danger btn-xs">🗑️</button></td></tr>`).join('')}</tbody></table></div></main></div></div>`;
-      } else if (currentScreen === 'admin-audit') {
-        app.innerHTML = `<div>${nav}<div class="flex">${sidebar}<main class="flex-1 p-6"><h1 class="text-2xl font-bold mb-6">📜 Audit Logs</h1><div class="card"><div class="space-y-2">${DB.audit_logs.slice(0, 50).map(log => `<div class="audit-log"><div class="flex justify-between items-start"><div><p class="font-semibold text-sm">${log.action}</p><p class="text-xs text-gray-600">${log.details}</p></div><div class="text-right"><p class="text-xs font-semibold">${log.user_name}</p><p class="text-xs text-gray-500">${new Date(log.timestamp).toLocaleString()}</p></div></div></div>`).join('')}</div></div></main></div></div>`;
-      }
-    }
-
-    function renderSuperAdminScreens(app, clinic) {
-      const nav = `<nav class="bg-gray-900 text-white p-4 flex justify-between sticky top-0 z-50"><div class="flex gap-3 items-center"><img src="${clinic.logo_url}" class="h-10"><div><h3 class="font-bold text-sm">EdgesOf MediScript</h3><div class="compliance-badge text-xs">🇮🇳 India Compliant</div></div></div><div class="flex items-center gap-3"><p class="font-semibold text-sm">${currentUser.name}</p><button onclick="logout()" class="px-3 py-2 bg-white bg-opacity-10 rounded-lg text-xs">Logout</button></div></nav>`;
-      const sidebar = `<aside class="w-64 bg-gray-900 text-white p-4 min-h-screen"><nav class="space-y-2"><a onclick="switchScreen('superadmin-dashboard')" class="nav-link ${currentScreen === 'superadmin-dashboard' ? 'active' : ''} text-sm">📊 Dashboard</a><a onclick="switchScreen('superadmin-clinics')" class="nav-link ${currentScreen === 'superadmin-clinics' ? 'active' : ''} text-sm">🏥 Clinics</a><a onclick="switchScreen('superadmin-audit')" class="nav-link ${currentScreen === 'superadmin-audit' ? 'active' : ''} text-sm">📜 System Audit</a></nav></aside>`;
-
-      if (currentScreen === 'superadmin-dashboard') {
-        app.innerHTML = `<div>${nav}<div class="flex">${sidebar}<main class="flex-1 p-6"><div class="enterprise-header">ENTERPRISE EDITION - INDIA COMPLIANT</div><h1 class="text-2xl font-bold mb-6">👑 Super Admin Dashboard</h1><div class="grid grid-cols-4 gap-4"><div class="stat-card"><p class="text-gray-600 text-sm mb-1">Clinics</p><p class="text-3xl font-bold text-red-600">${DB.clinics.length}</p></div><div class="stat-card"><p class="text-gray-600 text-sm mb-1">Users</p><p class="text-3xl font-bold text-blue-600">${DB.users.length}</p></div><div class="stat-card"><p class="text-gray-600 text-sm mb-1">Patients</p><p class="text-3xl font-bold text-green-600">${DB.patients.length}</p></div><div class="stat-card"><p class="text-gray-600 text-sm mb-1">Audit Logs</p><p class="text-3xl font-bold text-purple-600">${DB.audit_logs.length}</p></div></div></main></div></div>`;
-      } else if (currentScreen === 'superadmin-clinics') {
-        app.innerHTML = `<div>${nav}<div class="flex">${sidebar}<main class="flex-1 p-6"><h1 class="text-2xl font-bold mb-6">🏥 Clinics Management</h1><div class="mb-4"><button onclick="openModal('clinicModal')" class="btn btn-success">+ Add Clinic</button></div><div class="card"><table><thead><tr><th>Name</th><th>GSTIN</th><th>Reg No</th><th>Drug License</th><th>Phone</th><th>Actions</th></tr></thead><tbody>${DB.clinics.map(c => `<tr><td class="font-semibold">${c.name}</td><td>${c.gstin}</td><td>${c.registration_no}</td><td>${c.drug_license}</td><td>${c.phone}</td><td><button onclick="editClinic('${c.id}')" class="btn btn-warning btn-xs">✏️</button> <button onclick="deleteClinic('${c.id}')" class="btn btn-danger btn-xs">🗑️</button></td></tr>`).join('')}</tbody></table></div></main></div></div>`;
-      } else if (currentScreen === 'superadmin-audit') {
-        app.innerHTML = `<div>${nav}<div class="flex">${sidebar}<main class="flex-1 p-6"><h1 class="text-2xl font-bold mb-6">📜 System Audit Logs</h1><div class="card"><div class="space-y-2">${DB.audit_logs.slice(0, 100).map(log => `<div class="audit-log"><div class="flex justify-between items-start"><div><p class="font-semibold text-sm">${log.action}</p><p class="text-xs text-gray-600">${log.details}</p></div><div class="text-right"><p class="text-xs font-semibold">${log.user_name}</p><p class="text-xs text-gray-500">${new Date(log.timestamp).toLocaleString()}</p></div></div></div>`).join('')}</div></div></main></div></div>`;
-      }
-    }
-
-    console.log('🇮🇳 ENTERPRISE EDITION - INDIA COMPLIANT SYSTEM LOADED!');
-    addAuditLog('SYSTEM_START', 'System initialized');
+    console.log('🚀 TWO-TIER ENTERPRISE SYSTEM LOADED!');
     render();
   </script>
-  <datalist id="medicinesList">${DB.medicines.map(m => `<option value="${m.name} ${m.strength}">`).join('')}</datalist>
 </body>
 </html>
