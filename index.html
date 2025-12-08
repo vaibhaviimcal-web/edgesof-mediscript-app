@@ -3,12 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>EdgesOf MediScript - Complete Enterprise System</title>
+  <title>EdgesOf MediScript - AI-Powered Complete System</title>
   <link rel="icon" href="https://nyc3.digitaloceanspaces.com/bhindi-drive/files/cab453ed-7d3e-4dfa-9012-038dbc50c1c5/2025-12-07T15-33-38-867Z-c50befdf-chat-image-1765121618851-0.jpg">
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.7/dist/signature_pad.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
   <style>
@@ -16,11 +13,8 @@
     body { background: linear-gradient(135deg, #f9fafb 0%, #ffffff 100%); }
     .btn { padding: 10px 20px; border-radius: 10px; font-weight: 600; transition: all 0.3s; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; border: none; font-size: 14px; }
     .btn-sm { padding: 6px 12px; font-size: 12px; }
-    .btn-xs { padding: 4px 8px; font-size: 11px; }
     .btn-primary { background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%); color: white; }
     .btn-success { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; }
-    .btn-warning { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; }
-    .btn-danger { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: white; }
     .btn-purple { background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); color: white; }
     .btn-secondary { background: white; color: #1f2937; border: 2px solid #e5e7eb; }
     .btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.15); }
@@ -35,7 +29,6 @@
     .badge-success { background: #d1fae5; color: #065f46; }
     .badge-warning { background: #fef3c7; color: #92400e; }
     .badge-danger { background: #fee2e2; color: #991b1b; }
-    .badge-info { background: #dbeafe; color: #1e40af; }
     .badge-purple { background: #ede9fe; color: #6b21a8; }
     .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; align-items: center; justify-content: center; overflow-y: auto; }
     .modal.active { display: flex; }
@@ -49,6 +42,10 @@
     .ai-badge { background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); color: white; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; display: inline-flex; align-items: center; gap: 4px; }
     .ai-result { background: linear-gradient(135deg, #ede9fe 0%, #ddd6fe 100%); border: 2px solid #8b5cf6; border-radius: 12px; padding: 16px; margin: 16px 0; }
     .ai-loading { display: inline-block; width: 16px; height: 16px; border: 3px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 0.8s linear infinite; }
+    .chat-message { padding: 12px 16px; border-radius: 12px; margin-bottom: 12px; max-width: 80%; }
+    .chat-user { background: #2563eb; color: white; margin-left: auto; }
+    .chat-ai { background: #f3f4f6; color: #1f2937; }
+    .medicine-item { background: white; border: 2px solid #e5e7eb; border-radius: 8px; padding: 12px; margin-bottom: 8px; }
     @keyframes spin { to { transform: rotate(360deg); } }
   </style>
 </head>
@@ -60,7 +57,7 @@
     <div class="modal-content">
       <div class="flex justify-between items-center mb-6">
         <div>
-          <h2 class="text-2xl font-bold">🤖 AI Diagnosis Assistant</h2>
+          <h2 class="text-2xl font-bold">🔬 AI Diagnosis Assistant</h2>
           <p class="text-sm text-gray-600 mt-1">Powered by Google Gemini 2.0 Flash</p>
         </div>
         <button onclick="closeModal('aiDiagnosisModal')" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
@@ -80,8 +77,103 @@
       </div>
       <div id="aiDiagnosisResult"></div>
       <div class="flex gap-3">
-        <button onclick="getAIDiagnosis()" class="btn btn-purple" id="aiDiagnosisBtn">🤖 Get AI Diagnosis</button>
+        <button onclick="getAIDiagnosis()" class="btn btn-purple" id="aiDiagnosisBtn">🔬 Get AI Diagnosis</button>
         <button onclick="closeModal('aiDiagnosisModal')" class="btn btn-secondary">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- AI Prescription Modal -->
+  <div id="aiPrescriptionModal" class="modal">
+    <div class="modal-content">
+      <div class="flex justify-between items-center mb-6">
+        <div>
+          <h2 class="text-2xl font-bold">💊 AI Prescription Generator</h2>
+          <p class="text-sm text-gray-600 mt-1">Smart medicine recommendations with drug interaction checks</p>
+        </div>
+        <button onclick="closeModal('aiPrescriptionModal')" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
+      </div>
+      <div class="mb-4">
+        <label class="form-label">Diagnosis *</label>
+        <input type="text" id="rxDiagnosis" class="form-input" placeholder="e.g., Viral Fever" required>
+      </div>
+      <div class="grid grid-cols-3 gap-4 mb-4">
+        <div><label class="form-label">Age *</label><input type="number" id="rxAge" class="form-input" value="35" required></div>
+        <div><label class="form-label">Weight (kg) *</label><input type="number" id="rxWeight" class="form-input" value="70" required></div>
+        <div><label class="form-label">Gender *</label><select id="rxGender" class="form-input"><option>Male</option><option>Female</option><option>Other</option></select></div>
+      </div>
+      <div class="mb-4">
+        <label class="form-label">Allergies (comma-separated)</label>
+        <input type="text" id="rxAllergies" class="form-input" placeholder="e.g., Penicillin, Sulfa drugs">
+      </div>
+      <div class="mb-4">
+        <label class="form-label">Current Medications (comma-separated)</label>
+        <input type="text" id="rxCurrentMeds" class="form-input" placeholder="e.g., Aspirin, Metformin">
+      </div>
+      <div id="aiPrescriptionResult"></div>
+      <div class="flex gap-3">
+        <button onclick="getAIPrescription()" class="btn btn-purple" id="aiPrescriptionBtn">💊 Generate Prescription</button>
+        <button onclick="closeModal('aiPrescriptionModal')" class="btn btn-secondary">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- AI Report Analyzer Modal -->
+  <div id="aiReportModal" class="modal">
+    <div class="modal-content">
+      <div class="flex justify-between items-center mb-6">
+        <div>
+          <h2 class="text-2xl font-bold">📊 AI Report Analyzer</h2>
+          <p class="text-sm text-gray-600 mt-1">Extract and analyze lab report values instantly</p>
+        </div>
+        <button onclick="closeModal('aiReportModal')" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
+      </div>
+      <div class="mb-4">
+        <label class="form-label">Report Type *</label>
+        <select id="reportType" class="form-input">
+          <option>CBC (Complete Blood Count)</option>
+          <option>Lipid Profile</option>
+          <option>Liver Function Test</option>
+          <option>Kidney Function Test</option>
+          <option>Thyroid Profile</option>
+          <option>Blood Sugar</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div class="mb-4">
+        <label class="form-label">Report Data *</label>
+        <textarea id="reportText" class="form-input" rows="8" placeholder="Paste lab report values here, e.g.:
+Hemoglobin: 10.5 g/dL
+WBC: 12000/μL
+Platelets: 150000/μL
+RBC: 4.5 million/μL"></textarea>
+      </div>
+      <div id="aiReportResult"></div>
+      <div class="flex gap-3">
+        <button onclick="analyzeReport()" class="btn btn-purple" id="aiReportBtn">📊 Analyze Report</button>
+        <button onclick="closeModal('aiReportModal')" class="btn btn-secondary">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- AI Symptom Checker Modal -->
+  <div id="aiSymptomModal" class="modal">
+    <div class="modal-content">
+      <div class="flex justify-between items-center mb-6">
+        <div>
+          <h2 class="text-2xl font-bold">💬 AI Symptom Checker</h2>
+          <p class="text-sm text-gray-600 mt-1">Patient-facing chatbot for preliminary assessment</p>
+        </div>
+        <button onclick="closeModal('aiSymptomModal')" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
+      </div>
+      <div id="chatHistory" style="max-height: 400px; overflow-y: auto; margin-bottom: 16px;"></div>
+      <div class="flex gap-3">
+        <input type="text" id="chatInput" class="form-input" placeholder="Describe your symptoms..." onkeypress="if(event.key==='Enter') sendChatMessage()">
+        <button onclick="sendChatMessage()" class="btn btn-purple" id="chatSendBtn">Send</button>
+      </div>
+      <div class="mt-4">
+        <button onclick="clearChat()" class="btn btn-secondary btn-sm">Clear Chat</button>
+        <button onclick="closeModal('aiSymptomModal')" class="btn btn-secondary btn-sm">Close</button>
       </div>
     </div>
   </div>
@@ -118,6 +210,8 @@
   <script type="module">
     const GEMINI_API_KEY = 'AIzaSyCnFkJT7t9FSq_vj1tAlhNifItoBMAzaMc';
     emailjs.init('r4HNlBPoM81dhbZla');
+    
+    let chatHistory = [];
     
     const DataManager = {
       STORAGE_KEY: 'edgesof_mediscript_complete',
@@ -170,51 +264,22 @@
       saveDB();
     }
 
-    function getFallbackDiagnosis(complaint) {
-      const keywords = complaint.toLowerCase();
-      const diagnoses = [];
+    async function callGeminiAPI(prompt) {
+      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${GEMINI_API_KEY}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }],
+          generationConfig: { temperature: 0.7, maxOutputTokens: 2048 }
+        })
+      });
 
-      if (keywords.includes('fever')) {
-        diagnoses.push({
-          name: 'Viral Fever', confidence: 75,
-          description: 'Common viral infection causing elevated body temperature',
-          recommendedTests: ['CBC', 'Dengue NS1', 'Malaria Test'],
-          urgency: 'moderate'
-        });
-      }
-      if (keywords.includes('headache')) {
-        diagnoses.push({
-          name: 'Tension Headache', confidence: 70,
-          description: 'Stress-related headache',
-          recommendedTests: ['Blood Pressure Check'],
-          urgency: 'low'
-        });
-      }
-      if (keywords.includes('cough')) {
-        diagnoses.push({
-          name: 'Upper Respiratory Tract Infection', confidence: 80,
-          description: 'Common cold or flu-like symptoms',
-          recommendedTests: ['Chest X-Ray'],
-          urgency: 'low'
-        });
-      }
-
-      if (diagnoses.length === 0) {
-        diagnoses.push({
-          name: 'General Consultation Required', confidence: 50,
-          description: 'Symptoms require detailed examination',
-          recommendedTests: ['Complete Physical Examination'],
-          urgency: 'moderate'
-        });
-      }
-
-      return {
-        diagnoses: diagnoses.slice(0, 3),
-        recommendations: 'Please consult a doctor for proper diagnosis.',
-        source: 'fallback'
-      };
+      if (!response.ok) throw new Error(`API error: ${response.status}`);
+      const data = await response.json();
+      return data.candidates[0].content.parts[0].text;
     }
 
+    // AI DIAGNOSIS
     window.getAIDiagnosis = async function() {
       const complaint = document.getElementById('aiComplaint').value;
       if (!complaint) { alert('⚠️ Please enter chief complaint'); return; }
@@ -240,51 +305,26 @@ Respond with ONLY valid JSON:
   "recommendations": "Advice"
 }`;
 
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${GEMINI_API_KEY}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            contents: [{ parts: [{ text: prompt }] }],
-            generationConfig: { temperature: 0.7, maxOutputTokens: 1024 }
-          })
-        });
-
-        if (!response.ok) throw new Error(`API error: ${response.status}`);
-
-        const data = await response.json();
-        const text = data.candidates[0].content.parts[0].text;
+        const text = await callGeminiAPI(prompt);
         const jsonMatch = text.match(/\{[\s\S]*\}/);
         const aiResponse = JSON.parse(jsonMatch[0]);
 
         if (aiResponse && aiResponse.diagnoses) {
-          displayDiagnosisResults(aiResponse, 'ai');
-          addAuditLog('AI_DIAGNOSIS_SUCCESS', `AI: ${complaint}`);
-        } else {
-          throw new Error('No diagnoses');
+          displayDiagnosisResults(aiResponse);
+          addAuditLog('AI_DIAGNOSIS', `Success: ${complaint}`);
         }
-
       } catch (error) {
         console.error('AI Error:', error);
-        const fallbackResult = getFallbackDiagnosis(complaint);
-        displayDiagnosisResults(fallbackResult, 'fallback');
-        addAuditLog('AI_DIAGNOSIS_FALLBACK', `Fallback: ${complaint}`);
+        resultDiv.innerHTML = '<div class="ai-result"><p class="text-red-600">❌ AI diagnosis failed. Please try again.</p></div>';
       } finally {
         btn.disabled = false;
-        btn.innerHTML = '🤖 Get AI Diagnosis';
+        btn.innerHTML = '🔬 Get AI Diagnosis';
       }
     };
 
-    function displayDiagnosisResults(aiResponse, source) {
+    function displayDiagnosisResults(aiResponse) {
       const resultDiv = document.getElementById('aiDiagnosisResult');
-      let html = `<div class="ai-result">`;
-      
-      if (source === 'fallback') {
-        html += `<div class="bg-yellow-50 border-2 border-yellow-300 rounded-lg p-3 mb-3">
-          <p class="text-sm text-yellow-800"><strong>⚠️ Note:</strong> Using fallback diagnosis system.</p>
-        </div>`;
-      }
-      
-      html += '<h3 class="font-bold text-purple-700 mb-3">🤖 Diagnosis Results</h3>';
+      let html = '<div class="ai-result"><h3 class="font-bold text-purple-700 mb-3">🔬 Diagnosis Results</h3>';
       
       aiResponse.diagnoses.forEach((diag, i) => {
         const urgencyColor = diag.urgency === 'high' || diag.urgency === 'critical' ? 'badge-danger' : 
@@ -308,6 +348,264 @@ Respond with ONLY valid JSON:
       html += '</div>';
       resultDiv.innerHTML = html;
     }
+
+    // AI PRESCRIPTION
+    window.getAIPrescription = async function() {
+      const diagnosis = document.getElementById('rxDiagnosis').value;
+      if (!diagnosis) { alert('⚠️ Please enter diagnosis'); return; }
+
+      const btn = document.getElementById('aiPrescriptionBtn');
+      btn.disabled = true;
+      btn.innerHTML = '<div class="ai-loading"></div> Generating...';
+
+      const resultDiv = document.getElementById('aiPrescriptionResult');
+      resultDiv.innerHTML = '';
+
+      try {
+        const allergies = document.getElementById('rxAllergies').value.split(',').map(a => a.trim()).filter(a => a);
+        const currentMeds = document.getElementById('rxCurrentMeds').value.split(',').map(m => m.trim()).filter(m => m);
+
+        const prompt = `You are an expert pharmacologist. Generate prescription for:
+
+Diagnosis: ${diagnosis}
+Patient: ${document.getElementById('rxAge').value}Y ${document.getElementById('rxGender').value}, Weight: ${document.getElementById('rxWeight').value}kg
+Allergies: ${allergies.join(', ') || 'None'}
+Current Medications: ${currentMeds.join(', ') || 'None'}
+
+Respond with ONLY valid JSON:
+{
+  "medicines": [
+    {
+      "name": "Medicine Name",
+      "dosage": "500mg",
+      "frequency": "TDS (3 times daily)",
+      "duration": "5 days",
+      "instructions": "Take after meals",
+      "warnings": ["Warning 1"]
+    }
+  ],
+  "drugInteractions": ["Interaction 1"],
+  "contraindications": ["Contraindication 1"],
+  "advice": "General advice"
+}`;
+
+        const text = await callGeminiAPI(prompt);
+        const jsonMatch = text.match(/\{[\s\S]*\}/);
+        const aiResponse = JSON.parse(jsonMatch[0]);
+
+        if (aiResponse && aiResponse.medicines) {
+          displayPrescriptionResults(aiResponse);
+          addAuditLog('AI_PRESCRIPTION', `Generated for: ${diagnosis}`);
+        }
+      } catch (error) {
+        console.error('AI Error:', error);
+        resultDiv.innerHTML = '<div class="ai-result"><p class="text-red-600">❌ Prescription generation failed.</p></div>';
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '💊 Generate Prescription';
+      }
+    };
+
+    function displayPrescriptionResults(aiResponse) {
+      const resultDiv = document.getElementById('aiPrescriptionResult');
+      let html = '<div class="ai-result"><h3 class="font-bold text-purple-700 mb-3">💊 Prescription</h3>';
+      
+      aiResponse.medicines.forEach((med, i) => {
+        html += `<div class="medicine-item">
+          <div class="flex justify-between items-start mb-2">
+            <h4 class="font-bold">${i + 1}. ${med.name}</h4>
+            <span class="badge badge-purple">${med.dosage}</span>
+          </div>
+          <p class="text-sm mb-1"><strong>Frequency:</strong> ${med.frequency}</p>
+          <p class="text-sm mb-1"><strong>Duration:</strong> ${med.duration}</p>
+          <p class="text-sm mb-1"><strong>Instructions:</strong> ${med.instructions}</p>
+          ${med.warnings && med.warnings.length > 0 ? `<p class="text-sm text-orange-600"><strong>⚠️ Warnings:</strong> ${med.warnings.join(', ')}</p>` : ''}
+        </div>`;
+      });
+
+      if (aiResponse.drugInteractions && aiResponse.drugInteractions.length > 0) {
+        html += `<div class="mt-4 p-3 bg-red-50 border-2 border-red-200 rounded-lg">
+          <strong class="text-red-700">⚠️ Drug Interactions:</strong>
+          <p class="text-sm text-red-600 mt-1">${aiResponse.drugInteractions.join(', ')}</p>
+        </div>`;
+      }
+
+      if (aiResponse.contraindications && aiResponse.contraindications.length > 0) {
+        html += `<div class="mt-4 p-3 bg-yellow-50 border-2 border-yellow-200 rounded-lg">
+          <strong class="text-yellow-700">⚠️ Contraindications:</strong>
+          <p class="text-sm text-yellow-600 mt-1">${aiResponse.contraindications.join(', ')}</p>
+        </div>`;
+      }
+
+      if (aiResponse.advice) {
+        html += `<div class="mt-4 p-3 bg-purple-50 rounded-lg"><strong>💡 Advice:</strong> ${aiResponse.advice}</div>`;
+      }
+
+      html += '</div>';
+      resultDiv.innerHTML = html;
+    }
+
+    // AI REPORT ANALYZER
+    window.analyzeReport = async function() {
+      const reportText = document.getElementById('reportText').value;
+      if (!reportText) { alert('⚠️ Please paste report data'); return; }
+
+      const btn = document.getElementById('aiReportBtn');
+      btn.disabled = true;
+      btn.innerHTML = '<div class="ai-loading"></div> Analyzing...';
+
+      const resultDiv = document.getElementById('aiReportResult');
+      resultDiv.innerHTML = '';
+
+      try {
+        const reportType = document.getElementById('reportType').value;
+
+        const prompt = `You are a medical lab expert. Analyze this ${reportType} report:
+
+${reportText}
+
+Respond with ONLY valid JSON:
+{
+  "extractedValues": [
+    {
+      "parameter": "Hemoglobin",
+      "value": "10.5",
+      "unit": "g/dL",
+      "normalRange": "13-17 g/dL",
+      "status": "low",
+      "severity": "moderate"
+    }
+  ],
+  "analysis": "Overall analysis",
+  "recommendations": "Recommendations"
+}`;
+
+        const text = await callGeminiAPI(prompt);
+        const jsonMatch = text.match(/\{[\s\S]*\}/);
+        const aiResponse = JSON.parse(jsonMatch[0]);
+
+        if (aiResponse && aiResponse.extractedValues) {
+          displayReportResults(aiResponse);
+          addAuditLog('AI_REPORT_ANALYSIS', `Analyzed: ${reportType}`);
+        }
+      } catch (error) {
+        console.error('AI Error:', error);
+        resultDiv.innerHTML = '<div class="ai-result"><p class="text-red-600">❌ Report analysis failed.</p></div>';
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '📊 Analyze Report';
+      }
+    };
+
+    function displayReportResults(aiResponse) {
+      const resultDiv = document.getElementById('aiReportResult');
+      let html = '<div class="ai-result"><h3 class="font-bold text-purple-700 mb-3">📊 Report Analysis</h3>';
+      
+      html += '<table class="w-full mb-4"><thead><tr><th>Parameter</th><th>Value</th><th>Normal Range</th><th>Status</th></tr></thead><tbody>';
+      
+      aiResponse.extractedValues.forEach(val => {
+        const statusColor = val.status === 'normal' ? 'badge-success' : 
+                           val.status === 'low' || val.status === 'high' ? 'badge-warning' : 'badge-danger';
+        
+        html += `<tr>
+          <td class="font-semibold">${val.parameter}</td>
+          <td>${val.value} ${val.unit}</td>
+          <td class="text-sm text-gray-600">${val.normalRange}</td>
+          <td><span class="badge ${statusColor}">${val.status.toUpperCase()}</span></td>
+        </tr>`;
+      });
+      
+      html += '</tbody></table>';
+
+      if (aiResponse.analysis) {
+        html += `<div class="p-3 bg-blue-50 border-2 border-blue-200 rounded-lg mb-3">
+          <strong class="text-blue-700">📋 Analysis:</strong>
+          <p class="text-sm text-blue-600 mt-1">${aiResponse.analysis}</p>
+        </div>`;
+      }
+
+      if (aiResponse.recommendations) {
+        html += `<div class="p-3 bg-purple-50 rounded-lg">
+          <strong>💡 Recommendations:</strong>
+          <p class="text-sm mt-1">${aiResponse.recommendations}</p>
+        </div>`;
+      }
+
+      html += '</div>';
+      resultDiv.innerHTML = html;
+    }
+
+    // AI SYMPTOM CHECKER (CHATBOT)
+    window.sendChatMessage = async function() {
+      const input = document.getElementById('chatInput');
+      const message = input.value.trim();
+      if (!message) return;
+
+      const chatDiv = document.getElementById('chatHistory');
+      
+      // Add user message
+      chatDiv.innerHTML += `<div class="chat-message chat-user">${message}</div>`;
+      input.value = '';
+      chatDiv.scrollTop = chatDiv.scrollHeight;
+
+      chatHistory.push({ role: 'user', content: message });
+
+      const btn = document.getElementById('chatSendBtn');
+      btn.disabled = true;
+      btn.innerHTML = '<div class="ai-loading"></div>';
+
+      try {
+        const context = chatHistory.map(msg => `${msg.role}: ${msg.content}`).join('\n');
+
+        const prompt = `You are a friendly medical chatbot helping patients understand symptoms.
+
+Previous conversation:
+${context}
+
+Respond with ONLY valid JSON:
+{
+  "reply": "Your helpful response",
+  "urgencyLevel": "low/moderate/high/critical",
+  "shouldSeeDoctor": true/false,
+  "estimatedConditions": ["Condition 1", "Condition 2"]
+}`;
+
+        const text = await callGeminiAPI(prompt);
+        const jsonMatch = text.match(/\{[\s\S]*\}/);
+        const aiResponse = JSON.parse(jsonMatch[0]);
+
+        chatHistory.push({ role: 'assistant', content: aiResponse.reply });
+
+        let aiMessage = `<div class="chat-message chat-ai">${aiResponse.reply}`;
+        
+        if (aiResponse.urgencyLevel) {
+          const urgencyColor = aiResponse.urgencyLevel === 'critical' || aiResponse.urgencyLevel === 'high' ? 'badge-danger' : 
+                              aiResponse.urgencyLevel === 'moderate' ? 'badge-warning' : 'badge-success';
+          aiMessage += `<div class="mt-2"><span class="badge ${urgencyColor}">Urgency: ${aiResponse.urgencyLevel}</span></div>`;
+        }
+
+        if (aiResponse.shouldSeeDoctor) {
+          aiMessage += `<div class="mt-2 text-sm text-red-600">⚠️ Please consult a doctor</div>`;
+        }
+
+        aiMessage += '</div>';
+        chatDiv.innerHTML += aiMessage;
+        chatDiv.scrollTop = chatDiv.scrollHeight;
+
+        addAuditLog('AI_SYMPTOM_CHECKER', `Chat: ${message}`);
+      } catch (error) {
+        console.error('Chat Error:', error);
+        chatDiv.innerHTML += `<div class="chat-message chat-ai">Sorry, I encountered an error. Please try again.</div>`;
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = 'Send';
+      }
+    };
+
+    window.clearChat = function() {
+      chatHistory = [];
+      document.getElementById('chatHistory').innerHTML = '<div class="chat-message chat-ai">Hello! I\'m your AI health assistant. Describe your symptoms and I\'ll help you understand them better.</div>';
+    };
 
     window.savePatient = function(e) {
       e.preventDefault();
@@ -336,6 +634,12 @@ Respond with ONLY valid JSON:
       if (modalId === 'aiDiagnosisModal') {
         document.getElementById('aiDiagnosisResult').innerHTML = '';
         document.getElementById('aiComplaint').value = '';
+      } else if (modalId === 'aiPrescriptionModal') {
+        document.getElementById('aiPrescriptionResult').innerHTML = '';
+      } else if (modalId === 'aiReportModal') {
+        document.getElementById('aiReportResult').innerHTML = '';
+      } else if (modalId === 'aiSymptomModal') {
+        clearChat();
       } else if (modalId === 'patientModal') {
         document.querySelectorAll('#patientModal input, #patientModal select').forEach(el => { if (el.type !== 'submit') el.value = ''; });
       }
@@ -375,7 +679,7 @@ Respond with ONLY valid JSON:
       const app = document.getElementById('app');
       
       if (currentScreen === 'login') {
-        app.innerHTML = `<div class="min-h-screen flex items-center justify-center p-6" style="background: linear-gradient(135deg, #2563eb 0%, #10b981 100%);"><div class="w-full max-w-4xl"><div class="text-center mb-8"><img src="https://nyc3.digitaloceanspaces.com/bhindi-drive/files/cab453ed-7d3e-4dfa-9012-038dbc50c1c5/2025-12-07T15-33-38-867Z-c50befdf-chat-image-1765121618851-0.jpg" class="h-16 mx-auto mb-4"><h1 class="text-3xl font-bold text-white mb-2">EdgesOf MediScript</h1><div class="inline-block bg-white bg-opacity-20 text-white px-4 py-2 rounded-full text-sm font-semibold">🇮🇳 AI-Powered | 🤖 Gemini 2.0 Flash</div></div><div class="grid grid-cols-1 lg:grid-cols-2 gap-6"><div class="card"><h2 class="text-xl font-bold mb-4">🔐 Login</h2><div class="mb-3"><label class="form-label">Email</label><input type="email" id="loginEmail" class="form-input"></div><div class="mb-3"><label class="form-label">Password</label><input type="password" id="loginPassword" class="form-input"></div><button onclick="login()" class="btn btn-primary w-full">Login</button></div><div class="card"><h2 class="text-xl font-bold mb-4">⚡ Quick Login</h2><button onclick="quickLogin('system@edgesof.com', 'admin123')" class="btn btn-danger w-full mb-2">👑 Super Admin</button><button onclick="quickLogin('admin@clinic.com', 'admin123')" class="btn btn-warning w-full mb-2">🏥 Clinic Admin</button><button onclick="quickLogin('doctor@clinic.com', 'doctor123')" class="btn btn-primary w-full mb-2">👨‍⚕️ Doctor (AI Features)</button><button onclick="quickLogin('reception@clinic.com', 'reception123')" class="btn btn-success w-full">📋 Receptionist</button></div></div></div></div>`;
+        app.innerHTML = `<div class="min-h-screen flex items-center justify-center p-6" style="background: linear-gradient(135deg, #2563eb 0%, #10b981 100%);"><div class="w-full max-w-4xl"><div class="text-center mb-8"><img src="https://nyc3.digitaloceanspaces.com/bhindi-drive/files/cab453ed-7d3e-4dfa-9012-038dbc50c1c5/2025-12-07T15-33-38-867Z-c50befdf-chat-image-1765121618851-0.jpg" class="h-16 mx-auto mb-4"><h1 class="text-3xl font-bold text-white mb-2">EdgesOf MediScript</h1><div class="inline-block bg-white bg-opacity-20 text-white px-4 py-2 rounded-full text-sm font-semibold">🇮🇳 Complete AI Suite | 🤖 4 AI Features</div></div><div class="grid grid-cols-1 lg:grid-cols-2 gap-6"><div class="card"><h2 class="text-xl font-bold mb-4">🔐 Login</h2><div class="mb-3"><label class="form-label">Email</label><input type="email" id="loginEmail" class="form-input"></div><div class="mb-3"><label class="form-label">Password</label><input type="password" id="loginPassword" class="form-input"></div><button onclick="login()" class="btn btn-primary w-full">Login</button></div><div class="card"><h2 class="text-xl font-bold mb-4">⚡ Quick Login</h2><button onclick="quickLogin('system@edgesof.com', 'admin123')" class="btn btn-danger w-full mb-2">👑 Super Admin</button><button onclick="quickLogin('admin@clinic.com', 'admin123')" class="btn btn-warning w-full mb-2">🏥 Clinic Admin</button><button onclick="quickLogin('doctor@clinic.com', 'doctor123')" class="btn btn-primary w-full mb-2">👨‍⚕️ Doctor (4 AI Features)</button><button onclick="quickLogin('reception@clinic.com', 'reception123')" class="btn btn-success w-full">📋 Receptionist</button></div></div></div></div>`;
       } else if (currentScreen.startsWith('doctor-')) {
         renderDoctor(app);
       } else if (currentScreen.startsWith('receptionist-')) {
@@ -389,17 +693,17 @@ Respond with ONLY valid JSON:
 
     function renderDoctor(app) {
       const clinic = DB.clinics.find(c => c.id === currentUser.clinic_id);
-      const nav = `<nav class="bg-gray-900 text-white p-4 flex justify-between sticky top-0 z-50"><div class="flex gap-3 items-center"><img src="${clinic.logo_url}" class="h-10"><h3 class="font-bold text-sm">${clinic.name}</h3><span class="ai-badge">🤖 AI Powered</span></div><div class="flex items-center gap-3"><p class="font-semibold text-sm">${currentUser.name}</p><button onclick="logout()" class="px-3 py-2 bg-white bg-opacity-10 rounded-lg text-xs">Logout</button></div></nav>`;
-      const sidebar = `<aside class="w-64 bg-gray-800 text-white p-4 min-h-screen"><nav class="space-y-2"><a onclick="switchScreen('doctor-dashboard')" class="nav-link ${currentScreen === 'doctor-dashboard' ? 'active' : ''}">📊 Dashboard</a><a onclick="switchScreen('doctor-patients')" class="nav-link ${currentScreen === 'doctor-patients' ? 'active' : ''}">👥 Patients</a><a onclick="switchScreen('doctor-ai')" class="nav-link ${currentScreen === 'doctor-ai' ? 'active' : ''}">🤖 AI Assistant</a></nav></aside>`;
+      const nav = `<nav class="bg-gray-900 text-white p-4 flex justify-between sticky top-0 z-50"><div class="flex gap-3 items-center"><img src="${clinic.logo_url}" class="h-10"><h3 class="font-bold text-sm">${clinic.name}</h3><span class="ai-badge">🤖 4 AI Features</span></div><div class="flex items-center gap-3"><p class="font-semibold text-sm">${currentUser.name}</p><button onclick="logout()" class="px-3 py-2 bg-white bg-opacity-10 rounded-lg text-xs">Logout</button></div></nav>`;
+      const sidebar = `<aside class="w-64 bg-gray-800 text-white p-4 min-h-screen"><nav class="space-y-2"><a onclick="switchScreen('doctor-dashboard')" class="nav-link ${currentScreen === 'doctor-dashboard' ? 'active' : ''}">📊 Dashboard</a><a onclick="switchScreen('doctor-patients')" class="nav-link ${currentScreen === 'doctor-patients' ? 'active' : ''}">👥 Patients</a><a onclick="switchScreen('doctor-ai')" class="nav-link ${currentScreen === 'doctor-ai' ? 'active' : ''}">🤖 AI Suite</a></nav></aside>`;
 
       if (currentScreen === 'doctor-dashboard') {
         const clinicPatients = DB.patients.filter(p => p.clinic_id === currentUser.clinic_id);
-        app.innerHTML = `<div>${nav}<div class="flex">${sidebar}<main class="flex-1 p-6"><h1 class="text-2xl font-bold mb-6">👨‍⚕️ Doctor Dashboard</h1><div class="grid grid-cols-4 gap-4 mb-6"><div class="stat-card" onclick="switchScreen('doctor-patients')"><p class="text-gray-600 text-sm mb-1">Patients</p><p class="text-3xl font-bold text-green-600">${clinicPatients.length}</p></div><div class="stat-card" onclick="switchScreen('doctor-ai')"><p class="text-gray-600 text-sm mb-1">🤖 AI Features</p><p class="text-3xl font-bold text-purple-600">Active</p></div></div></main></div></div>`;
+        app.innerHTML = `<div>${nav}<div class="flex">${sidebar}<main class="flex-1 p-6"><h1 class="text-2xl font-bold mb-6">👨‍⚕️ Doctor Dashboard</h1><div class="grid grid-cols-4 gap-4 mb-6"><div class="stat-card" onclick="switchScreen('doctor-patients')"><p class="text-gray-600 text-sm mb-1">Patients</p><p class="text-3xl font-bold text-green-600">${clinicPatients.length}</p></div><div class="stat-card" onclick="switchScreen('doctor-ai')"><p class="text-gray-600 text-sm mb-1">🤖 AI Features</p><p class="text-3xl font-bold text-purple-600">4 Active</p></div></div><div class="card"><h3 class="font-bold mb-3">🤖 Quick AI Access</h3><div class="grid grid-cols-2 gap-4"><div class="p-4 bg-purple-50 rounded-lg border-2 border-purple-200 cursor-pointer hover:shadow-lg transition" onclick="openModal('aiDiagnosisModal')"><h4 class="font-bold text-purple-700 mb-1">🔬 AI Diagnosis</h4><p class="text-xs text-gray-600">Analyze symptoms</p></div><div class="p-4 bg-purple-50 rounded-lg border-2 border-purple-200 cursor-pointer hover:shadow-lg transition" onclick="openModal('aiPrescriptionModal')"><h4 class="font-bold text-purple-700 mb-1">💊 AI Prescription</h4><p class="text-xs text-gray-600">Generate medicines</p></div><div class="p-4 bg-purple-50 rounded-lg border-2 border-purple-200 cursor-pointer hover:shadow-lg transition" onclick="openModal('aiReportModal')"><h4 class="font-bold text-purple-700 mb-1">📊 Report Analyzer</h4><p class="text-xs text-gray-600">Analyze lab reports</p></div><div class="p-4 bg-purple-50 rounded-lg border-2 border-purple-200 cursor-pointer hover:shadow-lg transition" onclick="openModal('aiSymptomModal')"><h4 class="font-bold text-purple-700 mb-1">💬 Symptom Checker</h4><p class="text-xs text-gray-600">Patient chatbot</p></div></div></div></main></div></div>`;
       } else if (currentScreen === 'doctor-patients') {
         const clinicPatients = DB.patients.filter(p => p.clinic_id === currentUser.clinic_id);
         app.innerHTML = `<div>${nav}<div class="flex">${sidebar}<main class="flex-1 p-6"><h1 class="text-2xl font-bold mb-6">👥 All Patients</h1><div class="mb-4"><button onclick="openModal('patientModal')" class="btn btn-success">+ Register Patient</button></div><div class="card"><table><thead><tr><th>ID</th><th>Name</th><th>Age/Gender</th><th>Blood</th><th>Phone</th></tr></thead><tbody>${clinicPatients.map(p => `<tr><td class="font-semibold">${p.patient_id}</td><td>${p.first_name} ${p.last_name}</td><td>${p.age}Y ${p.gender}</td><td>${p.blood_group}</td><td class="text-xs">${p.phone}</td></tr>`).join('')}</tbody></table></div></main></div></div>`;
       } else if (currentScreen === 'doctor-ai') {
-        app.innerHTML = `<div>${nav}<div class="flex">${sidebar}<main class="flex-1 p-6"><h1 class="text-2xl font-bold mb-6">🤖 AI Assistant</h1><div class="card cursor-pointer hover:shadow-xl transition" onclick="openModal('aiDiagnosisModal')"><div class="flex items-center gap-3 mb-3"><div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center text-2xl">🔬</div><div><h3 class="font-bold text-lg">AI Diagnosis</h3><span class="ai-badge">Active</span></div></div><p class="text-sm text-gray-600 mb-3">Analyze symptoms instantly with AI</p><ul class="text-xs text-gray-500 space-y-1"><li>✅ Multiple diagnoses with confidence scores</li><li>✅ Recommended tests</li><li>✅ Urgency detection</li><li>✅ Fallback system</li></ul></div></main></div></div>`;
+        app.innerHTML = `<div>${nav}<div class="flex">${sidebar}<main class="flex-1 p-6"><h1 class="text-2xl font-bold mb-6">🤖 Complete AI Suite</h1><div class="grid grid-cols-2 gap-6"><div class="card cursor-pointer hover:shadow-xl transition" onclick="openModal('aiDiagnosisModal')"><div class="flex items-center gap-3 mb-3"><div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center text-2xl">🔬</div><div><h3 class="font-bold text-lg">AI Diagnosis</h3><span class="ai-badge">Active</span></div></div><p class="text-sm text-gray-600 mb-3">Analyze symptoms and get instant diagnosis suggestions with confidence scores</p><ul class="text-xs text-gray-500 space-y-1"><li>✅ Multiple diagnoses with confidence %</li><li>✅ Recommended tests</li><li>✅ Urgency detection</li></ul></div><div class="card cursor-pointer hover:shadow-xl transition" onclick="openModal('aiPrescriptionModal')"><div class="flex items-center gap-3 mb-3"><div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center text-2xl">💊</div><div><h3 class="font-bold text-lg">AI Prescription</h3><span class="ai-badge">Active</span></div></div><p class="text-sm text-gray-600 mb-3">Generate medicine list with dosages and drug interaction checks</p><ul class="text-xs text-gray-500 space-y-1"><li>✅ Age/weight-adjusted dosages</li><li>✅ Drug interaction warnings</li><li>✅ Contraindication checks</li></ul></div><div class="card cursor-pointer hover:shadow-xl transition" onclick="openModal('aiReportModal')"><div class="flex items-center gap-3 mb-3"><div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center text-2xl">📊</div><div><h3 class="font-bold text-lg">AI Report Analyzer</h3><span class="ai-badge">Active</span></div></div><p class="text-sm text-gray-600 mb-3">Extract and analyze lab report values automatically</p><ul class="text-xs text-gray-500 space-y-1"><li>✅ Auto-extract values</li><li>✅ Compare with normal ranges</li><li>✅ Highlight abnormalities</li></ul></div><div class="card cursor-pointer hover:shadow-xl transition" onclick="openModal('aiSymptomModal')"><div class="flex items-center gap-3 mb-3"><div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center text-2xl">💬</div><div><h3 class="font-bold text-lg">AI Symptom Checker</h3><span class="ai-badge">Active</span></div></div><p class="text-sm text-gray-600 mb-3">Patient-facing chatbot for preliminary assessment</p><ul class="text-xs text-gray-500 space-y-1"><li>✅ Conversational interface</li><li>✅ Urgency detection</li><li>✅ Doctor recommendations</li></ul></div></div></main></div></div>`;
       }
     }
 
@@ -427,11 +731,12 @@ Respond with ONLY valid JSON:
     function renderSuperAdmin(app) {
       const nav = `<nav class="bg-gray-900 text-white p-4 flex justify-between sticky top-0 z-50"><div class="flex gap-3 items-center"><h3 class="font-bold">EdgesOf MediScript</h3><span class="text-xs bg-red-500 px-2 py-1 rounded">Super Admin</span></div><div class="flex items-center gap-3"><p class="font-semibold text-sm">${currentUser.name}</p><button onclick="logout()" class="px-3 py-2 bg-white bg-opacity-10 rounded-lg text-xs">Logout</button></div></nav>`;
       const sidebar = `<aside class="w-64 bg-gray-800 text-white p-4 min-h-screen"><nav class="space-y-2"><a onclick="switchScreen('superadmin-dashboard')" class="nav-link active">📊 Dashboard</a></nav></aside>`;
-      app.innerHTML = `<div>${nav}<div class="flex">${sidebar}<main class="flex-1 p-6"><h1 class="text-2xl font-bold mb-6">👑 Super Admin Dashboard</h1><div class="grid grid-cols-4 gap-4 mb-6"><div class="stat-card"><p class="text-gray-600 text-sm mb-1">Total Clinics</p><p class="text-3xl font-bold text-blue-600">${DB.clinics.length}</p></div><div class="stat-card"><p class="text-gray-600 text-sm mb-1">Total Users</p><p class="text-3xl font-bold text-purple-600">${DB.users.length}</p></div><div class="stat-card"><p class="text-gray-600 text-sm mb-1">🤖 AI Status</p><p class="text-3xl font-bold text-green-600">Active</p></div></div></main></div></div>`;
+      app.innerHTML = `<div>${nav}<div class="flex">${sidebar}<main class="flex-1 p-6"><h1 class="text-2xl font-bold mb-6">👑 Super Admin Dashboard</h1><div class="grid grid-cols-4 gap-4 mb-6"><div class="stat-card"><p class="text-gray-600 text-sm mb-1">Total Clinics</p><p class="text-3xl font-bold text-blue-600">${DB.clinics.length}</p></div><div class="stat-card"><p class="text-gray-600 text-sm mb-1">Total Users</p><p class="text-3xl font-bold text-purple-600">${DB.users.length}</p></div><div class="stat-card"><p class="text-gray-600 text-sm mb-1">🤖 AI Features</p><p class="text-3xl font-bold text-green-600">4 Active</p></div></div></main></div></div>`;
     }
 
-    console.log('🚀 COMPLETE SYSTEM WITH AI LOADED!');
-    addAuditLog('SYSTEM_START', 'Complete system with AI initialized');
+    console.log('🚀 COMPLETE AI SUITE LOADED!');
+    console.log('🤖 4 AI Features: Diagnosis, Prescription, Report Analyzer, Symptom Checker');
+    addAuditLog('SYSTEM_START', 'Complete AI suite initialized');
     render();
   </script>
 </body>
