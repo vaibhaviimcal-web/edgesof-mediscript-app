@@ -100,7 +100,7 @@
           <div><label class="form-label">Closing Time</label><input type="time" id="qClinicClose" class="form-input" value="18:00"></div>
         </div>
         <div class="bg-blue-50 border-2 border-blue-200 rounded-lg p-4 mb-4">
-          <p class="text-sm text-blue-800"><strong>📧 Clinic Admin Account:</strong> Login credentials will be sent to ${document.getElementById('qClinicEmail')?.value || 'clinic email'}</p>
+          <p class="text-sm text-blue-800"><strong>📧 Clinic Admin Account:</strong> Login credentials will be sent to the clinic email address</p>
           <p class="text-sm text-blue-600 mt-1">Default Password: <strong>clinic123</strong></p>
         </div>
         <div class="flex gap-3">
@@ -269,10 +269,10 @@
         </div>
         <div class="mb-4"><label class="form-label">Address</label><textarea id="patAddress" class="form-input" rows="2"></textarea></div>
         <div class="bg-blue-50 border-2 border-blue-200 rounded-lg p-4 mb-4">
-          <label class="flex items-center gap-2"><input type="checkbox" id="patConsent" required><span class="text-sm">I have obtained patient consent as per DPDP Act 2023</span></label>
+          <label class="flex items-center gap-2"><input type="checkbox" id="patConsent" required><span class="text-sm font-semibold">I have obtained patient consent as per DPDP Act 2023 *</span></label>
         </div>
         <div class="flex gap-3">
-          <button type="submit" class="btn btn-success">Save Patient</button>
+          <button type="submit" class="btn btn-success">✅ Save Patient</button>
           <button type="button" onclick="closeModal('patientModal')" class="btn btn-secondary">Cancel</button>
         </div>
       </form>
@@ -296,7 +296,7 @@
         </div>
         <div class="mb-4"><label class="form-label">Notes</label><textarea id="aptNotes" class="form-input" rows="2"></textarea></div>
         <div class="flex gap-3">
-          <button type="submit" class="btn btn-success">Save Appointment</button>
+          <button type="submit" class="btn btn-success">✅ Save Appointment</button>
           <button type="button" onclick="closeModal('appointmentModal')" class="btn btn-secondary">Cancel</button>
         </div>
       </form>
@@ -315,10 +315,10 @@
         <div class="mb-4"><label class="form-label">Chief Complaint *</label><textarea id="rxComplaint" class="form-input" rows="2" required></textarea><button type="button" onclick="getAIDiagnosis()" class="btn btn-purple btn-sm mt-2">🤖 AI Diagnosis</button></div>
         <div id="aiSuggestion"></div>
         <div class="mb-4"><label class="form-label">Diagnosis *</label><input type="text" id="rxDiagnosis" class="form-input" required></div>
-        <div class="mb-4"><label class="form-label">Medicines</label><div id="medicineList"></div><div class="flex gap-2 mt-2"><button type="button" onclick="addMedicine()" class="btn btn-secondary btn-sm">+ Add</button><button type="button" onclick="getAIPrescription()" class="btn btn-purple btn-sm">🤖 AI Rx</button></div></div>
+        <div class="mb-4"><label class="form-label">Medicines</label><div id="medicineList"></div><div class="flex gap-2 mt-2"><button type="button" onclick="addMedicine()" class="btn btn-secondary btn-sm">+ Add Medicine</button><button type="button" onclick="getAIPrescription()" class="btn btn-purple btn-sm">🤖 AI Prescription</button></div></div>
         <div class="mb-4"><label class="form-label">Advice</label><textarea id="rxAdvice" class="form-input" rows="2"></textarea></div>
         <div class="flex gap-3">
-          <button type="submit" class="btn btn-primary">Save Prescription</button>
+          <button type="submit" class="btn btn-primary">💾 Save Prescription</button>
           <button type="button" onclick="closeModal('prescriptionModal')" class="btn btn-secondary">Cancel</button>
         </div>
       </form>
@@ -348,7 +348,7 @@
         </div>
         <div class="mb-4"><label class="form-label">Status</label><select id="staffStatus" class="form-input"><option>Active</option><option>Inactive</option></select></div>
         <div class="flex gap-3">
-          <button type="submit" class="btn btn-success">Save Staff</button>
+          <button type="submit" class="btn btn-success">✅ Save Staff</button>
           <button type="button" onclick="closeModal('staffModal')" class="btn btn-secondary">Cancel</button>
         </div>
       </form>
@@ -369,8 +369,8 @@
           <div><label class="form-label">Brand *</label><input type="text" id="medicineBrand" class="form-input" required></div>
         </div>
         <div class="grid grid-cols-3 gap-4 mb-4">
-          <div><label class="form-label">Strength *</label><input type="text" id="medicineStrength" class="form-input" required></div>
-          <div><label class="form-label">Category *</label><input type="text" id="medicineCategory" class="form-input" required></div>
+          <div><label class="form-label">Strength *</label><input type="text" id="medicineStrength" class="form-input" placeholder="500mg" required></div>
+          <div><label class="form-label">Category *</label><input type="text" id="medicineCategory" class="form-input" placeholder="Analgesic" required></div>
           <div><label class="form-label">Price *</label><input type="number" id="medicinePrice" class="form-input" required></div>
         </div>
         <div class="grid grid-cols-3 gap-4 mb-4">
@@ -380,12 +380,12 @@
         </div>
         <div class="grid grid-cols-3 gap-4 mb-4">
           <div><label class="form-label">Schedule</label><select id="medicineSchedule" class="form-input"><option value="">None</option><option value="H">Schedule H</option><option value="H1">Schedule H1</option><option value="X">Schedule X</option></select></div>
-          <div><label class="form-label">Batch Number *</label><input type="text" id="medicineBatch" class="form-input" required></div>
+          <div><label class="form-label">Batch Number *</label><input type="text" id="medicineBatch" class="form-input" placeholder="BATCH001" required></div>
           <div><label class="form-label">Expiry Date *</label><input type="date" id="medicineExpiry" class="form-input" required></div>
         </div>
-        <div class="mb-4"><label class="form-label">Manufacturer *</label><input type="text" id="medicineManufacturer" class="form-input" required></div>
+        <div class="mb-4"><label class="form-label">Manufacturer *</label><input type="text" id="medicineManufacturer" class="form-input" placeholder="GSK" required></div>
         <div class="flex gap-3">
-          <button type="submit" class="btn btn-success">Save Medicine</button>
+          <button type="submit" class="btn btn-success">✅ Save Medicine</button>
           <button type="button" onclick="closeModal('medicineModal')" class="btn btn-secondary">Cancel</button>
         </div>
       </form>
@@ -404,8 +404,8 @@
         <canvas id="doctorSignature" class="signature-pad" width="500" height="200"></canvas>
       </div>
       <div class="flex gap-3">
-        <button type="button" onclick="saveSignature()" class="btn btn-success">Save Signature</button>
-        <button type="button" onclick="clearSignature()" class="btn btn-secondary">Clear</button>
+        <button type="button" onclick="saveSignature()" class="btn btn-success">✅ Save Signature</button>
+        <button type="button" onclick="clearSignature()" class="btn btn-secondary">🔄 Clear</button>
         <button type="button" onclick="closeModal('signatureModal')" class="btn btn-secondary">Cancel</button>
       </div>
     </div>
@@ -476,7 +476,6 @@
     function saveDB() { DataManager.save(DB); }
     let currentUser = null, currentScreen = 'login';
 
-    // Audit Log
     function addAuditLog(action, details) {
       DB.audit_logs.unshift({
         id: 'log' + Date.now(),
@@ -490,10 +489,10 @@
       saveDB();
     }
 
-    // Quick Clinic Setup
     function saveQuickClinic(e) {
       e.preventDefault();
       const clinicId = 'c' + Date.now();
+      const clinicEmail = document.getElementById('qClinicEmail').value;
       const clinic = {
         id: clinicId,
         name: document.getElementById('qClinicName').value,
@@ -504,7 +503,7 @@
         state: document.getElementById('qClinicState').value,
         pin: document.getElementById('qClinicPIN').value,
         phone: document.getElementById('qClinicPhone').value,
-        email: document.getElementById('qClinicEmail').value,
+        email: clinicEmail,
         gstin: document.getElementById('qClinicGSTIN').value,
         medical_director: document.getElementById('qClinicDirector').value,
         opening_time: document.getElementById('qClinicOpen').value,
@@ -516,7 +515,7 @@
       };
       const adminUser = {
         id: 'u' + Date.now(),
-        email: clinic.email,
+        email: clinicEmail,
         password: 'clinic123',
         role: 'admin',
         name: clinic.medical_director,
@@ -528,11 +527,10 @@
       addAuditLog('CLINIC_CREATED', `Quick setup: ${clinic.name}`);
       saveDB();
       closeModal('quickSetupModal');
-      alert(`✅ Clinic created!\n\n📧 Email: ${clinic.email}\n🔑 Password: clinic123\n\nClinic admin can complete profile to unlock all features.`);
+      alert(`✅ Clinic Created Successfully!\n\n📧 Email: ${clinicEmail}\n🔑 Password: clinic123\n\nClinic admin can login and complete their profile to unlock all features.`);
       render();
     }
 
-    // Wizard Functions
     function wizardNext() {
       if (currentWizardStep < 7) {
         document.getElementById('wizardStep' + currentWizardStep).classList.remove('active');
@@ -569,7 +567,7 @@
     }
 
     function saveWizardProgress() {
-      alert('💾 Progress saved! Continue anytime.');
+      alert('💾 Progress saved! You can continue later from where you left off.');
       closeModal('completeSetupModal');
     }
 
@@ -627,7 +625,10 @@
         clinic.empanelment = empanelment;
         
         currentUser.first_login = false;
-        addAuditLog('PROFILE_COMPLETED', `${clinic.name} profile 100% complete`);
+        const userIdx = DB.users.findIndex(u => u.id === currentUser.id);
+        DB.users[userIdx].first_login = false;
+        
+        addAuditLog('PROFILE_COMPLETED', `${clinic.name} profile 100% complete - All features unlocked`);
         saveDB();
         closeModal('completeSetupModal');
         alert('🎉 Profile Complete!\n\n✅ All features unlocked:\n• Insurance claims\n• Advanced analytics\n• API access\n• Priority support');
@@ -635,7 +636,6 @@
       }
     }
 
-    // CRUD Functions
     function savePatient(e) {
       e.preventDefault();
       const id = document.getElementById('patientId').value;
@@ -664,7 +664,7 @@
       }
       saveDB();
       closeModal('patientModal');
-      alert('✅ Patient saved!');
+      alert('✅ Patient saved successfully!');
       render();
     }
 
@@ -686,7 +686,7 @@
     }
 
     function deletePatient(id) {
-      if (!confirm('Delete this patient?')) return;
+      if (!confirm('Delete this patient? This action cannot be undone.')) return;
       const patient = DB.patients.find(p => p.id === id);
       DB.patients = DB.patients.filter(p => p.id !== id);
       addAuditLog('PATIENT_DELETED', `Deleted: ${patient.first_name} ${patient.last_name}`);
@@ -714,10 +714,10 @@
       if (id) {
         const idx = DB.appointments.findIndex(a => a.id === id);
         DB.appointments[idx] = appointment;
-        addAuditLog('APPOINTMENT_UPDATED', `Rescheduled: ${appointment.patient_name}`);
+        addAuditLog('APPOINTMENT_UPDATED', `Rescheduled: ${appointment.patient_name} to ${appointment.date} ${appointment.time}`);
       } else {
         DB.appointments.push(appointment);
-        addAuditLog('APPOINTMENT_CREATED', `Scheduled: ${appointment.patient_name} on ${appointment.date}`);
+        addAuditLog('APPOINTMENT_CREATED', `Scheduled: ${appointment.patient_name} on ${appointment.date} ${appointment.time}`);
       }
       saveDB();
       closeModal('appointmentModal');
@@ -730,8 +730,12 @@
       editingId = id;
       document.getElementById('appointmentModalTitle').textContent = '✏️ Reschedule Appointment';
       document.getElementById('appointmentId').value = id;
-      document.getElementById('aptPatient').value = apt.patient_id;
-      document.getElementById('aptDoctor').value = apt.doctor;
+      
+      const patSelect = document.getElementById('aptPatient');
+      const docSelect = document.getElementById('aptDoctor');
+      patSelect.innerHTML = '<option value="">Select Patient</option>' + DB.patients.filter(p => p.clinic_id === currentUser.clinic_id).map(p => `<option value="${p.id}" ${p.id === apt.patient_id ? 'selected' : ''}>${p.first_name} ${p.last_name} (${p.patient_id})</option>`).join('');
+      docSelect.innerHTML = '<option value="">Select Doctor</option>' + DB.staff.filter(s => s.clinic_id === currentUser.clinic_id && s.role === 'Doctor').map(s => `<option value="${s.name}" ${s.name === apt.doctor ? 'selected' : ''}>${s.name}</option>`).join('');
+      
       document.getElementById('aptDate').value = apt.date;
       document.getElementById('aptTime').value = apt.time;
       document.getElementById('aptNotes').value = apt.notes;
@@ -742,7 +746,7 @@
       if (!confirm('Cancel this appointment?')) return;
       const apt = DB.appointments.find(a => a.id === id);
       DB.appointments = DB.appointments.filter(a => a.id !== id);
-      addAuditLog('APPOINTMENT_CANCELLED', `Cancelled: ${apt.patient_name}`);
+      addAuditLog('APPOINTMENT_CANCELLED', `Cancelled: ${apt.patient_name} on ${apt.date}`);
       saveDB();
       alert('✅ Appointment cancelled!');
       render();
@@ -800,10 +804,10 @@
       if (id) {
         const idx = DB.staff.findIndex(s => s.id === id);
         DB.staff[idx] = staff;
-        addAuditLog('STAFF_UPDATED', `Updated: ${staff.name}`);
+        addAuditLog('STAFF_UPDATED', `Updated: ${staff.name} (${staff.role})`);
       } else {
         DB.staff.push(staff);
-        addAuditLog('STAFF_ADDED', `Added: ${staff.name}`);
+        addAuditLog('STAFF_ADDED', `Added: ${staff.name} (${staff.role})`);
       }
       saveDB();
       closeModal('staffModal');
@@ -858,10 +862,10 @@
       if (id) {
         const idx = DB.medicines.findIndex(m => m.id === id);
         DB.medicines[idx] = med;
-        addAuditLog('MEDICINE_UPDATED', `Updated: ${med.name}`);
+        addAuditLog('MEDICINE_UPDATED', `Updated: ${med.name} ${med.strength}`);
       } else {
         DB.medicines.push(med);
-        addAuditLog('MEDICINE_ADDED', `Added: ${med.name}`);
+        addAuditLog('MEDICINE_ADDED', `Added: ${med.name} ${med.strength} (Stock: ${med.stock})`);
       }
       saveDB();
       closeModal('medicineModal');
@@ -899,7 +903,6 @@
       render();
     }
 
-    // Digital Signature
     function openSignatureModal() {
       openModal('signatureModal');
       setTimeout(() => {
@@ -929,27 +932,40 @@
         addAuditLog('SIGNATURE_SAVED', 'Digital signature saved');
         saveDB();
         closeModal('signatureModal');
-        alert('✅ Signature saved!');
+        alert('✅ Signature saved successfully!');
       } else {
-        alert('Please sign before saving');
+        alert('⚠️ Please sign before saving');
       }
     }
 
-    // AI Functions
     function getAIDiagnosis() {
       const complaint = document.getElementById('rxComplaint').value;
-      if (!complaint) { alert('Enter chief complaint first'); return; }
-      const diagnoses = {'fever': 'Viral Fever', 'cough': 'URTI', 'headache': 'Tension Headache', 'stomach': 'Gastritis', 'cold': 'Common Cold'};
-      let suggestion = 'Unable to determine';
-      for (let key in diagnoses) { if (complaint.toLowerCase().includes(key)) { suggestion = diagnoses[key]; break; } }
-      document.getElementById('aiSuggestion').innerHTML = `<div class="bg-purple-50 border-2 border-purple-200 rounded-lg p-4 mb-4"><p class="font-bold text-purple-700 mb-1">🤖 AI Suggestion</p><p class="text-sm">${suggestion}</p><button type="button" onclick="document.getElementById('rxDiagnosis').value='${suggestion}'" class="btn btn-purple btn-xs mt-2">Use This</button></div>`;
+      if (!complaint) { alert('⚠️ Enter chief complaint first'); return; }
+      const diagnoses = {
+        'fever': 'Viral Fever', 'cough': 'Upper Respiratory Tract Infection', 
+        'headache': 'Tension Headache', 'stomach': 'Gastritis', 
+        'cold': 'Common Cold', 'pain': 'Musculoskeletal Pain',
+        'throat': 'Pharyngitis', 'vomit': 'Gastroenteritis'
+      };
+      let suggestion = 'Unable to determine - Please examine patient';
+      for (let key in diagnoses) { 
+        if (complaint.toLowerCase().includes(key)) { 
+          suggestion = diagnoses[key]; 
+          break; 
+        } 
+      }
+      document.getElementById('aiSuggestion').innerHTML = `<div class="bg-purple-50 border-2 border-purple-200 rounded-lg p-4 mb-4"><p class="font-bold text-purple-700 mb-1">🤖 AI Diagnosis Suggestion</p><p class="text-sm text-purple-900">${suggestion}</p><button type="button" onclick="document.getElementById('rxDiagnosis').value='${suggestion}'" class="btn btn-purple btn-xs mt-2">Use This Diagnosis</button></div>`;
     }
 
     function getAIPrescription() {
       const diagnosis = document.getElementById('rxDiagnosis').value;
-      if (!diagnosis) { alert('Enter diagnosis first'); return; }
-      const prescriptions = {'Viral Fever': [{name: 'Paracetamol', dosage: '500mg', frequency: 'TDS', duration: '5 days'}], 'Common Cold': [{name: 'Cetirizine', dosage: '10mg', frequency: 'OD', duration: '5 days'}]};
-      const meds = prescriptions[diagnosis] || [{name: 'Paracetamol', dosage: '500mg', frequency: 'TDS', duration: '3 days'}];
+      if (!diagnosis) { alert('⚠️ Enter diagnosis first'); return; }
+      const prescriptions = {
+        'Viral Fever': [{name: 'Paracetamol 500mg', dosage: '500mg', frequency: 'TDS', duration: '5 days'}],
+        'Common Cold': [{name: 'Cetirizine 10mg', dosage: '10mg', frequency: 'OD', duration: '5 days'}],
+        'Upper Respiratory Tract Infection': [{name: 'Azithromycin 500mg', dosage: '500mg', frequency: 'OD', duration: '3 days'}, {name: 'Cetirizine 10mg', dosage: '10mg', frequency: 'OD', duration: '5 days'}]
+      };
+      const meds = prescriptions[diagnosis] || [{name: 'Paracetamol 500mg', dosage: '500mg', frequency: 'TDS', duration: '3 days'}];
       document.getElementById('medicineList').innerHTML = '';
       medicineCount = 0;
       meds.forEach(med => {
@@ -961,7 +977,7 @@
         inputs[2].value = med.frequency;
         inputs[3].value = med.duration;
       });
-      alert('🤖 AI prescription added!');
+      alert('🤖 AI prescription added successfully!');
     }
 
     function addMedicine() {
@@ -975,6 +991,7 @@
       const patient = DB.patients.find(p => p.id === rx.patient_id);
       const clinic = DB.clinics.find(c => c.id === rx.clinic_id);
       const doc = new jsPDF();
+      
       doc.setFillColor(37, 99, 235);
       doc.rect(0, 0, 210, 40, 'F');
       doc.setTextColor(255, 255, 255);
@@ -982,7 +999,8 @@
       doc.text(clinic.name, 105, 15, { align: 'center' });
       doc.setFontSize(9);
       doc.text(clinic.address, 105, 22, { align: 'center' });
-      doc.text(`GSTIN: ${clinic.gstin}`, 105, 28, { align: 'center' });
+      doc.text(`GSTIN: ${clinic.gstin} | Phone: ${clinic.phone}`, 105, 28, { align: 'center' });
+      
       doc.setTextColor(0, 0, 0);
       doc.setFontSize(14);
       doc.text('PRESCRIPTION', 105, 50, { align: 'center' });
@@ -991,21 +1009,29 @@
       doc.text(`Date: ${rx.date}`, 150, 60);
       doc.text(`Patient: ${rx.patient_name}`, 20, 68);
       doc.text(`Age/Gender: ${patient.age}Y ${patient.gender}`, 20, 74);
-      doc.text(`Diagnosis: ${rx.diagnosis}`, 20, 82);
+      doc.text(`Chief Complaint: ${rx.chief_complaint}`, 20, 80);
+      doc.text(`Diagnosis: ${rx.diagnosis}`, 20, 86);
+      
       const medicineData = rx.medicines.map((m, i) => [i + 1, m.name, m.dosage, m.frequency, m.duration]);
       doc.autoTable({
-        startY: 88,
+        startY: 92,
         head: [['#', 'Medicine', 'Dosage', 'Frequency', 'Duration']],
         body: medicineData,
         theme: 'grid',
         headStyles: { fillColor: [37, 99, 235] }
       });
+      
       const finalY = doc.lastAutoTable.finalY + 10;
       doc.text(`Advice: ${rx.advice}`, 20, finalY);
-      doc.text(`Dr. ${rx.doctor}`, 150, finalY + 15);
+      doc.text(`Dr. ${rx.doctor}`, 150, finalY + 20);
+      
+      if (currentUser.signature) {
+        doc.addImage(currentUser.signature, 'PNG', 140, finalY + 5, 40, 15);
+      }
+      
       doc.save(`Prescription_${rx.prescription_no}.pdf`);
       addAuditLog('PDF_GENERATED', `Prescription PDF: ${rx.prescription_no}`);
-      alert('✅ PDF downloaded!');
+      alert('✅ PDF downloaded successfully!');
     }
 
     function openModal(modalId) {
@@ -1072,9 +1098,9 @@
       const email = document.getElementById('loginEmail').value;
       const password = document.getElementById('loginPassword').value;
       const user = DB.users.find(u => u.email === email && u.password === password);
-      if (!user) { alert('Invalid credentials'); return; }
+      if (!user) { alert('❌ Invalid credentials'); return; }
       currentUser = user;
-      addAuditLog('USER_LOGIN', `${user.name} logged in`);
+      addAuditLog('USER_LOGIN', `${user.name} (${user.role}) logged in`);
       
       if (user.role === 'admin' && user.first_login) {
         currentScreen = user.role + '-dashboard';
@@ -1124,10 +1150,10 @@
       } else if (currentScreen === 'superadmin-users') {
         app.innerHTML = `<div>${nav}<div class="flex">${sidebar}<main class="flex-1 p-6"><h1 class="text-2xl font-bold mb-6">👥 All Users</h1><div class="card"><table><thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Clinic</th><th>Status</th></tr></thead><tbody>${DB.users.map(u => {
           const clinic = DB.clinics.find(c => c.id === u.clinic_id);
-          return `<tr><td class="font-semibold">${u.name}</td><td class="text-xs">${u.email}</td><td><span class="badge badge-info">${u.role}</span></td><td class="text-xs">${clinic ? clinic.name : 'N/A'}</td><td>${u.first_login ? '<span class="badge badge-warning">Pending Setup</span>' : '<span class="badge badge-success">Active</span>'}</td></tr>`;
+          return `<tr><td class="font-semibold">${u.name}</td><td class="text-xs">${u.email}</td><td><span class="badge badge-info">${u.role}</span></td><td class="text-xs">${clinic ? clinic.name : 'N/A'}</td><td>${u.first_login ? '<span class="badge badge-warning">⚠️ Pending Setup</span>' : '<span class="badge badge-success">✅ Active</span>'}</td></tr>`;
         }).join('')}</tbody></table></div></main></div></div>`;
       } else if (currentScreen === 'superadmin-audit') {
-        app.innerHTML = `<div>${nav}<div class="flex">${sidebar}<main class="flex-1 p-6"><h1 class="text-2xl font-bold mb-6">📜 System Audit Logs</h1><div class="card"><div class="space-y-2">${DB.audit_logs.slice(0, 50).map(log => `<div class="audit-log"><div class="flex justify-between"><div><p class="font-semibold text-sm">${log.action}</p><p class="text-xs text-gray-600">${log.details}</p></div><div class="text-right"><p class="text-xs font-semibold">${log.user_name}</p><p class="text-xs text-gray-500">${new Date(log.timestamp).toLocaleString()}</p></div></div></div>`).join('')}</div></div></main></div></div>`;
+        app.innerHTML = `<div>${nav}<div class="flex">${sidebar}<main class="flex-1 p-6"><h1 class="text-2xl font-bold mb-6">📜 System Audit Logs</h1><div class="card"><div class="space-y-2">${DB.audit_logs.length > 0 ? DB.audit_logs.slice(0, 50).map(log => `<div class="audit-log"><div class="flex justify-between"><div><p class="font-semibold text-sm">${log.action}</p><p class="text-xs text-gray-600">${log.details}</p></div><div class="text-right"><p class="text-xs font-semibold">${log.user_name}</p><p class="text-xs text-gray-500">${new Date(log.timestamp).toLocaleString()}</p></div></div></div>`).join('') : '<p class="text-center text-gray-500 py-8">No audit logs yet</p>'}</div></div></main></div></div>`;
       }
     }
 
@@ -1135,13 +1161,13 @@
       const clinic = DB.clinics.find(c => c.id === currentUser.clinic_id);
       const showBanner = clinic && clinic.status === 'BASIC';
       const nav = `<nav class="bg-gray-900 text-white p-4 flex justify-between sticky top-0 z-50"><div class="flex gap-3 items-center"><img src="${clinic.logo_url}" class="h-10"><div><h3 class="font-bold text-sm">${clinic.name}</h3><span class="text-xs ${clinic.status === 'VERIFIED' ? 'bg-green-500' : 'bg-orange-500'} px-2 py-1 rounded">${clinic.status} ${clinic.completion_percentage}%</span></div></div><div class="flex items-center gap-3"><p class="font-semibold text-sm">${currentUser.name}</p><button onclick="logout()" class="px-3 py-2 bg-white bg-opacity-10 rounded-lg text-xs">Logout</button></div></nav>`;
-      const sidebar = `<aside class="w-64 bg-gray-800 text-white p-4 min-h-screen"><nav class="space-y-2"><a onclick="switchScreen('admin-dashboard')" class="nav-link ${currentScreen === 'admin-dashboard' ? 'active' : ''}">📊 Dashboard</a><a onclick="switchScreen('admin-staff')" class="nav-link ${currentScreen === 'admin-staff' ? 'active' : ''}">👥 Staff</a><a onclick="switchScreen('admin-inventory')" class="nav-link ${currentScreen === 'admin-inventory' ? 'active' : ''}">💊 Inventory</a><a onclick="switchScreen('admin-reports')" class="nav-link ${currentScreen === 'admin-reports' ? 'active' : ''}">📊 Reports</a></nav></aside>`;
+      const sidebar = `<aside class="w-64 bg-gray-800 text-white p-4 min-h-screen"><nav class="space-y-2"><a onclick="switchScreen('admin-dashboard')" class="nav-link ${currentScreen === 'admin-dashboard' ? 'active' : ''}">📊 Dashboard</a><a onclick="switchScreen('admin-staff')" class="nav-link ${currentScreen === 'admin-staff' ? 'active' : ''}">👥 Staff</a><a onclick="switchScreen('admin-inventory')" class="nav-link ${currentScreen === 'admin-inventory' ? 'active' : ''}">💊 Inventory</a><a onclick="switchScreen('admin-reports')" class="nav-link ${currentScreen === 'admin-reports' ? 'active' : ''}">📊 Reports</a><a onclick="switchScreen('admin-audit')" class="nav-link ${currentScreen === 'admin-audit' ? 'active' : ''}">📜 Audit Logs</a></nav></aside>`;
 
       if (currentScreen === 'admin-dashboard') {
         const clinicStaff = DB.staff.filter(s => s.clinic_id === currentUser.clinic_id);
         const clinicMeds = DB.medicines.filter(m => m.clinic_id === currentUser.clinic_id);
         const clinicPatients = DB.patients.filter(p => p.clinic_id === currentUser.clinic_id);
-        app.innerHTML = `<div>${nav}<div class="flex">${sidebar}<main class="flex-1 p-6">${showBanner ? `<div class="completion-banner mb-6"><div class="flex justify-between items-center"><div><p class="font-bold text-orange-800 mb-1">⚠️ Complete Your Profile (${clinic.completion_percentage}%)</p><p class="text-sm text-orange-700">Unlock insurance claims, advanced analytics, API access & more</p></div><button onclick="openModal('completeSetupModal')" class="btn btn-warning">Complete Now →</button></div><div class="progress-bar mt-3"><div class="progress-fill" style="width: ${clinic.completion_percentage}%"></div></div></div>` : ''}<h1 class="text-2xl font-bold mb-6">🏥 Admin Dashboard</h1><div class="grid grid-cols-4 gap-4 mb-6"><div class="stat-card"><p class="text-gray-600 text-sm mb-1">Staff</p><p class="text-3xl font-bold text-blue-600">${clinicStaff.length}</p></div><div class="stat-card"><p class="text-gray-600 text-sm mb-1">Medicines</p><p class="text-3xl font-bold text-green-600">${clinicMeds.length}</p></div><div class="stat-card"><p class="text-gray-600 text-sm mb-1">Patients</p><p class="text-3xl font-bold text-purple-600">${clinicPatients.length}</p></div><div class="stat-card ${clinic.status === 'BASIC' ? 'feature-lock' : ''}"><p class="text-gray-600 text-sm mb-1">Revenue</p><p class="text-3xl font-bold text-orange-600">₹0</p></div></div></main></div></div>`;
+        app.innerHTML = `<div>${nav}<div class="flex">${sidebar}<main class="flex-1 p-6">${showBanner ? `<div class="completion-banner mb-6"><div class="flex justify-between items-center"><div><p class="font-bold text-orange-800 mb-1">⚠️ Complete Your Profile (${clinic.completion_percentage}%)</p><p class="text-sm text-orange-700">Unlock insurance claims, advanced analytics, API access & more</p></div><button onclick="openModal('completeSetupModal')" class="btn btn-warning">🏆 Complete Now →</button></div><div class="progress-bar mt-3"><div class="progress-fill" style="width: ${clinic.completion_percentage}%"></div></div></div>` : ''}<h1 class="text-2xl font-bold mb-6">🏥 Admin Dashboard</h1><div class="grid grid-cols-4 gap-4 mb-6"><div class="stat-card"><p class="text-gray-600 text-sm mb-1">Staff</p><p class="text-3xl font-bold text-blue-600">${clinicStaff.length}</p></div><div class="stat-card"><p class="text-gray-600 text-sm mb-1">Medicines</p><p class="text-3xl font-bold text-green-600">${clinicMeds.length}</p></div><div class="stat-card"><p class="text-gray-600 text-sm mb-1">Patients</p><p class="text-3xl font-bold text-purple-600">${clinicPatients.length}</p></div><div class="stat-card ${clinic.status === 'BASIC' ? 'feature-lock' : ''}"><p class="text-gray-600 text-sm mb-1">Revenue</p><p class="text-3xl font-bold text-orange-600">₹0</p></div></div></main></div></div>`;
       } else if (currentScreen === 'admin-staff') {
         const clinicStaff = DB.staff.filter(s => s.clinic_id === currentUser.clinic_id);
         app.innerHTML = `<div>${nav}<div class="flex">${sidebar}<main class="flex-1 p-6"><h1 class="text-2xl font-bold mb-6">👥 Staff Management</h1><div class="mb-4"><button onclick="openModal('staffModal')" class="btn btn-success">+ Add Staff</button></div><div class="card"><table><thead><tr><th>Name</th><th>Role</th><th>MCI Reg</th><th>Phone</th><th>Salary</th><th>Status</th><th>Actions</th></tr></thead><tbody>${clinicStaff.map(s => `<tr><td class="font-semibold">${s.name}</td><td>${s.role}</td><td class="text-xs">${s.mci_registration || '-'}</td><td class="text-xs">${s.phone}</td><td>₹${s.salary.toLocaleString()}</td><td><span class="badge badge-success">${s.status}</span></td><td><button onclick="editStaff('${s.id}')" class="btn btn-warning btn-xs">✏️</button> <button onclick="deleteStaff('${s.id}')" class="btn btn-danger btn-xs">🗑️</button></td></tr>`).join('')}</tbody></table></div></main></div></div>`;
@@ -1151,6 +1177,12 @@
       } else if (currentScreen === 'admin-reports') {
         const clinic = DB.clinics.find(c => c.id === currentUser.clinic_id);
         app.innerHTML = `<div>${nav}<div class="flex">${sidebar}<main class="flex-1 p-6"><h1 class="text-2xl font-bold mb-6">📊 Reports & Analytics</h1><div class="grid grid-cols-3 gap-4 mb-6"><div class="stat-card ${clinic.status === 'BASIC' ? 'feature-lock' : ''}"><p class="text-gray-600 text-sm mb-1">Revenue</p><p class="text-3xl font-bold text-green-600">₹0</p></div><div class="stat-card ${clinic.status === 'BASIC' ? 'feature-lock' : ''}"><p class="text-gray-600 text-sm mb-1">Expenses</p><p class="text-3xl font-bold text-red-600">₹0</p></div><div class="stat-card ${clinic.status === 'BASIC' ? 'feature-lock' : ''}"><p class="text-gray-600 text-sm mb-1">Profit</p><p class="text-3xl font-bold text-blue-600">₹0</p></div></div></main></div></div>`;
+      } else if (currentScreen === 'admin-audit') {
+        const clinicLogs = DB.audit_logs.filter(log => {
+          const user = DB.users.find(u => u.id === log.user_id);
+          return user && user.clinic_id === currentUser.clinic_id;
+        });
+        app.innerHTML = `<div>${nav}<div class="flex">${sidebar}<main class="flex-1 p-6"><h1 class="text-2xl font-bold mb-6">📜 Clinic Audit Logs</h1><div class="card"><div class="space-y-2">${clinicLogs.length > 0 ? clinicLogs.slice(0, 50).map(log => `<div class="audit-log"><div class="flex justify-between"><div><p class="font-semibold text-sm">${log.action}</p><p class="text-xs text-gray-600">${log.details}</p></div><div class="text-right"><p class="text-xs font-semibold">${log.user_name}</p><p class="text-xs text-gray-500">${new Date(log.timestamp).toLocaleString()}</p></div></div></div>`).join('') : '<p class="text-center text-gray-500 py-8">No audit logs yet</p>'}</div></div></main></div></div>`;
       }
     }
 
@@ -1163,16 +1195,16 @@
         const clinicPatients = DB.patients.filter(p => p.clinic_id === currentUser.clinic_id);
         const clinicRx = DB.prescriptions.filter(r => r.clinic_id === currentUser.clinic_id);
         const clinicApt = DB.appointments.filter(a => a.clinic_id === currentUser.clinic_id);
-        app.innerHTML = `<div>${nav}<div class="flex">${sidebar}<main class="flex-1 p-6"><h1 class="text-2xl font-bold mb-6">👨‍⚕️ Doctor Dashboard</h1><div class="grid grid-cols-4 gap-4 mb-6"><div class="stat-card"><p class="text-gray-600 text-sm mb-1">Patients</p><p class="text-3xl font-bold text-green-600">${clinicPatients.length}</p></div><div class="stat-card"><p class="text-gray-600 text-sm mb-1">Prescriptions</p><p class="text-3xl font-bold text-purple-600">${clinicRx.length}</p></div><div class="stat-card"><p class="text-gray-600 text-sm mb-1">Appointments</p><p class="text-3xl font-bold text-blue-600">${clinicApt.length}</p></div><div class="stat-card"><p class="text-gray-600 text-sm mb-1">Today</p><p class="text-3xl font-bold text-orange-600">0</p></div></div><div class="mb-4"><button onclick="openModal('prescriptionModal')" class="btn btn-primary">📋 Create Prescription</button></div><div class="card"><h3 class="font-bold mb-3">📋 Recent Prescriptions</h3><table><thead><tr><th>Rx No</th><th>Date</th><th>Patient</th><th>Diagnosis</th><th>Actions</th></tr></thead><tbody>${clinicRx.slice(-5).reverse().map(rx => `<tr><td class="font-semibold text-xs">${rx.prescription_no}</td><td class="text-xs">${rx.date}</td><td>${rx.patient_name}</td><td>${rx.diagnosis}</td><td><button onclick="generatePrescriptionPDF('${rx.id}')" class="btn btn-success btn-xs">📄 PDF</button></td></tr>`).join('')}</tbody></table></div></main></div></div>`;
+        app.innerHTML = `<div>${nav}<div class="flex">${sidebar}<main class="flex-1 p-6"><h1 class="text-2xl font-bold mb-6">👨‍⚕️ Doctor Dashboard</h1><div class="grid grid-cols-4 gap-4 mb-6"><div class="stat-card"><p class="text-gray-600 text-sm mb-1">Patients</p><p class="text-3xl font-bold text-green-600">${clinicPatients.length}</p></div><div class="stat-card"><p class="text-gray-600 text-sm mb-1">Prescriptions</p><p class="text-3xl font-bold text-purple-600">${clinicRx.length}</p></div><div class="stat-card"><p class="text-gray-600 text-sm mb-1">Appointments</p><p class="text-3xl font-bold text-blue-600">${clinicApt.length}</p></div><div class="stat-card"><p class="text-gray-600 text-sm mb-1">Today</p><p class="text-3xl font-bold text-orange-600">0</p></div></div><div class="mb-4"><button onclick="openModal('prescriptionModal')" class="btn btn-primary">📋 Create Prescription</button></div><div class="card"><h3 class="font-bold mb-3">📋 Recent Prescriptions</h3><table><thead><tr><th>Rx No</th><th>Date</th><th>Patient</th><th>Diagnosis</th><th>Actions</th></tr></thead><tbody>${clinicRx.length > 0 ? clinicRx.slice(-5).reverse().map(rx => `<tr><td class="font-semibold text-xs">${rx.prescription_no}</td><td class="text-xs">${rx.date}</td><td>${rx.patient_name}</td><td>${rx.diagnosis}</td><td><button onclick="generatePrescriptionPDF('${rx.id}')" class="btn btn-success btn-xs">📄 PDF</button></td></tr>`).join('') : '<tr><td colspan="5" class="text-center text-gray-500 py-4">No prescriptions yet</td></tr>'}</tbody></table></div></main></div></div>`;
       } else if (currentScreen === 'doctor-patients') {
         const clinicPatients = DB.patients.filter(p => p.clinic_id === currentUser.clinic_id);
         app.innerHTML = `<div>${nav}<div class="flex">${sidebar}<main class="flex-1 p-6"><h1 class="text-2xl font-bold mb-6">👥 All Patients</h1><div class="card"><table><thead><tr><th>ID</th><th>Name</th><th>Age/Gender</th><th>Blood</th><th>Phone</th><th>Consent</th><th>Actions</th></tr></thead><tbody>${clinicPatients.map(p => `<tr><td class="font-semibold">${p.patient_id}</td><td>${p.first_name} ${p.last_name}</td><td>${p.age}Y ${p.gender}</td><td>${p.blood_group}</td><td class="text-xs">${p.phone}</td><td>${p.consent_given ? '<span class="badge badge-success">✅</span>' : '<span class="badge badge-danger">❌</span>'}</td><td><button onclick="editPatient('${p.id}')" class="btn btn-warning btn-xs">✏️</button> <button onclick="deletePatient('${p.id}')" class="btn btn-danger btn-xs">🗑️</button></td></tr>`).join('')}</tbody></table></div></main></div></div>`;
       } else if (currentScreen === 'doctor-prescriptions') {
         const clinicRx = DB.prescriptions.filter(r => r.clinic_id === currentUser.clinic_id);
-        app.innerHTML = `<div>${nav}<div class="flex">${sidebar}<main class="flex-1 p-6"><h1 class="text-2xl font-bold mb-6">📋 All Prescriptions</h1><div class="card"><table><thead><tr><th>Rx No</th><th>Date</th><th>Patient</th><th>Diagnosis</th><th>Medicines</th><th>Actions</th></tr></thead><tbody>${clinicRx.map(rx => `<tr><td class="font-semibold text-xs">${rx.prescription_no}</td><td class="text-xs">${rx.date}</td><td>${rx.patient_name}</td><td>${rx.diagnosis}</td><td class="text-xs">${rx.medicines.length} items</td><td><button onclick="generatePrescriptionPDF('${rx.id}')" class="btn btn-success btn-xs">📄 PDF</button></td></tr>`).join('')}</tbody></table></div></main></div></div>`;
+        app.innerHTML = `<div>${nav}<div class="flex">${sidebar}<main class="flex-1 p-6"><h1 class="text-2xl font-bold mb-6">📋 All Prescriptions</h1><div class="mb-4"><button onclick="openModal('prescriptionModal')" class="btn btn-primary">📋 Create Prescription</button></div><div class="card"><table><thead><tr><th>Rx No</th><th>Date</th><th>Patient</th><th>Diagnosis</th><th>Medicines</th><th>Actions</th></tr></thead><tbody>${clinicRx.length > 0 ? clinicRx.map(rx => `<tr><td class="font-semibold text-xs">${rx.prescription_no}</td><td class="text-xs">${rx.date}</td><td>${rx.patient_name}</td><td>${rx.diagnosis}</td><td class="text-xs">${rx.medicines.length} items</td><td><button onclick="generatePrescriptionPDF('${rx.id}')" class="btn btn-success btn-xs">📄 PDF</button></td></tr>`).join('') : '<tr><td colspan="6" class="text-center text-gray-500 py-4">No prescriptions yet</td></tr>'}</tbody></table></div></main></div></div>`;
       } else if (currentScreen === 'doctor-appointments') {
         const clinicApt = DB.appointments.filter(a => a.clinic_id === currentUser.clinic_id);
-        app.innerHTML = `<div>${nav}<div class="flex">${sidebar}<main class="flex-1 p-6"><h1 class="text-2xl font-bold mb-6">📅 Appointments</h1><div class="card"><table><thead><tr><th>Date</th><th>Time</th><th>Patient</th><th>Doctor</th><th>Status</th><th>Notes</th></tr></thead><tbody>${clinicApt.map(a => `<tr><td class="text-xs">${a.date}</td><td class="text-xs">${a.time}</td><td>${a.patient_name}</td><td class="text-xs">${a.doctor}</td><td><span class="badge badge-info">${a.status}</span></td><td class="text-xs">${a.notes}</td></tr>`).join('')}</tbody></table></div></main></div></div>`;
+        app.innerHTML = `<div>${nav}<div class="flex">${sidebar}<main class="flex-1 p-6"><h1 class="text-2xl font-bold mb-6">📅 Appointments</h1><div class="card"><table><thead><tr><th>Date</th><th>Time</th><th>Patient</th><th>Doctor</th><th>Status</th><th>Notes</th></tr></thead><tbody>${clinicApt.length > 0 ? clinicApt.map(a => `<tr><td class="text-xs">${a.date}</td><td class="text-xs">${a.time}</td><td>${a.patient_name}</td><td class="text-xs">${a.doctor}</td><td><span class="badge badge-info">${a.status}</span></td><td class="text-xs">${a.notes}</td></tr>`).join('') : '<tr><td colspan="6" class="text-center text-gray-500 py-4">No appointments yet</td></tr>'}</tbody></table></div></main></div></div>`;
       }
     }
 
