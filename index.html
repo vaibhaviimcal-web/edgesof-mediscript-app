@@ -9,6 +9,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.7/dist/signature_pad.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
   <style>
     * { font-family: 'Inter', sans-serif; margin: 0; padding: 0; box-sizing: border-box; }
@@ -60,6 +61,8 @@
     th { background: #f9fafb; font-weight: 600; }
     .signature-pad { border: 2px solid #e5e7eb; border-radius: 10px; cursor: crosshair; }
     .audit-log { background: #f9fafb; padding: 12px; border-left: 4px solid #2563eb; border-radius: 8px; margin-bottom: 8px; font-size: 12px; }
+    .email-sending { position: fixed; top: 20px; right: 20px; background: #2563eb; color: white; padding: 16px 24px; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.2); z-index: 10000; animation: slideIn 0.3s; }
+    @keyframes slideIn { from { transform: translateX(400px); } to { transform: translateX(0); } }
   </style>
 </head>
 <body>
@@ -415,6 +418,9 @@
     const { jsPDF } = window.jspdf;
     let currentWizardStep = 1, signaturePad = null, medicineCount = 0, editingId = null;
     
+    // Initialize EmailJS
+    emailjs.init('r4HNlBPoM81dhbZla');
+    
     const DataManager = {
       STORAGE_KEY: 'edgesof_mediscript_complete',
       save(data) {
@@ -489,7 +495,45 @@
       saveDB();
     }
 
-    function saveQuickClinic(e) {
+    async function sendClinicInviteEmail(clinicData) {
+      try {
+        showEmailSending();
+        
+        const templateParams = {
+          email: clinicData.email,
+          clinicName: clinicData.name,
+          directorName: clinicData.medical_director,
+          password: 'clinic123'
+        };
+        
+        await emailjs.send('service_8ws64pc', 'template_i8zgica', templateParams);
+        
+        hideEmailSending();
+        console.log('✅ Email sent successfully to:', clinicData.email);
+        return true;
+      } catch (error) {
+        hideEmailSending();
+        console.error('❌ Email sending failed:', error);
+        return false;
+      }
+    }
+
+    function showEmailSending() {
+      const div = document.createElement('div');
+      div.id = 'emailSendingNotif';
+      div.className = 'email-sending';
+      div.innerHTML = '📧 Sending invitation email...';
+      document.body.appendChild(div);
+    }
+
+    function hideEmailSending() {
+      const notif = document.getElementById('emailSendingNotif');
+      if (notif) {
+        setTimeout(() => notif.remove(), 2000);
+      }
+    }
+
+    async function saveQuickClinic(e) {
       e.preventDefault();
       const clinicId = 'c' + Date.now();
       const clinicEmail = document.getElementById('qClinicEmail').value;
@@ -527,7 +571,15 @@
       addAuditLog('CLINIC_CREATED', `Quick setup: ${clinic.name}`);
       saveDB();
       closeModal('quickSetupModal');
-      alert(`✅ Clinic Created Successfully!\n\n📧 Email: ${clinicEmail}\n🔑 Password: clinic123\n\nClinic admin can login and complete their profile to unlock all features.`);
+      
+      const emailSent = await sendClinicInviteEmail(clinic);
+      
+      if (emailSent) {
+        alert(`✅ Clinic Created Successfully!\n\n📧 Invitation email sent to: ${clinicEmail}\n🔑 Password: clinic123\n\nThe clinic admin will receive login credentials via email!`);
+      } else {
+        alert(`✅ Clinic Created Successfully!\n\n📧 Email: ${clinicEmail}\n🔑 Password: clinic123\n\n⚠️ Email sending failed. Please share credentials manually.`);
+      }
+      
       render();
     }
 
@@ -1125,7 +1177,7 @@
       const app = document.getElementById('app');
       
       if (currentScreen === 'login') {
-        app.innerHTML = `<div class="min-h-screen flex items-center justify-center p-6" style="background: linear-gradient(135deg, #2563eb 0%, #10b981 100%);"><div class="w-full max-w-4xl"><div class="text-center mb-8"><img src="https://nyc3.digitaloceanspaces.com/bhindi-drive/files/cab453ed-7d3e-4dfa-9012-038dbc50c1c5/2025-12-07T15-33-38-867Z-c50befdf-chat-image-1765121618851-0.jpg" class="h-16 mx-auto mb-4"><h1 class="text-3xl font-bold text-white mb-2">EdgesOf MediScript</h1><div class="inline-block bg-white bg-opacity-20 text-white px-4 py-2 rounded-full text-sm font-semibold">🇮🇳 Complete Enterprise System | India Compliant</div></div><div class="grid grid-cols-1 lg:grid-cols-2 gap-6"><div class="card"><h2 class="text-xl font-bold mb-4">🔐 Login</h2><div class="mb-3"><label class="form-label">Email</label><input type="email" id="loginEmail" class="form-input"></div><div class="mb-3"><label class="form-label">Password</label><input type="password" id="loginPassword" class="form-input"></div><button onclick="login()" class="btn btn-primary w-full">Login</button></div><div class="card"><h2 class="text-xl font-bold mb-4">⚡ Quick Login</h2><button onclick="quickLogin('system@edgesof.com', 'admin123')" class="btn btn-danger w-full mb-2">👑 Super Admin</button><button onclick="quickLogin('admin@clinic.com', 'admin123')" class="btn btn-warning w-full mb-2">🏥 Clinic Admin</button><button onclick="quickLogin('doctor@clinic.com', 'doctor123')" class="btn btn-primary w-full mb-2">👨‍⚕️ Doctor</button><button onclick="quickLogin('reception@clinic.com', 'reception123')" class="btn btn-success w-full">📋 Receptionist</button></div></div></div></div>`;
+        app.innerHTML = `<div class="min-h-screen flex items-center justify-center p-6" style="background: linear-gradient(135deg, #2563eb 0%, #10b981 100%);"><div class="w-full max-w-4xl"><div class="text-center mb-8"><img src="https://nyc3.digitaloceanspaces.com/bhindi-drive/files/cab453ed-7d3e-4dfa-9012-038dbc50c1c5/2025-12-07T15-33-38-867Z-c50befdf-chat-image-1765121618851-0.jpg" class="h-16 mx-auto mb-4"><h1 class="text-3xl font-bold text-white mb-2">EdgesOf MediScript</h1><div class="inline-block bg-white bg-opacity-20 text-white px-4 py-2 rounded-full text-sm font-semibold">🇮🇳 Complete Enterprise System | India Compliant | 📧 Real Emails Enabled</div></div><div class="grid grid-cols-1 lg:grid-cols-2 gap-6"><div class="card"><h2 class="text-xl font-bold mb-4">🔐 Login</h2><div class="mb-3"><label class="form-label">Email</label><input type="email" id="loginEmail" class="form-input"></div><div class="mb-3"><label class="form-label">Password</label><input type="password" id="loginPassword" class="form-input"></div><button onclick="login()" class="btn btn-primary w-full">Login</button></div><div class="card"><h2 class="text-xl font-bold mb-4">⚡ Quick Login</h2><button onclick="quickLogin('system@edgesof.com', 'admin123')" class="btn btn-danger w-full mb-2">👑 Super Admin</button><button onclick="quickLogin('admin@clinic.com', 'admin123')" class="btn btn-warning w-full mb-2">🏥 Clinic Admin</button><button onclick="quickLogin('doctor@clinic.com', 'doctor123')" class="btn btn-primary w-full mb-2">👨‍⚕️ Doctor</button><button onclick="quickLogin('reception@clinic.com', 'reception123')" class="btn btn-success w-full">📋 Receptionist</button></div></div></div></div>`;
       } else if (currentScreen.startsWith('superadmin-')) {
         renderSuperAdmin(app);
       } else if (currentScreen.startsWith('admin-')) {
@@ -1228,8 +1280,9 @@
       }
     }
 
-    console.log('🚀 COMPLETE ENTERPRISE SYSTEM LOADED!');
-    addAuditLog('SYSTEM_START', 'System initialized');
+    console.log('🚀 COMPLETE ENTERPRISE SYSTEM WITH REAL EMAILS LOADED!');
+    console.log('📧 EmailJS Integration: ACTIVE');
+    addAuditLog('SYSTEM_START', 'System initialized with EmailJS email service');
     render();
   </script>
 </body>
